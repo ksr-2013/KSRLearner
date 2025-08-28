@@ -14,6 +14,10 @@ export default function ContactPage() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  // Provide either your Formspree form ID (e.g., "abcdwxyz") or the full endpoint URL
+  const FORMSPREE_FORM_ID = process.env.NEXT_PUBLIC_FORMSPREE_FORM_ID || 'https://formspree.io/f/mrbabgke'
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -26,18 +30,45 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    setIsSubmitting(false)
-    setIsSubmitted(true)
-    
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setIsSubmitted(false)
+    setErrorMessage(null)
+
+    try {
+      if (!FORMSPREE_FORM_ID) {
+        throw new Error('Formspree form ID is not configured.')
+      }
+
+      const endpoint = FORMSPREE_FORM_ID.startsWith('http')
+        ? FORMSPREE_FORM_ID
+        : `https://formspree.io/f/${FORMSPREE_FORM_ID}`
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message
+        })
+      })
+
+      const data = await response.json().catch(() => ({}))
+
+      if (!response.ok) {
+        const apiError = (data && (data.error || data.message)) || 'Something went wrong. Please try again.'
+        throw new Error(apiError)
+      }
+
+      setIsSubmitted(true)
       setFormData({ name: '', email: '', subject: '', message: '' })
-    }, 3000)
+    } catch (err: any) {
+      setErrorMessage(err?.message || 'Failed to send your message. Please try again later.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const contactInfo = [
@@ -240,6 +271,12 @@ export default function ContactPage() {
                   ></textarea>
                 </div>
                 
+                {errorMessage && (
+                  <div className="text-red-400 text-sm">
+                    {errorMessage}
+                  </div>
+                )}
+
                 <button
                   type="submit"
                   disabled={isSubmitting}
