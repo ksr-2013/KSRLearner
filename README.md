@@ -24,6 +24,27 @@ A modern, interactive learning hub designed to make technology simple and engagi
   - Score calculation and performance analysis
   - Question review after completion
 
+### ⌨️ Typing Practice System
+- **4 Practice Modes**:
+  - **Beginner** - Home row keys, basic words, simple sentences
+  - **Intermediate** - Common words, short paragraphs, punctuation
+  - **Advanced** - Long texts, technical terms, speed tests
+  - **Expert** - Advanced texts, competition mode, custom content
+
+- **Typing Features**:
+  - Real-time WPM (Words Per Minute) calculation
+  - Accuracy tracking with error highlighting
+  - Progress visualization and completion tracking
+  - Pause/resume functionality
+  - Multiple practice texts per level
+
+- **Speed Tests**:
+  - Configurable time limits (30s, 1min, 2min, 5min)
+  - Random text selection for variety
+  - Performance rating system (Novice to Expert)
+  - Quiz history and progress tracking
+  - Local storage for result persistence
+
 ### 🧩 Puzzles for Kids
 - **10 Interactive Puzzles** covering:
   - Pattern recognition
@@ -132,6 +153,10 @@ ksr-learner/
 │   │   ├── pro/           # Pro level
 │   │   ├── legend/        # Legend level
 │   │   └── ultra-legend/  # Ultra Legend level
+│   ├── typing/            # Typing practice system
+│   │   ├── page.tsx       # Typing hub overview
+│   │   ├── practice/      # Typing practice modes
+│   │   └── quiz/          # Speed tests and assessments
 │   ├── puzzles/           # Puzzles page
 │   ├── about/             # About us page
 │   └── contact/           # Contact page
@@ -244,3 +269,5 @@ For support or questions:
 **Built with ❤️ for the KSR Learner community**
 
 *Empowering learners to explore, learn, and grow with technology.*
+#   K S R L e a r n e r  
+ 
