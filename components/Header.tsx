@@ -43,6 +43,9 @@ export default function Header() {
             <Link href="/puzzles" className="text-slate-300 hover:text-blue-400 font-medium transition-colors">
               Puzzles
             </Link>
+            <Link href="/typing" className="text-slate-300 hover:text-blue-400 font-medium transition-colors">
+              Typing
+            </Link>
             <Link href="/about" className="text-slate-300 hover:text-blue-400 font-medium transition-colors">
               About
             </Link>
@@ -93,8 +96,15 @@ export default function Header() {
                 Puzzles
               </Link>
               <Link
-                href="/about"
+                href="/typing"
                 className="block px-3 py-2 text-slate-300 hover:text-blue-400 hover:bg-slate-700 rounded-md font-medium transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Typing
+              </Link>
+              <Link
+                href="/about"
+                className="block px-3 py-2 text-slate-300 hover:text-blue-400 hover:bg-slate-400 hover:bg-slate-700 rounded-md font-medium transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 About

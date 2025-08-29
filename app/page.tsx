@@ -1,7 +1,7 @@
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import Link from 'next/link'
-import { BookOpen, Target, Trophy, Brain, Play, Users, Award, Clock, Star, ArrowRight } from 'lucide-react'
+import { BookOpen, Target, Trophy, Brain, Play, Users, Award, Clock, Star, ArrowRight, Keyboard } from 'lucide-react'
 
 export default function Home() {
   const features = [
@@ -171,6 +171,62 @@ export default function Home() {
                 <div className="text-slate-400 font-medium">{stat.label}</div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Typing Section */}
+      <section className="py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+              Master Your Typing Skills
+            </h2>
+            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
+              Improve your typing speed and accuracy with our comprehensive practice platform. 
+              From beginner basics to expert challenges, track your progress and see real improvements.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            <div className="card text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mb-6 mx-auto">
+                <Keyboard className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-3">Practice Mode</h3>
+              <p className="text-slate-300 mb-4">Learn at your own pace with guided typing exercises</p>
+              <Link href="/typing/practice" className="btn-primary w-full">
+                Start Practicing
+              </Link>
+            </div>
+            
+            <div className="card text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center mb-6 mx-auto">
+                <Target className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-3">Speed Tests</h3>
+              <p className="text-slate-300 mb-4">Challenge yourself with timed typing assessments</p>
+              <Link href="/typing/quiz" className="btn-primary w-full">
+                Take Test
+              </Link>
+            </div>
+            
+            <div className="card text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center mb-6 mx-auto">
+                <Trophy className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-3">Progress Tracking</h3>
+              <p className="text-slate-300 mb-4">Monitor your improvement with detailed analytics</p>
+              <Link href="/typing" className="btn-primary w-full">
+                View Progress
+              </Link>
+            </div>
+          </div>
+          
+          <div className="text-center">
+            <Link href="/typing" className="btn-outline">
+              Explore All Typing Features
+            </Link>
           </div>
         </div>
       </section>
