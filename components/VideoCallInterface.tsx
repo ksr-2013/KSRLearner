@@ -11,13 +11,13 @@ import {
   MessageCircle, 
   Users, 
   Settings, 
-  Share,
-  MoreVertical,
+  Share, 
+  MoreVertical, 
   Send,
   Maximize,
   Minimize,
   ScreenShare,
-  Record
+  Square
 } from 'lucide-react'
 
 interface VideoCallInterfaceProps {
@@ -271,7 +271,7 @@ export default function VideoCallInterface({
               }`}
               title={isRecording ? 'Stop recording' : 'Start recording'}
             >
-              <Record className="w-5 h-5" />
+                              <Square className="w-5 h-5" />
             </button>
             
             <button className="p-3 rounded-full bg-slate-700 hover:bg-slate-600 text-slate-300 transition-colors">
