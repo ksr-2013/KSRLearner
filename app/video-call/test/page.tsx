@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Header from '../../../components/Header'
 import Footer from '../../../components/Footer'
-import JitsiMeetIntegration from '../../../components/JitsiMeetIntegration'
+import GoogleMeetIntegration from '../../../components/GoogleMeetIntegration'
 
 export default function TestVideoCall() {
   const [roomId, setRoomId] = useState('ksr-test-room')
@@ -54,12 +54,12 @@ export default function TestVideoCall() {
           </div>
 
           {/* Jitsi Meet Integration */}
-          <JitsiMeetIntegration 
-            roomName={roomId}
-            displayName={displayName}
-            isHost={true}
-            onCallEnd={() => console.log('Call ended')}
-          />
+                           <GoogleMeetIntegration 
+                   roomName={roomId}
+                   displayName={displayName}
+                   isHost={true}
+                   onCallEnd={() => console.log('Call ended')}
+                 />
 
           {/* Instructions */}
           <div className="mt-8 bg-slate-800 rounded-xl p-6 border border-slate-700">
@@ -70,7 +70,7 @@ export default function TestVideoCall() {
               <li>Wait for Jitsi Meet to load</li>
               <li>Allow camera and microphone access</li>
               <li>Test video call functionality</li>
-              <li>Open another browser tab and go to <code className="bg-slate-700 px-2 py-1 rounded">https://meet.jit.si/{roomId}</code> to test joining</li>
+                                 <li>Open another browser tab and go to <code className="bg-slate-700 px-2 py-1 rounded">https://meet.google.com/{roomId}</code> to test joining</li>
             </ol>
           </div>
         </div>

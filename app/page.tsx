@@ -239,8 +239,8 @@ export default function Home() {
               Connect with Students Live
             </h2>
             <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-              Provide real-time learning support through our integrated video calling system. 
-              Connect with students, answer questions, and guide them through complex topics.
+              Provide real-time learning support through our integrated Google Meet video calling system. 
+              Connect with students, answer questions, and guide them through complex topics with superior audio quality.
             </p>
           </div>
           

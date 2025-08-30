@@ -10,6 +10,15 @@ A modern, interactive learning hub designed to make technology simple and engagi
 - **Video Showcase**: Curated collection of educational videos from your YouTube channel
 - **Call-to-Action**: Encourages users to start their learning journey
 
+### 🎥 Video Calling System
+- **Google Meet Integration**: Professional video conferencing with superior audio quality
+- **Echo Cancellation**: Built-in technology prevents audio feedback and echo
+- **Noise Suppression**: Automatic background noise filtering
+- **HD Audio**: High-quality audio for crystal clear communication
+- **Multi-Participant Support**: Host group sessions and one-on-one tutoring
+- **Meeting Scheduling**: Direct integration with Google Calendar
+- **Cross-Platform**: Works on all devices and browsers
+
 ### 📚 Quiz System
 - **4 Difficulty Levels**:
   - **Beginner** (10 questions) - Computer basics, hardware introduction, simple software
@@ -269,8 +278,3 @@ For support or questions:
 **Built with ❤️ for the KSR Learner community**
 
 *Empowering learners to explore, learn, and grow with technology.*
-#   K S R L e a r n e r  
- #   K S R L e a r n e r  
- #   n e x t j s - t u t o r i a l  
- #   n e x t j s - t u t o r i a l  
- 
