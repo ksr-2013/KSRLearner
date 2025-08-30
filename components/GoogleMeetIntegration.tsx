@@ -21,6 +21,7 @@ export default function GoogleMeetIntegration({
   const [soundsEnabled, setSoundsEnabled] = useState(true)
   const [showAudioSettings, setShowAudioSettings] = useState(false)
   const [meetingLink, setMeetingLink] = useState('')
+  const [isLoadingMeeting, setIsLoadingMeeting] = useState(false)
 
   // Audio elements for sound effects
   const joinSoundRef = useRef<HTMLAudioElement | null>(null)
@@ -53,10 +54,11 @@ export default function GoogleMeetIntegration({
   }
 
   const joinMeeting = () => {
+    setIsLoadingMeeting(true)
     setIsInCall(true)
     setParticipantCount(1)
     playSound(joinSoundRef)
-    window.open(meetingLink, '_blank')
+    // Don't open in new tab - stay in current website
   }
 
   const copyMeetingLink = () => {
@@ -73,6 +75,7 @@ export default function GoogleMeetIntegration({
   const handleCallEnd = () => {
     setIsInCall(false)
     setParticipantCount(0)
+    setIsLoadingMeeting(false)
     playSound(leaveSoundRef)
     if (onCallEnd) onCallEnd()
   }
@@ -247,7 +250,7 @@ export default function GoogleMeetIntegration({
 
       {/* Main Content */}
       <div className="p-8">
-        <div className="text-center">
+        <div className="text-center mb-8">
           {/* Google Meet Logo */}
           <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
             <Video className="w-12 h-12 text-white" />
@@ -281,13 +284,17 @@ export default function GoogleMeetIntegration({
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <button
-              onClick={joinMeeting}
-              className="bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-8 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center"
-            >
-              <Video className="w-5 h-5 mr-2" />
-              Join Meeting Now
-            </button>
+                      <button
+            onClick={joinMeeting}
+            className={`font-semibold py-4 px-8 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center ${
+              isInCall 
+                ? 'bg-yellow-600 hover:bg-yellow-700 text-white' 
+                : 'bg-green-600 hover:bg-green-700 text-white'
+            }`}
+          >
+            <Video className="w-5 h-5 mr-2" />
+            {isInCall ? 'Meeting Active' : 'Start Meeting'}
+          </button>
             
             <button
               onClick={scheduleMeeting}
@@ -297,8 +304,68 @@ export default function GoogleMeetIntegration({
               Schedule Meeting
             </button>
           </div>
+        </div>
 
-          {/* Features */}
+        {/* Embedded Google Meet Interface */}
+        {isInCall && (
+          <div className="bg-slate-900 rounded-xl border border-slate-700 overflow-hidden">
+            <div className="p-4 border-b border-slate-700 bg-slate-800">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-white">Live Meeting</h3>
+                <button
+                  onClick={handleCallEnd}
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+                >
+                  End Meeting
+                </button>
+              </div>
+            </div>
+            
+            {/* Google Meet iframe */}
+            <div className="relative" style={{ height: '600px' }}>
+              <iframe
+                src={`https://meet.google.com/${roomName}?embed=true`}
+                width="100%"
+                height="100%"
+                frameBorder="0"
+                allow="camera; microphone; fullscreen; speaker; display-capture"
+                title="Google Meet Video Call"
+                className="rounded-b-xl"
+                onLoad={() => setIsLoadingMeeting(false)}
+                onError={() => setIsLoadingMeeting(false)}
+              />
+              
+              {/* Loading overlay */}
+              {isLoadingMeeting && (
+                <div className="absolute inset-0 bg-slate-900 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+                      <Video className="w-8 h-8 text-white" />
+                    </div>
+                    <p className="text-white text-lg">Loading Google Meet...</p>
+                    <p className="text-slate-400 text-sm">Please wait while we connect you</p>
+                  </div>
+                </div>
+              )}
+              
+              {/* Fallback message if iframe fails */}
+              {!isLoadingMeeting && (
+                <div className="absolute bottom-4 right-4">
+                  <button
+                    onClick={() => window.open(meetingLink, '_blank')}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors flex items-center space-x-2"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    <span>Open in New Tab</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Features Grid - Only show when not in call */}
+        {!isInCall && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             <div className="bg-slate-700 rounded-lg p-6 border border-slate-600">
               <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mx-auto mb-4">
@@ -330,7 +397,7 @@ export default function GoogleMeetIntegration({
               </p>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Info Panel */}
