@@ -292,8 +292,8 @@ export default function GoogleMeetIntegration({
                 : 'bg-green-600 hover:bg-green-700 text-white'
             }`}
           >
-            <Video className="w-5 h-5 mr-2" />
-            {isInCall ? 'Meeting Active' : 'Start Meeting'}
+            <Video className="w-5 h-4 mr-2" />
+            {isInCall ? 'Meeting Active' : 'Create Meeting'}
           </button>
             
             <button
@@ -306,7 +306,7 @@ export default function GoogleMeetIntegration({
           </div>
         </div>
 
-        {/* Embedded Google Meet Interface */}
+        {/* Meeting Interface */}
         {isInCall && (
           <div className="bg-slate-900 rounded-xl border border-slate-700 overflow-hidden">
             <div className="p-4 border-b border-slate-700 bg-slate-800">
@@ -321,45 +321,81 @@ export default function GoogleMeetIntegration({
               </div>
             </div>
             
-            {/* Google Meet iframe */}
-            <div className="relative" style={{ height: '600px' }}>
-              <iframe
-                src={`https://meet.google.com/${roomName}?embed=true`}
-                width="100%"
-                height="100%"
-                frameBorder="0"
-                allow="camera; microphone; fullscreen; speaker; display-capture"
-                title="Google Meet Video Call"
-                className="rounded-b-xl"
-                onLoad={() => setIsLoadingMeeting(false)}
-                onError={() => setIsLoadingMeeting(false)}
-              />
+            {/* Meeting Content */}
+            <div className="p-8 text-center">
+              <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Video className="w-12 h-12 text-white" />
+              </div>
               
-              {/* Loading overlay */}
-              {isLoadingMeeting && (
-                <div className="absolute inset-0 bg-slate-900 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-                      <Video className="w-8 h-8 text-white" />
-                    </div>
-                    <p className="text-white text-lg">Loading Google Meet...</p>
-                    <p className="text-slate-400 text-sm">Please wait while we connect you</p>
+              <h3 className="text-2xl font-bold text-white mb-4">
+                Meeting is Active!
+              </h3>
+              
+              <p className="text-lg text-slate-300 mb-8 max-w-2xl mx-auto">
+                Your Google Meet session is ready. Click the button below to join the meeting in a new tab, 
+                or copy the meeting link to share with others.
+              </p>
+              
+              {/* Meeting Actions */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                <button
+                  onClick={() => window.open(meetingLink, '_blank')}
+                  className="bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-8 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center"
+                >
+                  <Video className="w-5 h-5 mr-2" />
+                  Join Meeting Now
+                </button>
+                
+                <button
+                  onClick={copyMeetingLink}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center"
+                >
+                  <Copy className="w-5 h-5 mr-2" />
+                  Copy Meeting Link
+                </button>
+              </div>
+              
+              {/* Meeting Info Card */}
+              <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 max-w-md mx-auto">
+                <h4 className="text-lg font-semibold text-white mb-4">Meeting Details</h4>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-slate-300">Meeting ID:</span>
+                    <span className="font-mono text-blue-400">{roomName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-300">Direct Link:</span>
+                    <span className="text-green-400 break-all">{meetingLink}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-300">Status:</span>
+                    <span className="text-green-400">Active</span>
                   </div>
                 </div>
-              )}
+              </div>
               
-              {/* Fallback message if iframe fails */}
-              {!isLoadingMeeting && (
-                <div className="absolute bottom-4 right-4">
-                  <button
-                    onClick={() => window.open(meetingLink, '_blank')}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors flex items-center space-x-2"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    <span>Open in New Tab</span>
-                  </button>
-                </div>
-              )}
+              {/* Instructions */}
+              <div className="mt-8 bg-slate-800 rounded-xl p-6 border border-slate-700 max-w-2xl mx-auto">
+                <h4 className="text-lg font-semibold text-white mb-4">How to Join:</h4>
+                <ol className="text-slate-300 text-left space-y-2">
+                  <li className="flex items-start">
+                    <span className="text-blue-400 mr-2">1.</span>
+                    <span>Click "Join Meeting Now" to open Google Meet in a new tab</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-blue-400 mr-2">2.</span>
+                    <span>Allow camera and microphone access when prompted</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-blue-400 mr-2">3.</span>
+                    <span>Share the meeting link with students so they can join</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-blue-400 mr-2">4.</span>
+                    <span>Use Google Meet's built-in features for the best experience</span>
+                  </li>
+                </ol>
+              </div>
             </div>
           </div>
         )}
