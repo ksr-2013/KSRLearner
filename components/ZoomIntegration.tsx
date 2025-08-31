@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Video, Users, Settings, Share, Copy, ExternalLink, AlertCircle, Volume2, VolumeX, Headphones, Mic, MicOff, Calendar, Clock } from 'lucide-react'
+import { Video, Users, Settings, Share, Copy, ExternalLink, AlertCircle, Volume2, VolumeX, Headphones, Mic, MicOff, Calendar, Clock, X, Maximize2, Minimize2 } from 'lucide-react'
 
 interface ZoomIntegrationProps {
   roomName: string
@@ -22,6 +22,8 @@ export default function ZoomIntegration({
   const [showAudioSettings, setShowAudioSettings] = useState(false)
   const [meetingLink, setMeetingLink] = useState('')
   const [isLoadingMeeting, setIsLoadingMeeting] = useState(false)
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [zoomIframeKey, setZoomIframeKey] = useState(0)
 
   // Audio elements for sound effects
   const joinSoundRef = useRef<HTMLAudioElement | null>(null)
@@ -58,7 +60,8 @@ export default function ZoomIntegration({
     setIsInCall(true)
     setParticipantCount(1)
     playSound(joinSoundRef)
-    // Don't open in new tab - stay in current website
+    // Force iframe refresh to ensure clean state
+    setZoomIframeKey(prev => prev + 1)
   }
 
   const copyMeetingLink = () => {
@@ -80,8 +83,25 @@ export default function ZoomIntegration({
     if (onCallEnd) onCallEnd()
   }
 
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen)
+  }
+
+  // Generate Zoom web client URL with parameters
+  const getZoomWebClientUrl = () => {
+    const baseUrl = 'https://zoom.us/wc/join'
+    const params = new URLSearchParams({
+      j: roomName,
+      pwd: '', // No password for demo
+      uname: displayName,
+      role: isHost ? '1' : '0', // 1 for host, 0 for attendee
+      zt: '0' // No zoom token
+    })
+    return `${baseUrl}?${params.toString()}`
+  }
+
   return (
-    <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+    <div className={`bg-slate-800 rounded-xl border border-slate-700 overflow-hidden ${isFullscreen ? 'fixed inset-0 z-50 rounded-none' : ''}`}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-slate-700 bg-slate-900">
         <div className="flex items-center space-x-3">
@@ -91,9 +111,9 @@ export default function ZoomIntegration({
         </div>
         
         <div className="flex items-center space-x-4">
-                     <div className="text-sm text-slate-300">
-             Meeting ID: <span className="font-mono text-blue-400">{roomName}</span>
-           </div>
+          <div className="text-sm text-slate-300">
+            Meeting ID: <span className="font-mono text-blue-400">{roomName}</span>
+          </div>
           
           <div className="flex items-center space-x-2 text-slate-400">
             <Users className="w-4 h-4" />
@@ -127,6 +147,24 @@ export default function ZoomIntegration({
           >
             <Headphones className="w-4 h-4" />
           </button>
+
+          <button
+            onClick={toggleFullscreen}
+            className="p-2 text-slate-400 hover:text-blue-400 transition-colors"
+            title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+          >
+            {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+          </button>
+
+          {isFullscreen && (
+            <button
+              onClick={handleCallEnd}
+              className="p-2 text-red-400 hover:text-red-300 transition-colors"
+              title="End meeting"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -160,23 +198,23 @@ export default function ZoomIntegration({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Left Column - Settings */}
               <div className="space-y-4">
-                               <div className="bg-slate-800 rounded-lg p-4">
-                 <h4 className="text-blue-400 font-medium mb-2">Zoom Features</h4>
-                 <div className="space-y-2 text-sm">
-                   <div className="flex justify-between">
-                     <span className="text-slate-300">Echo Cancellation:</span>
-                     <span className="text-green-400">Advanced</span>
-                   </div>
-                   <div className="flex justify-between">
-                     <span className="text-slate-300">Noise Suppression:</span>
-                     <span className="text-green-400">AI-Powered</span>
-                   </div>
-                   <div className="flex justify-between">
-                     <span className="text-slate-300">Audio Quality:</span>
-                     <span className="text-green-400">HD Audio</span>
-                   </div>
-                 </div>
-               </div>
+                <div className="bg-slate-800 rounded-lg p-4">
+                  <h4 className="text-blue-400 font-medium mb-2">Zoom Features</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-slate-300">Echo Cancellation:</span>
+                      <span className="text-green-400">Advanced</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-300">Noise Suppression:</span>
+                      <span className="text-green-400">AI-Powered</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-300">Audio Quality:</span>
+                      <span className="text-green-400">HD Audio</span>
+                    </div>
+                  </div>
+                </div>
                 
                 <div className="bg-slate-800 rounded-lg p-4">
                   <h4 className="text-yellow-400 font-medium mb-2">Quick Actions</h4>
@@ -221,27 +259,27 @@ export default function ZoomIntegration({
                   </ul>
                 </div>
                 
-                                 <div className="bg-slate-800 rounded-lg p-4">
-                   <h4 className="text-purple-400 font-medium mb-2">🔧 Zoom Advantages</h4>
-                   <ul className="text-sm text-slate-300 space-y-2">
-                     <li className="flex items-start">
-                       <span className="text-purple-400 mr-2">•</span>
-                       <span>Industry-leading audio quality</span>
-                     </li>
-                     <li className="flex items-start">
-                       <span className="text-purple-400 mr-2">•</span>
-                       <span>AI-powered noise suppression</span>
-                     </li>
-                     <li className="flex items-start">
-                       <span className="text-purple-400 mr-2">•</span>
-                       <span>Advanced echo cancellation</span>
-                     </li>
-                     <li className="flex items-start">
-                       <span className="text-purple-400 mr-2">•</span>
-                       <span>Stable and reliable connection</span>
-                     </li>
-                   </ul>
-                 </div>
+                <div className="bg-slate-800 rounded-lg p-4">
+                  <h4 className="text-purple-400 font-medium mb-2">🔧 Zoom Advantages</h4>
+                  <ul className="text-sm text-slate-300 space-y-2">
+                    <li className="flex items-start">
+                      <span className="text-purple-400 mr-2">•</span>
+                      <span>Industry-leading audio quality</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-purple-400 mr-2">•</span>
+                      <span>AI-powered noise suppression</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-purple-400 mr-2">•</span>
+                      <span>Advanced echo cancellation</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-purple-400 mr-2">•</span>
+                      <span>Stable and reliable connection</span>
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
@@ -249,159 +287,61 @@ export default function ZoomIntegration({
       )}
 
       {/* Main Content */}
-      <div className="p-8">
-        <div className="text-center mb-8">
-                     {/* Zoom Logo */}
-           <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
-             <Video className="w-12 h-12 text-white" />
-           </div>
-           
-           <h2 className="text-3xl font-bold text-white mb-4">
-             Zoom Video Call
-           </h2>
-           
-           <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
-             Experience crystal clear audio quality with Zoom's advanced AI-powered noise suppression and echo cancellation technology.
-           </p>
-
-          {/* Meeting Info */}
-          <div className="bg-slate-700 rounded-xl p-6 border border-slate-600 mb-8 max-w-md mx-auto">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-slate-300">Meeting ID:</span>
-                <span className="font-mono text-blue-400">{roomName}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-slate-300">Host:</span>
-                <span className="text-white">{displayName}</span>
-              </div>
-                             <div className="flex items-center justify-between">
-                 <span className="text-slate-300">Platform:</span>
-                 <span className="text-green-400">Zoom</span>
-               </div>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                      <button
-            onClick={joinMeeting}
-            className={`font-semibold py-4 px-8 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center ${
-              isInCall 
-                ? 'bg-yellow-600 hover:bg-yellow-700 text-white' 
-                : 'bg-green-600 hover:bg-green-700 text-white'
-            }`}
-          >
-            <Video className="w-5 h-4 mr-2" />
-            {isInCall ? 'Meeting Active' : 'Create Meeting'}
-          </button>
-            
-            <button
-              onClick={scheduleMeeting}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center"
-            >
-              <Calendar className="w-5 h-5 mr-2" />
-              Schedule Meeting
-            </button>
-          </div>
-        </div>
-
-        {/* Meeting Interface */}
-        {isInCall && (
-          <div className="bg-slate-900 rounded-xl border border-slate-700 overflow-hidden">
-            <div className="p-4 border-b border-slate-700 bg-slate-800">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-white">Live Meeting</h3>
-                <button
-                  onClick={handleCallEnd}
-                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
-                >
-                  End Meeting
-                </button>
-              </div>
+      {!isInCall ? (
+        <div className="p-8">
+          <div className="text-center mb-8">
+            {/* Zoom Logo */}
+            <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Video className="w-12 h-12 text-white" />
             </div>
             
-            {/* Meeting Content */}
-            <div className="p-8 text-center">
-              <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Video className="w-12 h-12 text-white" />
-              </div>
-              
-              <h3 className="text-2xl font-bold text-white mb-4">
-                Meeting is Active!
-              </h3>
-              
-              <p className="text-lg text-slate-300 mb-8 max-w-2xl mx-auto">
-                Your Zoom session is ready. Click the button below to join the meeting in a new tab, 
-                or copy the meeting link to share with others.
-              </p>
-              
-              {/* Meeting Actions */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                <button
-                  onClick={() => window.open(meetingLink, '_blank')}
-                  className="bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-8 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center"
-                >
-                  <Video className="w-5 h-5 mr-2" />
-                  Join Meeting Now
-                </button>
-                
-                <button
-                  onClick={copyMeetingLink}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center"
-                >
-                  <Copy className="w-5 h-5 mr-2" />
-                  Copy Meeting Link
-                </button>
-              </div>
-              
-              {/* Meeting Info Card */}
-              <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 max-w-md mx-auto">
-                <h4 className="text-lg font-semibold text-white mb-4">Meeting Details</h4>
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-slate-300">Meeting ID:</span>
-                    <span className="font-mono text-blue-400">{roomName}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-300">Direct Link:</span>
-                    <span className="text-green-400 break-all">{meetingLink}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-300">Status:</span>
-                    <span className="text-green-400">Active</span>
-                  </div>
+            <h2 className="text-3xl font-bold text-white mb-4">
+              Zoom Video Call
+            </h2>
+            
+            <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
+              Experience crystal clear audio quality with Zoom's advanced AI-powered noise suppression and echo cancellation technology.
+            </p>
+
+            {/* Meeting Info */}
+            <div className="bg-slate-700 rounded-xl p-6 border border-slate-600 mb-8 max-w-md mx-auto">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-300">Meeting ID:</span>
+                  <span className="font-mono text-blue-400">{roomName}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-300">Host:</span>
+                  <span className="text-white">{displayName}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-300">Platform:</span>
+                  <span className="text-green-400">Zoom</span>
                 </div>
               </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+              <button
+                onClick={joinMeeting}
+                className="bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-8 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center"
+              >
+                <Video className="w-5 h-4 mr-2" />
+                Start Meeting
+              </button>
               
-              {/* Instructions */}
-              <div className="mt-8 bg-slate-800 rounded-xl p-6 border border-slate-700 max-w-2xl mx-auto">
-                <h4 className="text-lg font-semibold text-white mb-4">How to Join:</h4>
-                <ol className="text-slate-300 text-left space-y-2">
-                                   <li className="flex items-start">
-                   <span className="text-blue-400 mr-2">1.</span>
-                   <span>Click "Join Meeting Now" to open Zoom in a new tab</span>
-                 </li>
-                 <li className="flex items-start">
-                   <span className="text-blue-400 mr-2">2.</span>
-                   <span>Allow camera and microphone access when prompted</span>
-                 </li>
-                 <li className="flex items-start">
-                   <span className="text-blue-400 mr-2">3.</span>
-                   <span>Share the meeting link with students so they can join</span>
-                 </li>
-                 <li className="flex items-start">
-                   <span className="text-blue-400 mr-2">4.</span>
-                   <span>Use Zoom's built-in features for the best experience</span>
-                 </li>
-                </ol>
-              </div>
+              <button
+                onClick={scheduleMeeting}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center"
+              >
+                <Calendar className="w-5 h-5 mr-2" />
+                Schedule Meeting
+              </button>
             </div>
           </div>
-        )}
 
-        {/* Features Grid - Only show when not in call */}
-        {!isInCall && (
+          {/* Features Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             <div className="bg-slate-700 rounded-lg p-6 border border-slate-600">
               <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mx-auto mb-4">
@@ -433,8 +373,31 @@ export default function ZoomIntegration({
               </p>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        /* Zoom Meeting Interface */
+        <div className="flex-1 relative">
+          {isLoadingMeeting && (
+            <div className="absolute inset-0 bg-slate-900 flex items-center justify-center z-10">
+              <div className="text-center">
+                <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-white text-lg">Loading Zoom...</p>
+                <p className="text-slate-400 text-sm mt-2">Please wait while we connect you to the meeting</p>
+              </div>
+            </div>
+          )}
+          
+          <iframe
+            key={zoomIframeKey}
+            src={getZoomWebClientUrl()}
+            className="w-full h-full min-h-[600px] border-0"
+            allow="camera; microphone; fullscreen; speaker; display-capture"
+            allowFullScreen
+            onLoad={() => setIsLoadingMeeting(false)}
+            title="Zoom Meeting"
+          />
+        </div>
+      )}
 
       {/* Info Panel */}
       <div className="p-4 bg-slate-900 border-t border-slate-700">
@@ -453,10 +416,10 @@ export default function ZoomIntegration({
             <span className="text-white font-medium">{participantCount}</span>
           </div>
           
-                     <div className="flex items-center space-x-2">
-             <span className="text-slate-400">Platform:</span>
-             <span className="text-green-400 font-medium">Zoom</span>
-           </div>
+          <div className="flex items-center space-x-2">
+            <span className="text-slate-400">Platform:</span>
+            <span className="text-green-400 font-medium">Zoom</span>
+          </div>
           
           <div className="flex items-center space-x-2">
             <span className="text-slate-400">Sounds:</span>
@@ -466,11 +429,11 @@ export default function ZoomIntegration({
           </div>
         </div>
         
-                 <div className="mt-3 pt-3 border-t border-slate-700">
-           <p className="text-xs text-slate-500">
-             Powered by <a href="https://zoom.us/" target="_blank" rel="noopener noreferrer" className="text-green-400 hover:underline">Zoom</a> - Professional video conferencing with industry-leading audio quality
-           </p>
-         </div>
+        <div className="mt-3 pt-3 border-t border-slate-700">
+          <p className="text-xs text-slate-500">
+            Powered by <a href="https://zoom.us/" target="_blank" rel="noopener noreferrer" className="text-green-400 hover:underline">Zoom</a> - Professional video conferencing with industry-leading audio quality
+          </p>
+        </div>
       </div>
     </div>
   )

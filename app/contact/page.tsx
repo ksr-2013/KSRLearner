@@ -39,7 +39,7 @@ export default function ContactPage() {
 
       const endpoint = FORMSPREE_FORM_ID.startsWith('http')
         ? FORMSPREE_FORM_ID
-        : `https://formspree.io/f/${FORMSPREE_FORM_ID}`
+        : `https://formspree.io/f/mrbabgke`
 
       const response = await fetch(endpoint, {
         method: 'POST',
