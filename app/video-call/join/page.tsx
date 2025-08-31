@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Header from '../../../components/Header'
 import Footer from '../../../components/Footer'
-import JitsiMeetIntegration from '../../../components/JitsiMeetIntegration'
+import ZoomIntegration from '../../../components/ZoomIntegration'
 import { Video, Users, Copy, ExternalLink, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
@@ -71,13 +71,13 @@ export default function JoinVideoCall() {
               </p>
             </div>
 
-            {/* Jitsi Meet Integration */}
-            <JitsiMeetIntegration 
-              roomName={roomId}
-              displayName={displayName}
-              isHost={false}
-              onCallEnd={handleCallEnd}
-            />
+                          {/* Zoom Integration */}
+                    <ZoomIntegration 
+          roomName={roomId}
+          displayName={displayName}
+          isHost={false}
+          onCallEnd={handleCallEnd}
+        />
           </div>
         </div>
 
@@ -174,7 +174,7 @@ export default function JoinVideoCall() {
                 <span className="text-2xl">🔒</span>
               </div>
               <h3 className="text-lg font-semibold text-white mb-2">Secure</h3>
-              <p className="text-slate-300 text-sm">End-to-end encrypted video calls powered by Jitsi Meet</p>
+              <p className="text-slate-300 text-sm">End-to-end encrypted video calls powered by Zoom</p>
             </div>
             
             <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 text-center">

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Header from '../../../components/Header'
 import Footer from '../../../components/Footer'
-import GoogleMeetIntegration from '../../../components/GoogleMeetIntegration'
+import ZoomIntegration from '../../../components/ZoomIntegration'
 
 export default function TestVideoCall() {
   const [roomId, setRoomId] = useState('ksr-test-room')
@@ -21,7 +21,7 @@ export default function TestVideoCall() {
               Test Video Call
             </h1>
             <p className="text-xl text-slate-300">
-              Testing Jitsi Meet integration
+              Testing Zoom integration
             </p>
           </div>
 
@@ -53,8 +53,8 @@ export default function TestVideoCall() {
             </div>
           </div>
 
-          {/* Jitsi Meet Integration */}
-                           <GoogleMeetIntegration 
+          {/* Zoom Integration */}
+                           <ZoomIntegration 
                    roomName={roomId}
                    displayName={displayName}
                    isHost={true}
@@ -67,10 +67,10 @@ export default function TestVideoCall() {
             <ol className="list-decimal list-inside space-y-2 text-slate-300">
               <li>Enter a unique room ID above</li>
               <li>Set your display name</li>
-              <li>Wait for Jitsi Meet to load</li>
+              <li>Wait for Zoom to load</li>
               <li>Allow camera and microphone access</li>
               <li>Test video call functionality</li>
-                                 <li>Open another browser tab and go to <code className="bg-slate-700 px-2 py-1 rounded">https://meet.google.com/{roomId}</code> to test joining</li>
+                                 <li>Open another browser tab and go to <code className="bg-slate-700 px-2 py-1 rounded">https://zoom.us/j/{roomId}</code> to test joining</li>
             </ol>
           </div>
         </div>

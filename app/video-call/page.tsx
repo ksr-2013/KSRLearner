@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
-import GoogleMeetIntegration from '../../components/GoogleMeetIntegration'
+import ZoomIntegration from '../../components/ZoomIntegration'
 
 export default function VideoCall() {
   const [roomId] = useState('demo-room-' + Math.random().toString(36).substr(2, 9))
@@ -30,8 +30,8 @@ export default function VideoCall() {
             </p>
           </div>
 
-          {/* Google Meet Integration */}
-          <GoogleMeetIntegration 
+          {/* Zoom Integration */}
+          <ZoomIntegration 
             roomName={roomId}
             displayName="KSR Learner Teacher"
             isHost={true}
@@ -45,7 +45,7 @@ export default function VideoCall() {
                 <span className="text-2xl">📹</span>
               </div>
               <h3 className="text-lg font-semibold text-white mb-2">High Quality</h3>
-              <p className="text-slate-300 text-sm">Crystal clear video and audio powered by Google Meet</p>
+              <p className="text-slate-300 text-sm">Crystal clear video and audio powered by Zoom</p>
             </div>
             
             <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 text-center">
@@ -98,7 +98,7 @@ export default function VideoCall() {
                 Test Your Video Call Setup
               </h3>
               <p className="text-green-200 mb-6">
-                Use our test page to verify that Google Meet is working correctly before hosting real sessions
+                Use our test page to verify that Zoom is working correctly before hosting real sessions
               </p>
               <Link 
                 href="/video-call/test" 

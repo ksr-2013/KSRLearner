@@ -3,19 +3,19 @@
 import { useEffect, useRef, useState } from 'react'
 import { Video, Users, Settings, Share, Copy, ExternalLink, AlertCircle, Volume2, VolumeX, Headphones, Mic, MicOff, Calendar, Clock } from 'lucide-react'
 
-interface GoogleMeetIntegrationProps {
+interface ZoomIntegrationProps {
   roomName: string
   displayName?: string
   isHost?: boolean
   onCallEnd?: () => void
 }
 
-export default function GoogleMeetIntegration({ 
+export default function ZoomIntegration({ 
   roomName, 
   displayName = 'KSR Learner',
   isHost = true,
   onCallEnd 
-}: GoogleMeetIntegrationProps) {
+}: ZoomIntegrationProps) {
   const [isInCall, setIsInCall] = useState(false)
   const [participantCount, setParticipantCount] = useState(0)
   const [soundsEnabled, setSoundsEnabled] = useState(true)
@@ -39,9 +39,9 @@ export default function GoogleMeetIntegration({
     if (leaveSoundRef.current) leaveSoundRef.current.volume = 0.3
     if (notificationSoundRef.current) notificationSoundRef.current.volume = 0.2
 
-    // Generate Google Meet link
-    const meetLink = `https://meet.google.com/${roomName}`
-    setMeetingLink(meetLink)
+    // Generate Zoom link
+    const zoomLink = `https://zoom.us/j/${roomName}`
+    setMeetingLink(zoomLink)
   }, [roomName])
 
   const playSound = (soundRef: React.RefObject<HTMLAudioElement | null>) => {
@@ -67,7 +67,7 @@ export default function GoogleMeetIntegration({
   }
 
   const scheduleMeeting = () => {
-    const calendarLink = `https://calendar.google.com/calendar/u/0/r/eventedit?text=KSR%20Learner%20Video%20Call&details=Video%20call%20session%20with%20${encodeURIComponent(displayName)}&location=${encodeURIComponent(meetingLink)}`
+    const calendarLink = `https://calendar.google.com/calendar/u/0/r/eventedit?text=KSR%20Learner%20Zoom%20Call&details=Zoom%20video%20call%20session%20with%20${encodeURIComponent(displayName)}&location=${encodeURIComponent(meetingLink)}`
     window.open(calendarLink, '_blank')
     playSound(notificationSoundRef)
   }
@@ -91,9 +91,9 @@ export default function GoogleMeetIntegration({
         </div>
         
         <div className="flex items-center space-x-4">
-          <div className="text-sm text-slate-300">
-            Room: <span className="font-mono text-blue-400">{roomName}</span>
-          </div>
+                     <div className="text-sm text-slate-300">
+             Meeting ID: <span className="font-mono text-blue-400">{roomName}</span>
+           </div>
           
           <div className="flex items-center space-x-2 text-slate-400">
             <Users className="w-4 h-4" />
@@ -160,23 +160,23 @@ export default function GoogleMeetIntegration({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Left Column - Settings */}
               <div className="space-y-4">
-                <div className="bg-slate-800 rounded-lg p-4">
-                  <h4 className="text-blue-400 font-medium mb-2">Google Meet Features</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-slate-300">Echo Cancellation:</span>
-                      <span className="text-green-400">Built-in</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-300">Noise Suppression:</span>
-                      <span className="text-green-400">Automatic</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-300">Audio Quality:</span>
-                      <span className="text-green-400">HD Audio</span>
-                    </div>
-                  </div>
-                </div>
+                               <div className="bg-slate-800 rounded-lg p-4">
+                 <h4 className="text-blue-400 font-medium mb-2">Zoom Features</h4>
+                 <div className="space-y-2 text-sm">
+                   <div className="flex justify-between">
+                     <span className="text-slate-300">Echo Cancellation:</span>
+                     <span className="text-green-400">Advanced</span>
+                   </div>
+                   <div className="flex justify-between">
+                     <span className="text-slate-300">Noise Suppression:</span>
+                     <span className="text-green-400">AI-Powered</span>
+                   </div>
+                   <div className="flex justify-between">
+                     <span className="text-slate-300">Audio Quality:</span>
+                     <span className="text-green-400">HD Audio</span>
+                   </div>
+                 </div>
+               </div>
                 
                 <div className="bg-slate-800 rounded-lg p-4">
                   <h4 className="text-yellow-400 font-medium mb-2">Quick Actions</h4>
@@ -221,27 +221,27 @@ export default function GoogleMeetIntegration({
                   </ul>
                 </div>
                 
-                <div className="bg-slate-800 rounded-lg p-4">
-                  <h4 className="text-purple-400 font-medium mb-2">🔧 Google Meet Advantages</h4>
-                  <ul className="text-sm text-slate-300 space-y-2">
-                    <li className="flex items-start">
-                      <span className="text-purple-400 mr-2">•</span>
-                      <span>Superior echo cancellation technology</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="text-purple-400 mr-2">•</span>
-                      <span>Automatic noise suppression</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="text-purple-400 mr-2">•</span>
-                      <span>HD audio quality</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="text-purple-400 mr-2">•</span>
-                      <span>Reliable connection</span>
-                    </li>
-                  </ul>
-                </div>
+                                 <div className="bg-slate-800 rounded-lg p-4">
+                   <h4 className="text-purple-400 font-medium mb-2">🔧 Zoom Advantages</h4>
+                   <ul className="text-sm text-slate-300 space-y-2">
+                     <li className="flex items-start">
+                       <span className="text-purple-400 mr-2">•</span>
+                       <span>Industry-leading audio quality</span>
+                     </li>
+                     <li className="flex items-start">
+                       <span className="text-purple-400 mr-2">•</span>
+                       <span>AI-powered noise suppression</span>
+                     </li>
+                     <li className="flex items-start">
+                       <span className="text-purple-400 mr-2">•</span>
+                       <span>Advanced echo cancellation</span>
+                     </li>
+                     <li className="flex items-start">
+                       <span className="text-purple-400 mr-2">•</span>
+                       <span>Stable and reliable connection</span>
+                     </li>
+                   </ul>
+                 </div>
               </div>
             </div>
           </div>
@@ -251,18 +251,18 @@ export default function GoogleMeetIntegration({
       {/* Main Content */}
       <div className="p-8">
         <div className="text-center mb-8">
-          {/* Google Meet Logo */}
-          <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Video className="w-12 h-12 text-white" />
-          </div>
-          
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Google Meet Video Call
-          </h2>
-          
-          <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
-            Experience superior audio quality with Google Meet's advanced echo cancellation and noise suppression technology.
-          </p>
+                     {/* Zoom Logo */}
+           <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+             <Video className="w-12 h-12 text-white" />
+           </div>
+           
+           <h2 className="text-3xl font-bold text-white mb-4">
+             Zoom Video Call
+           </h2>
+           
+           <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
+             Experience crystal clear audio quality with Zoom's advanced AI-powered noise suppression and echo cancellation technology.
+           </p>
 
           {/* Meeting Info */}
           <div className="bg-slate-700 rounded-xl p-6 border border-slate-600 mb-8 max-w-md mx-auto">
@@ -275,10 +275,10 @@ export default function GoogleMeetIntegration({
                 <span className="text-slate-300">Host:</span>
                 <span className="text-white">{displayName}</span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-slate-300">Platform:</span>
-                <span className="text-green-400">Google Meet</span>
-              </div>
+                             <div className="flex items-center justify-between">
+                 <span className="text-slate-300">Platform:</span>
+                 <span className="text-green-400">Zoom</span>
+               </div>
             </div>
           </div>
 
@@ -332,7 +332,7 @@ export default function GoogleMeetIntegration({
               </h3>
               
               <p className="text-lg text-slate-300 mb-8 max-w-2xl mx-auto">
-                Your Google Meet session is ready. Click the button below to join the meeting in a new tab, 
+                Your Zoom session is ready. Click the button below to join the meeting in a new tab, 
                 or copy the meeting link to share with others.
               </p>
               
@@ -378,22 +378,22 @@ export default function GoogleMeetIntegration({
               <div className="mt-8 bg-slate-800 rounded-xl p-6 border border-slate-700 max-w-2xl mx-auto">
                 <h4 className="text-lg font-semibold text-white mb-4">How to Join:</h4>
                 <ol className="text-slate-300 text-left space-y-2">
-                  <li className="flex items-start">
-                    <span className="text-blue-400 mr-2">1.</span>
-                    <span>Click "Join Meeting Now" to open Google Meet in a new tab</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-blue-400 mr-2">2.</span>
-                    <span>Allow camera and microphone access when prompted</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-blue-400 mr-2">3.</span>
-                    <span>Share the meeting link with students so they can join</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-blue-400 mr-2">4.</span>
-                    <span>Use Google Meet's built-in features for the best experience</span>
-                  </li>
+                                   <li className="flex items-start">
+                   <span className="text-blue-400 mr-2">1.</span>
+                   <span>Click "Join Meeting Now" to open Zoom in a new tab</span>
+                 </li>
+                 <li className="flex items-start">
+                   <span className="text-blue-400 mr-2">2.</span>
+                   <span>Allow camera and microphone access when prompted</span>
+                 </li>
+                 <li className="flex items-start">
+                   <span className="text-blue-400 mr-2">3.</span>
+                   <span>Share the meeting link with students so they can join</span>
+                 </li>
+                 <li className="flex items-start">
+                   <span className="text-blue-400 mr-2">4.</span>
+                   <span>Use Zoom's built-in features for the best experience</span>
+                 </li>
                 </ol>
               </div>
             </div>
@@ -453,10 +453,10 @@ export default function GoogleMeetIntegration({
             <span className="text-white font-medium">{participantCount}</span>
           </div>
           
-          <div className="flex items-center space-x-2">
-            <span className="text-slate-400">Platform:</span>
-            <span className="text-green-400 font-medium">Google Meet</span>
-          </div>
+                     <div className="flex items-center space-x-2">
+             <span className="text-slate-400">Platform:</span>
+             <span className="text-green-400 font-medium">Zoom</span>
+           </div>
           
           <div className="flex items-center space-x-2">
             <span className="text-slate-400">Sounds:</span>
@@ -466,11 +466,11 @@ export default function GoogleMeetIntegration({
           </div>
         </div>
         
-        <div className="mt-3 pt-3 border-t border-slate-700">
-          <p className="text-xs text-slate-500">
-            Powered by <a href="https://meet.google.com/" target="_blank" rel="noopener noreferrer" className="text-green-400 hover:underline">Google Meet</a> - Professional video conferencing with superior audio quality
-          </p>
-        </div>
+                 <div className="mt-3 pt-3 border-t border-slate-700">
+           <p className="text-xs text-slate-500">
+             Powered by <a href="https://zoom.us/" target="_blank" rel="noopener noreferrer" className="text-green-400 hover:underline">Zoom</a> - Professional video conferencing with industry-leading audio quality
+           </p>
+         </div>
       </div>
     </div>
   )

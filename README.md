@@ -11,9 +11,9 @@ A modern, interactive learning hub designed to make technology simple and engagi
 - **Call-to-Action**: Encourages users to start their learning journey
 
 ### 🎥 Video Calling System
-- **Google Meet Integration**: Professional video conferencing with superior audio quality
-- **Echo Cancellation**: Built-in technology prevents audio feedback and echo
-- **Noise Suppression**: Automatic background noise filtering
+- **Zoom Integration**: Professional video conferencing with industry-leading audio quality
+- **Echo Cancellation**: Advanced technology prevents audio feedback and echo
+- **Noise Suppression**: AI-powered background noise filtering
 - **HD Audio**: High-quality audio for crystal clear communication
 - **Multi-Participant Support**: Host group sessions and one-on-one tutoring
 - **Meeting Scheduling**: Direct integration with Google Calendar
