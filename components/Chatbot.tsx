@@ -280,8 +280,16 @@ const Chatbot = () => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   }
 
+  // Debug: Log when component renders
+  console.log('🤖 Chatbot component rendered, isOpen:', isOpen, 'showNotification:', showNotification)
+
   return (
     <>
+      {/* Debug: Visible test element */}
+      <div className="fixed top-4 right-4 bg-red-500 text-white p-2 rounded z-[99999] text-xs">
+        Chatbot Loaded ✓
+      </div>
+      
       {/* Chatbot Anchor */}
       <div id="chatbot" className="fixed bottom-0 right-0 w-0 h-0"></div>
       
