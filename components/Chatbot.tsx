@@ -227,7 +227,7 @@ const Chatbot = () => {
 
     } catch (error) {
       console.error('❌ Chat API error:', error)
-      console.error('❌ Error details:', error.message, error.stack)
+      console.error('❌ Error details:', error instanceof Error ? error.message : String(error), error instanceof Error ? error.stack : undefined)
       
       // Enhanced fallback system with comprehensive responses
       const message = userMessage.toLowerCase()
