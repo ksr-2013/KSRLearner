@@ -37,15 +37,7 @@ const SimpleChatbot = () => {
     setIsTyping(true)
     
     try {
-      console.log('🤖 Making API call for:', userMessage)
-      console.log('🌐 Current URL:', window.location.href)
-      console.log('🌐 Origin:', window.location.origin)
-      
-      // Test if we can reach the API endpoint
-      const testUrl = `${window.location.origin}/api/gemini-chat`
-      console.log('🌐 Full API URL:', testUrl)
-      
-      const response = await fetch(testUrl, {
+      const response = await fetch('/api/gemini-chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -56,13 +48,8 @@ const SimpleChatbot = () => {
         }),
       })
 
-      console.log('📡 Response status:', response.status)
-      console.log('📡 Response ok:', response.ok)
-      console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()))
-
       if (response.ok) {
         const data = await response.json()
-        console.log('✅ API response:', data)
         
         const botMessage: Message = {
           id: (Date.now() + 1).toString(),
@@ -73,19 +60,14 @@ const SimpleChatbot = () => {
         
         setMessages(prev => [...prev, botMessage])
       } else {
-        const errorText = await response.text()
-        console.error('❌ API error:', response.status, errorText)
-        throw new Error(`API request failed with status ${response.status}: ${errorText}`)
+        throw new Error(`API request failed with status ${response.status}`)
       }
     } catch (error) {
-      console.error('❌ Chat error:', error)
-      console.error('❌ Error type:', typeof error)
-      console.error('❌ Error message:', error instanceof Error ? error.message : String(error))
+      console.error('Chat error:', error)
       
-      // More detailed error response
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: `Connection error: ${error instanceof Error ? error.message : String(error)}. Please check the console for details.`,
+        text: "I'm having trouble connecting right now. Please try again in a moment!",
         isUser: false,
         timestamp: new Date()
       }
