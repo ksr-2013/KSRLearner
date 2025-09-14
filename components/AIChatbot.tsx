@@ -11,12 +11,12 @@ interface Message {
   timestamp: Date
 }
 
-const SimpleChatbot = () => {
+const AIChatbot = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hi! I'm KSR Learner's AI assistant. I can help you with learning questions, guide you through our platform, or answer any questions about technology topics. How can I assist you today?",
+      text: "Hello! I'm KSR Learner's AI assistant. I can help you with learning questions, guide you through our platform, or answer any questions about technology topics. How can I assist you today?",
       isUser: false,
       timestamp: new Date()
     }
@@ -37,7 +37,7 @@ const SimpleChatbot = () => {
     setIsTyping(true)
     
     try {
-      console.log('🤖 Making API call for:', userMessage)
+      console.log('🤖 Sending message:', userMessage)
       
       const response = await fetch('/api/gemini-chat', {
         method: 'POST',
@@ -50,11 +50,11 @@ const SimpleChatbot = () => {
         }),
       })
 
-      console.log('📡 Response status:', response.status, response.ok)
+      console.log('📡 Response status:', response.status)
 
       if (response.ok) {
         const data = await response.json()
-        console.log('✅ API response:', data)
+        console.log('✅ AI Response:', data.response)
         
         const botMessage: Message = {
           id: (Date.now() + 1).toString(),
@@ -65,16 +65,15 @@ const SimpleChatbot = () => {
         
         setMessages(prev => [...prev, botMessage])
       } else {
-        const errorText = await response.text()
-        console.error('❌ API error:', response.status, errorText)
-        throw new Error(`API request failed with status ${response.status}: ${errorText}`)
+        console.error('❌ API Error:', response.status)
+        throw new Error(`API request failed with status ${response.status}`)
       }
     } catch (error) {
-      console.error('❌ Chat error:', error)
+      console.error('❌ Chat Error:', error)
       
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+        text: "I'm having trouble connecting right now. Please try again in a moment!",
         isUser: false,
         timestamp: new Date()
       }
@@ -181,7 +180,7 @@ const SimpleChatbot = () => {
               
               {isTyping && (
                 <div className="flex justify-start">
-                  <div className="bg-gray-100 text-gray-800 p-3 rounded-lg">
+                  <div className="bg-gray-100 text-black p-3 rounded-lg">
                     <div className="flex items-center space-x-2">
                       <Bot className="w-4 h-4" />
                       <div className="flex space-x-1">
@@ -225,4 +224,4 @@ const SimpleChatbot = () => {
   )
 }
 
-export default SimpleChatbot
+export default AIChatbot

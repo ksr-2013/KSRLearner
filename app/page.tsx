@@ -1,6 +1,5 @@
 import Header from '../components/Header'
 import Footer from '../components/Footer'
-import ChatButton from '../components/ChatButton'
 import Link from 'next/link'
 import { BookOpen, Target, Trophy, Brain, Play, Users, Award, Clock, Star, ArrowRight, Keyboard, MessageCircle } from 'lucide-react'
 
@@ -328,11 +327,8 @@ export default function Home() {
             Get instant help with your learning journey! Our AI assistant can answer questions, 
             guide you through topics, and provide personalized study tips.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <ChatButton />
-            <div className="text-blue-200 text-sm">
-              💡 Look for the blue chat button in the bottom-right corner!
-            </div>
+          <div className="text-blue-200 text-sm">
+            💡 Look for the blue chat button in the bottom-right corner!
           </div>
         </div>
       </section>
