@@ -37,6 +37,8 @@ const SimpleChatbot = () => {
     setIsTyping(true)
     
     try {
+      console.log('🤖 Making API call for:', userMessage)
+      
       const response = await fetch('/api/gemini-chat', {
         method: 'POST',
         headers: {
@@ -48,8 +50,11 @@ const SimpleChatbot = () => {
         }),
       })
 
+      console.log('📡 Response status:', response.status, response.ok)
+
       if (response.ok) {
         const data = await response.json()
+        console.log('✅ API response:', data)
         
         const botMessage: Message = {
           id: (Date.now() + 1).toString(),
@@ -60,14 +65,16 @@ const SimpleChatbot = () => {
         
         setMessages(prev => [...prev, botMessage])
       } else {
-        throw new Error(`API request failed with status ${response.status}`)
+        const errorText = await response.text()
+        console.error('❌ API error:', response.status, errorText)
+        throw new Error(`API request failed with status ${response.status}: ${errorText}`)
       }
     } catch (error) {
-      console.error('Chat error:', error)
+      console.error('❌ Chat error:', error)
       
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: "I'm having trouble connecting right now. Please try again in a moment!",
+        text: `Error: ${error instanceof Error ? error.message : String(error)}`,
         isUser: false,
         timestamp: new Date()
       }
