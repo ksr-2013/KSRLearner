@@ -14,20 +14,24 @@ export default function Header() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center space-x-3">
-            <Link href="/" className="flex items-center space-x-3">
-              <div className="w-10 h-10 relative overflow-hidden rounded-lg ring-1 ring-slate-700">
-                <Image
-                  src="/Screenshot_2025-06-17_204517-removebg-preview%20(1).png"
-                  alt="KSR Learner Logo"
-                  fill
-                  sizes="40px"
-                  className="object-contain"
-                  priority
-                />
+            <Link href="/" className="flex items-center space-x-3 group">
+              <div className="relative">
+                <div className="w-12 h-12 relative overflow-hidden rounded-full ring-2 ring-blue-400/30 group-hover:ring-blue-400/50 transition-all duration-300 shadow-lg group-hover:shadow-xl">
+                  <Image
+                    src="/logo.png"
+                    alt="KSR Learner Logo"
+                    fill
+                    sizes="48px"
+                    className="object-contain p-1"
+                    priority
+                  />
+                </div>
+                {/* Subtle glow effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-blue-600/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm"></div>
               </div>
               <div>
-                <div className="text-xl font-bold text-blue-400">KSR LEARNER</div>
-                <div className="text-xs text-slate-400">Online Learning</div>
+                <div className="text-xl font-bold text-blue-400 group-hover:text-blue-300 transition-colors duration-300">KSR LEARNER</div>
+                <div className="text-xs text-slate-400 group-hover:text-slate-300 transition-colors duration-300">Explore, Learn & Grow</div>
               </div>
             </Link>
           </div>

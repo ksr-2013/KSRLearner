@@ -297,8 +297,18 @@ const CustomVideoCall: React.FC = () => {
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Video className="w-10 h-10 text-gray-600" />
+            <div className="flex items-center justify-center mb-6">
+              <div className="relative">
+                <div className="w-16 h-16 relative overflow-hidden rounded-full ring-2 ring-blue-400/30 shadow-lg">
+                  <img 
+                    src="/logo.png" 
+                    alt="KSR LEARNER Logo" 
+                    className="w-full h-full object-contain p-2"
+                  />
+                </div>
+                {/* Subtle glow effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-blue-600/20 rounded-full opacity-30 blur-sm"></div>
+              </div>
             </div>
             <h1 className="text-3xl font-bold text-gray-700 mb-2">Secure Video Call</h1>
             <p className="text-gray-500">Create or join password-protected meetings</p>
@@ -427,8 +437,18 @@ const CustomVideoCall: React.FC = () => {
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Video className="w-10 h-10 text-gray-600" />
+            <div className="flex items-center justify-center mb-6">
+              <div className="relative">
+                <div className="w-16 h-16 relative overflow-hidden rounded-full ring-2 ring-blue-400/30 shadow-lg">
+                  <img 
+                    src="/logo.png" 
+                    alt="KSR LEARNER Logo" 
+                    className="w-full h-full object-contain p-2"
+                  />
+                </div>
+                {/* Subtle glow effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-blue-600/20 rounded-full opacity-30 blur-sm"></div>
+              </div>
             </div>
             <h1 className="text-3xl font-bold text-gray-700 mb-2">Join Meeting</h1>
             <p className="text-gray-500">Enter meeting credentials to join</p>
@@ -537,8 +557,18 @@ const CustomVideoCall: React.FC = () => {
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Video className="w-10 h-10 text-gray-600" />
+            <div className="flex items-center justify-center mb-6">
+              <div className="relative">
+                <div className="w-16 h-16 relative overflow-hidden rounded-full ring-2 ring-blue-400/30 shadow-lg">
+                  <img 
+                    src="/logo.png" 
+                    alt="KSR LEARNER Logo" 
+                    className="w-full h-full object-contain p-2"
+                  />
+                </div>
+                {/* Subtle glow effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-blue-600/20 rounded-full opacity-30 blur-sm"></div>
+              </div>
             </div>
             <h1 className="text-3xl font-bold text-gray-700 mb-2">Meeting Setup</h1>
             <p className="text-gray-500">Preparing your secure video call...</p>

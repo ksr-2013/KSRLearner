@@ -9,16 +9,23 @@ export const metadata: Metadata = {
   creator: 'KSR Learner',
   publisher: 'KSR Learner',
   robots: 'index, follow',
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/logo.png',
+  },
   openGraph: {
     title: 'KSR Learner – Explore, Learn & Grow with Technology',
     description: 'Modern learning hub for technology education with interactive quizzes and puzzles.',
     type: 'website',
     locale: 'en_US',
+    images: ['/logo.png'],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'KSR Learner – Technology Learning Platform',
     description: 'Learn technology through interactive quizzes and puzzles.',
+    images: ['/logo.png'],
   },
 }
 
@@ -31,6 +38,11 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png" />
+        <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png" />
+        <link rel="icon" href="/logo.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/logo.png" />
       </head>
       <body>
         {children}

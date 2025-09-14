@@ -86,6 +86,21 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
+              {/* Logo Section */}
+              <div className="flex items-center justify-center mb-8">
+                <div className="relative">
+                  <div className="w-20 h-20 relative overflow-hidden rounded-full ring-2 ring-blue-400/30 shadow-2xl">
+                    <img 
+                      src="/logo.png" 
+                      alt="KSR LEARNER Logo" 
+                      className="w-full h-full object-contain p-3"
+                    />
+                  </div>
+                  {/* Subtle glow effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-blue-600/20 rounded-full opacity-40 blur-sm"></div>
+                </div>
+              </div>
+              
               <div className="inline-flex items-center px-4 py-2 bg-blue-900/30 text-blue-300 text-sm font-medium rounded-full mb-6 border border-blue-700/50">
                 <Star className="w-4 h-4 mr-2" />
                 WE CONNECT YOU TO THE WORLD'S BEST
