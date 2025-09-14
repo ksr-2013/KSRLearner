@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import Chatbot from '../components/Chatbot'
+import SimpleChatbot from '../components/SimpleChatbot'
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
@@ -48,7 +48,7 @@ export default function RootLayout({
       </head>
       <body>
         {children}
-        <Chatbot />
+        <SimpleChatbot />
       </body>
     </html>
   )
