@@ -1,7 +1,8 @@
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import ChatButton from '../components/ChatButton'
 import Link from 'next/link'
-import { BookOpen, Target, Trophy, Brain, Play, Users, Award, Clock, Star, ArrowRight, Keyboard } from 'lucide-react'
+import { BookOpen, Target, Trophy, Brain, Play, Users, Award, Clock, Star, ArrowRight, Keyboard, MessageCircle } from 'lucide-react'
 
 export default function Home() {
   const features = [
@@ -308,6 +309,30 @@ export default function Home() {
             <Link href="/about" className="border-2 border-white text-white hover:bg-white hover:text-blue-900 font-semibold py-3 px-8 rounded-lg transition-all duration-200 transform hover:scale-105">
               Learn More
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* AI Assistant Section */}
+      <section className="py-20 bg-gradient-to-r from-blue-900 to-blue-800 border-y border-blue-700">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="flex items-center justify-center mb-6">
+            <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-4">
+              <MessageCircle className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-3xl lg:text-4xl font-bold text-white">
+              AI Learning Assistant
+            </h2>
+          </div>
+          <p className="text-xl text-blue-200 mb-8">
+            Get instant help with your learning journey! Our AI assistant can answer questions, 
+            guide you through topics, and provide personalized study tips.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <ChatButton />
+            <div className="text-blue-200 text-sm">
+              💡 Look for the blue chat button in the bottom-right corner!
+            </div>
           </div>
         </div>
       </section>
