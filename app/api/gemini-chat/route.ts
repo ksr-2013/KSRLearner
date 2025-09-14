@@ -1,12 +1,20 @@
 import { NextRequest } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
+// Initialize Gemini client lazily to avoid build-time issues
+function getGeminiClient() {
+  if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'your-gemini-api-key-here') {
+    return null
+  }
+  return new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+}
 
 export async function POST(request: NextRequest) {
   try {
-    // Check if API key exists
-    if (!process.env.GEMINI_API_KEY) {
+    // Get Gemini client (returns null if API key not configured)
+    const genAI = getGeminiClient()
+    
+    if (!genAI) {
       console.error('Gemini API key not configured')
       return new Response(
         JSON.stringify({ error: 'Gemini API key not configured' }),
