@@ -1,8 +1,15 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import Chatbot from '../components/Chatbot'
+import dynamic from 'next/dynamic'
+
+// Dynamically import Chatbot to prevent chunk loading issues
+const Chatbot = dynamic(() => import('../components/Chatbot'), {
+  ssr: false,
+  loading: () => null
+})
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
   title: 'KSR Learner – Explore, Learn & Grow with Technology',
   description: 'KSR Learner is a modern learning hub designed to make technology simple and engaging for everyone. From interactive puzzles and quizzes to in-depth lessons on computer fundamentals.',
   keywords: 'technology learning, computer education, interactive quizzes, puzzles for kids, online learning platform',
