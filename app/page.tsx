@@ -1,7 +1,7 @@
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import Link from 'next/link'
-import { BookOpen, Target, Trophy, Brain, Play, Users, Award, Clock, Star, ArrowRight, Keyboard, Video, MessageCircle } from 'lucide-react'
+import { BookOpen, Target, Trophy, Brain, Play, Users, Award, Clock, Star, ArrowRight, Keyboard } from 'lucide-react'
 
 export default function Home() {
   const features = [
@@ -246,81 +246,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Video Call Section */}
-      <section className="section-gradient py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-              Connect with Students Live
-            </h2>
-            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-              Provide real-time learning support through our custom-built video calling system. 
-              Connect with students, answer questions, and guide them through complex topics with superior audio quality.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div>
-              <div className="space-y-6">
-                <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Video className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-2">High-Quality Video Calls</h3>
-                    <p className="text-slate-300">Crystal clear video and audio for seamless communication with students.</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-green-600 to-green-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <MessageCircle className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-2">Integrated Chat</h3>
-                    <p className="text-slate-300">Text chat alongside video calls for sharing links, code snippets, and notes.</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-purple-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Users className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-2">Multi-Participant Support</h3>
-                    <p className="text-slate-300">Host group sessions and one-on-one tutoring sessions with ease.</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mt-8">
-                <Link href="/video-call" className="btn-primary">
-                  Start Video Call
-                </Link>
-              </div>
-            </div>
-            
-            <div className="relative">
-              <div className="bg-slate-800 rounded-2xl p-6 border border-slate-700">
-                <div className="bg-slate-900 rounded-lg h-64 flex items-center justify-center mb-4">
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <Video className="w-8 h-8 text-white" />
-                    </div>
-                    <p className="text-white font-medium">Video Call Interface</p>
-                    <p className="text-slate-400 text-sm">Connect with students instantly</p>
-                  </div>
-                </div>
-                <div className="flex justify-center space-x-4">
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Video Section */}
       <section className="section-gradient py-20">

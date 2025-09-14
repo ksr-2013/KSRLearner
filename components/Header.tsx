@@ -50,9 +50,6 @@ export default function Header() {
             <Link href="/typing" className="text-slate-300 hover:text-blue-400 font-medium transition-colors">
               Typing
             </Link>
-            <Link href="/video-call" className="text-slate-300 hover:text-blue-400 font-medium transition-colors">
-              Video Call
-            </Link>
             <Link href="/about" className="text-slate-300 hover:text-blue-400 font-medium transition-colors">
               About
             </Link>
@@ -108,13 +105,6 @@ export default function Header() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Typing
-              </Link>
-              <Link
-                href="/video-call"
-                className="block px-3 py-2 text-slate-300 hover:text-blue-400 hover:bg-slate-700 rounded-md font-medium transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Video Call
               </Link>
               <Link
                 href="/about"
