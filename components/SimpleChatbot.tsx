@@ -39,11 +39,7 @@ const SimpleChatbot = () => {
     try {
       console.log('🤖 Making API call for:', userMessage)
       
-      // Use absolute URL to ensure proper connection
-      const apiUrl = `${window.location.origin}/api/gemini-chat`
-      console.log('🌐 API URL:', apiUrl)
-      
-      const response = await fetch(apiUrl, {
+      const response = await fetch('/api/gemini-chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,7 +51,6 @@ const SimpleChatbot = () => {
       })
 
       console.log('📡 Response status:', response.status)
-      console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()))
 
       if (response.ok) {
         const data = await response.json()
@@ -70,17 +65,16 @@ const SimpleChatbot = () => {
         
         setMessages(prev => [...prev, botMessage])
       } else {
-        const errorText = await response.text()
-        console.error('❌ API error:', response.status, errorText)
-        throw new Error(`API request failed with status ${response.status}: ${errorText}`)
+        console.error('❌ API error:', response.status)
+        throw new Error(`API request failed with status ${response.status}`)
       }
     } catch (error) {
       console.error('❌ Chat error:', error)
       
-      // More helpful error message
+      // Simple fallback response
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: "I'm having trouble connecting to the AI service. Please check your internet connection and try again. If the problem persists, please refresh the page.",
+        text: "I'm having trouble connecting right now. Please try again in a moment!",
         isUser: false,
         timestamp: new Date()
       }
@@ -172,8 +166,8 @@ const SimpleChatbot = () => {
                       {!message.isUser && <Bot className="w-4 h-4 mt-1 flex-shrink-0" />}
                       {message.isUser && <User className="w-4 h-4 mt-1 flex-shrink-0" />}
                       <div className="flex-1">
-                        <p className="text-sm whitespace-pre-wrap">{message.text}</p>
-                        <p className="text-xs opacity-70 mt-1">
+                        <p className="text-sm whitespace-pre-wrap text-black">{message.text}</p>
+                        <p className="text-xs opacity-70 mt-1 text-black">
                           {message.timestamp.toLocaleTimeString([], { 
                             hour: '2-digit', 
                             minute: '2-digit' 
