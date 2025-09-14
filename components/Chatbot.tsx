@@ -98,8 +98,6 @@ const Chatbot = () => {
 
   const getBotResponse = async (userMessage: string): Promise<void> => {
     try {
-      console.log('🤖 Starting bot response for:', userMessage)
-      
       // Prepare conversation history for context
       const conversationHistory = messages
         .filter(msg => msg.id !== '1') // Exclude the initial welcome message
@@ -109,10 +107,7 @@ const Chatbot = () => {
           content: msg.text
         }))
 
-      console.log('📝 Conversation history:', conversationHistory)
-
       // Try Gemini first (free), fallback to OpenAI if needed
-      console.log('🚀 Making API request to /api/gemini-chat')
       let response = await fetch('/api/gemini-chat', {
         method: 'POST',
         headers: {
@@ -123,9 +118,6 @@ const Chatbot = () => {
           conversationHistory: conversationHistory
         }),
       })
-
-      console.log('📡 Gemini response status:', response.status, response.ok)
-      console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()))
 
       // If Gemini fails, try OpenAI as fallback
       if (!response.ok) {
@@ -142,10 +134,7 @@ const Chatbot = () => {
       }
 
       if (!response.ok) {
-        console.error('❌ API request failed with status:', response.status)
-        const errorText = await response.text()
-        console.error('❌ Error response:', errorText)
-        throw new Error(`API request failed with status ${response.status}: ${errorText}`)
+        throw new Error(`API request failed with status ${response.status}`)
       }
 
       // Check if it's a streaming response (OpenAI) or regular response (Gemini)
@@ -211,7 +200,6 @@ const Chatbot = () => {
       } else {
         // Handle Gemini regular response
         const data = await response.json()
-        console.log('✅ Gemini response data:', data)
         
         const botMessage: Message = {
           id: (Date.now() + 1).toString(),
@@ -220,20 +208,16 @@ const Chatbot = () => {
           timestamp: new Date()
         }
         
-        console.log('💬 Bot message created:', botMessage)
         setMessages(prev => [...prev, botMessage])
         setIsTyping(false)
       }
 
     } catch (error) {
-      console.error('❌ Chat API error:', error)
-      console.error('❌ Error details:', error instanceof Error ? error.message : String(error), error instanceof Error ? error.stack : undefined)
+      console.error('Chat API error:', error)
       
       // Enhanced fallback system with comprehensive responses
       const message = userMessage.toLowerCase()
       let fallbackResponse = getIntelligentFallbackResponse(message)
-
-      console.log('🔄 Using fallback response:', fallbackResponse)
 
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -280,16 +264,8 @@ const Chatbot = () => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   }
 
-  // Debug: Log when component renders
-  console.log('🤖 Chatbot component rendered, isOpen:', isOpen, 'showNotification:', showNotification)
-
   return (
     <>
-      {/* Debug: Visible test element */}
-      <div className="fixed top-4 right-4 bg-red-500 text-white p-2 rounded z-[99999] text-xs">
-        Chatbot Loaded ✓
-      </div>
-      
       {/* Chatbot Anchor */}
       <div id="chatbot" className="fixed bottom-0 right-0 w-0 h-0"></div>
       

@@ -1,12 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import dynamic from 'next/dynamic'
-
-// Dynamically import Chatbot to prevent chunk loading issues
-const Chatbot = dynamic(() => import('../components/Chatbot'), {
-  ssr: false,
-  loading: () => null
-})
+import Chatbot from '../components/Chatbot'
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
