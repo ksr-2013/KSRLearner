@@ -163,16 +163,18 @@ const AIChatbot = () => {
   return (
     <>
       {/* Chat Button */}
-      <motion.button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 w-16 h-16 bg-blue-800 hover:bg-blue-900 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center z-[2147483647]"
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
-        title="Chat with AI Assistant"
-        aria-label="Chat with AI Assistant"
-      >
-        <MessageCircle className="w-6 h-6" />
-      </motion.button>
+      {!isOpen && (
+        <motion.button
+          onClick={() => setIsOpen(true)}
+          className="fixed bottom-6 right-6 w-16 h-16 bg-blue-800 hover:bg-blue-900 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center z-[2147483647]"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          title="Chat with AI Assistant"
+          aria-label="Chat with AI Assistant"
+        >
+          <MessageCircle className="w-6 h-6" />
+        </motion.button>
+      )}
 
       {/* Chat Window */}
       <AnimatePresence>
@@ -182,7 +184,7 @@ const AIChatbot = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-6 right-6 w-96 h-[560px] bg-white rounded-2xl shadow-2xl border border-gray-200 z-[2147483646] flex flex-col overflow-hidden"
+            className="fixed bottom-6 right-3 left-3 sm:left-auto sm:right-6 w-[calc(100vw-24px)] sm:w-96 h-[560px] bg-white rounded-2xl shadow-2xl border border-gray-200 z-[2147483646] flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="bg-blue-800 text-white p-4 flex items-center justify-between">
