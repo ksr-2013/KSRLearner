@@ -23,7 +23,18 @@ const AIChatbot = () => {
   ])
   const [inputValue, setInputValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
+  const [errorText, setErrorText] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const provider = (process.env.NEXT_PUBLIC_AI_PROVIDER || 'groq').toLowerCase()
+  const endpoint = provider === 'openai' ? '/api/chat' : provider === 'groq' ? '/api/groq-chat' : '/api/gemini-chat'
+
+  const quickPrompts = [
+    'Explain computer hardware vs software',
+    'Recommend a beginner quiz to start with',
+    'How do I improve typing speed?',
+    'Suggest a learning path for networking',
+  ]
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -33,51 +44,93 @@ const AIChatbot = () => {
     scrollToBottom()
   }, [messages])
 
+  const buildConversationHistory = (latestUserMessage: string) => {
+    // Convert current messages into provider-agnostic history excluding the latest user turn
+    // Roles: 'user' | 'assistant'. The Gemini API maps non-'user' to 'model'.
+    const history = messages
+      .filter((m) => {
+        // Drop the very last message if it matches the latest user message to avoid duplication
+        // This assumes handleSendMessage added it just before calling getBotResponse
+        return !(m.isUser && m.text === latestUserMessage)
+      })
+      .map((m) => ({
+        role: m.isUser ? 'user' : 'assistant',
+        content: m.text,
+      }))
+    return history
+  }
+
   const getBotResponse = async (userMessage: string): Promise<void> => {
     setIsTyping(true)
+    setErrorText(null)
     
     try {
-      console.log('🤖 Sending message:', userMessage)
-      
-      const response = await fetch('/api/gemini-chat', {
+      const conversationHistory = buildConversationHistory(userMessage)
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           message: userMessage,
-          conversationHistory: []
+          conversationHistory,
         }),
       })
 
-      console.log('📡 Response status:', response.status)
-
       if (response.ok) {
-        const data = await response.json()
-        console.log('✅ AI Response:', data.response)
-        
+        // Gemini returns JSON { response: string }, OpenAI SSE route streams; but also returns fallback JSON on error
+        // Try JSON first; if not JSON, fall back to text
+        let botText = ''
+        const contentType = response.headers.get('Content-Type') || ''
+        if (contentType.includes('application/json')) {
+          const data = await response.json()
+          botText = data.response || data.content || ''
+        } else {
+          botText = await response.text()
+        }
+
+        const finalText = botText && typeof botText === 'string'
+          ? botText
+          : "Sorry, I couldn't process your request right now. Please try again!"
+
         const botMessage: Message = {
           id: (Date.now() + 1).toString(),
-          text: data.response || "Sorry, I couldn't process your request right now. Please try again!",
+          text: finalText,
           isUser: false,
           timestamp: new Date()
         }
         
         setMessages(prev => [...prev, botMessage])
       } else {
-        console.error('❌ API Error:', response.status)
-        throw new Error(`API request failed with status ${response.status}`)
+        let detail = ''
+        try {
+          const contentType = response.headers.get('Content-Type') || ''
+          if (contentType.includes('application/json')) {
+            const data = await response.json()
+            detail = data.error || data.details || data.response || ''
+          } else {
+            detail = await response.text()
+          }
+        } catch {}
+        const statusMsg = `Connection issue (status ${response.status}). ${detail ? `Details: ${detail}` : 'Using fallback.'}`
+        setErrorText(statusMsg)
+        const botMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          text: "I'm having trouble connecting right now. Please try again in a moment!",
+          isUser: false,
+          timestamp: new Date()
+        }
+        setMessages(prev => [...prev, botMessage])
       }
     } catch (error) {
-      console.error('❌ Chat Error:', error)
-      
+      setErrorText('Network error. Please check your connection and try again.')
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: "I'm having trouble connecting right now. Please try again in a moment!",
         isUser: false,
         timestamp: new Date()
       }
-      
       setMessages(prev => [...prev, botMessage])
     } finally {
       setIsTyping(false)
@@ -112,13 +165,11 @@ const AIChatbot = () => {
       {/* Chat Button */}
       <motion.button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 w-16 h-16 bg-blue-800 hover:bg-blue-900 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center z-[99999]"
+        className="fixed bottom-6 right-6 w-16 h-16 bg-blue-800 hover:bg-blue-900 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center z-[2147483647]"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ delay: 1 }}
         title="Chat with AI Assistant"
+        aria-label="Chat with AI Assistant"
       >
         <MessageCircle className="w-6 h-6" />
       </motion.button>
@@ -131,7 +182,7 @@ const AIChatbot = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-6 right-6 w-96 h-[500px] bg-white rounded-2xl shadow-2xl border border-gray-200 z-[99998] flex flex-col overflow-hidden"
+            className="fixed bottom-6 right-6 w-96 h-[560px] bg-white rounded-2xl shadow-2xl border border-gray-200 z-[2147483646] flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="bg-blue-800 text-white p-4 flex items-center justify-between">
@@ -145,6 +196,29 @@ const AIChatbot = () => {
               >
                 <X className="w-5 h-5" />
               </button>
+            </div>
+
+            {/* Inline status / error */}
+            {errorText && (
+              <div className="px-4 py-2 bg-yellow-50 text-yellow-800 text-xs border-b border-yellow-200">
+                {errorText}
+              </div>
+            )}
+
+            {/* Quick prompts */}
+            <div className="px-4 pt-3 pb-2 border-b border-gray-200 bg-gray-50">
+              <div className="flex flex-wrap gap-2">
+                {quickPrompts.map((q) => (
+                  <button
+                    key={q}
+                    onClick={() => handleSendMessage(q)}
+                    disabled={isTyping}
+                    className="text-xs px-2.5 py-1.5 rounded-full border border-gray-300 hover:border-blue-500 hover:text-blue-700 disabled:opacity-50"
+                  >
+                    {q}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Messages */}
@@ -204,8 +278,8 @@ const AIChatbot = () => {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Type your message..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder={`Type your message... (${provider === 'openai' ? 'OpenAI' : provider === 'groq' ? 'Groq' : 'Gemini'})`}
+                  className="flex-1 px-3 py-2 border border-blue-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-700 bg-white text-black placeholder:text-slate-500"
                   disabled={isTyping}
                 />
                 <button
