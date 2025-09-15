@@ -213,7 +213,7 @@ const AIChatbot = () => {
                     key={q}
                     onClick={() => handleSendMessage(q)}
                     disabled={isTyping}
-                    className="text-xs px-2.5 py-1.5 rounded-full border border-gray-300 hover:border-blue-500 hover:text-blue-700 disabled:opacity-50"
+                    className="text-xs px-3 py-1.5 rounded-full border border-blue-400 text-blue-700 bg-blue-50 hover:bg-blue-100 hover:border-blue-600 hover:text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-200 disabled:text-gray-700 disabled:border-gray-400"
                   >
                     {q}
                   </button>
