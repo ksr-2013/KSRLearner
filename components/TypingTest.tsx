@@ -31,6 +31,26 @@ export default function TypingTest({
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
 
+  const completeTest = () => {
+    setIsComplete(true)
+    setIsStarted(false)
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+    }
+    if (timerRef.current) {
+      clearInterval(timerRef.current)
+    }
+    const result = {
+      wpm,
+      accuracy,
+      errors,
+      time: timeLimit - timeRemaining
+    }
+    if (onComplete) {
+      onComplete(result)
+    }
+  }
+
   useEffect(() => {
     if (isStarted && !isComplete && startTime) {
       // WPM calculation interval
@@ -97,28 +117,7 @@ export default function TypingTest({
     }
   }
 
-  const completeTest = () => {
-    setIsComplete(true)
-    setIsStarted(false)
-    
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current)
-    }
-    if (timerRef.current) {
-      clearInterval(timerRef.current)
-    }
-
-    const result = {
-      wpm,
-      accuracy,
-      errors,
-      time: timeLimit - timeRemaining
-    }
-
-    if (onComplete) {
-      onComplete(result)
-    }
-  }
+  
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value
