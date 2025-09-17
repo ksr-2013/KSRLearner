@@ -1,7 +1,6 @@
 import { NextRequest } from 'next/server'
 
 // Gemini Realtime WebRTC Offer/Answer proxy
-// Client sends an SDP offer; this route forwards it to Gemini and returns the SDP answer.
 // Env required: GEMINI_API_KEY; optional: GEMINI_REALTIME_MODEL (default: gemini-1.5-pro-exp-0827)
 
 export const runtime = 'nodejs'
@@ -24,52 +23,34 @@ export async function POST(request: NextRequest) {
     }
 
     const contentType = request.headers.get('content-type') || ''
+    let sdp = ''
+    let model = cfg.model
     if (contentType.includes('application/json')) {
-      const { sdp, model } = await request.json()
-      if (!sdp) {
-        return new Response(JSON.stringify({ error: 'Missing SDP offer' }), { status: 400 })
-      }
-      const targetModel = model || cfg.model
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(targetModel)}:connect?alt=sdp&key=${cfg.apiKey}`
-      const upstream = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/sdp',
-        },
-        body: sdp,
-      })
-      if (!upstream.ok) {
-        const errText = await upstream.text()
-        return new Response(
-          JSON.stringify({ error: 'GEMINI_RTC_ERROR', details: errText }),
-          { status: 500, headers: { 'Content-Type': 'application/json' } }
-        )
-      }
-      const answerSdp = await upstream.text()
-      return new Response(answerSdp, { headers: { 'Content-Type': 'application/sdp' } })
+      const body = await request.json()
+      if (!body?.sdp) return new Response(JSON.stringify({ error: 'Missing SDP offer' }), { status: 400 })
+      sdp = body.sdp
+      if (body?.model) model = body.model
     } else {
-      // Allow raw SDP body as well
-      const sdp = await request.text()
-      if (!sdp) {
-        return new Response(JSON.stringify({ error: 'Missing SDP offer' }), { status: 400 })
-      }
-      const cfg2 = getConfig()
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(cfg2!.model)}:connect?alt=sdp&key=${cfg2!.apiKey}`
-      const upstream = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/sdp' },
-        body: sdp,
-      })
-      if (!upstream.ok) {
-        const errText = await upstream.text()
-        return new Response(
-          JSON.stringify({ error: 'GEMINI_RTC_ERROR', details: errText }),
-          { status: 500, headers: { 'Content-Type': 'application/json' } }
-        )
-      }
-      const answerSdp = await upstream.text()
-      return new Response(answerSdp, { headers: { 'Content-Type': 'application/sdp' } })
+      sdp = await request.text()
+      if (!sdp) return new Response(JSON.stringify({ error: 'Missing SDP offer' }), { status: 400 })
     }
+
+    const upstream = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:connect?alt=sdp&key=${cfg.apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/sdp' },
+      body: sdp,
+    })
+
+    if (!upstream.ok) {
+      const txt = await upstream.text()
+      return new Response(
+        JSON.stringify({ error: 'GEMINI_RTC_ERROR', details: txt }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+
+    const answerSdp = await upstream.text()
+    return new Response(answerSdp, { headers: { 'Content-Type': 'application/sdp' } })
   } catch (e: any) {
     return new Response(
       JSON.stringify({ error: 'RTC_SERVER_ERROR', details: e?.message || 'unknown' }),

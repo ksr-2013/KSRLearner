@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 
 // Server-side Text-to-Speech using Hugging Face Inference API
-// Requires env: HUGGING_FACE_TOKEN, optional: HF_TTS_MODEL (default: microsoft/speecht5_tts)
+// Requires env: HUGGING_FACE_TOKEN, optional: HF_TTS_MODEL (default: facebook/mms-tts-eng)
 
 export const runtime = 'nodejs'
 
@@ -35,34 +35,16 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({ inputs: text }),
     })
-
     if (!hfRes.ok) {
       let details = ''
-      try {
-        const j = await hfRes.json()
-        details = j?.error || j?.message || JSON.stringify(j)
-      } catch {
-        details = await hfRes.text()
-      }
-      return new Response(
-        JSON.stringify({ error: 'HF_TTS_ERROR', details }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
-      )
+      try { const j = await hfRes.json(); details = j?.error || j?.message || JSON.stringify(j) } catch { details = await hfRes.text() }
+      return new Response(JSON.stringify({ error: 'HF_TTS_ERROR', details }), { status: 500, headers: { 'Content-Type': 'application/json' } })
     }
 
-    // Many HF TTS models return binary audio (e.g., WAV). Pass through as audio/wav
     const audioArrayBuffer = await hfRes.arrayBuffer()
-    return new Response(Buffer.from(audioArrayBuffer), {
-      headers: {
-        'Content-Type': 'audio/wav',
-        'Cache-Control': 'no-store',
-      },
-    })
+    return new Response(Buffer.from(audioArrayBuffer), { headers: { 'Content-Type': 'audio/wav', 'Cache-Control': 'no-store' } })
   } catch (e: any) {
-    return new Response(
-      JSON.stringify({ error: 'TTS_SERVER_ERROR', details: e?.message || 'unknown' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    )
+    return new Response(JSON.stringify({ error: 'TTS_SERVER_ERROR', details: e?.message || 'unknown' }), { status: 500, headers: { 'Content-Type': 'application/json' } })
   }
 }
 

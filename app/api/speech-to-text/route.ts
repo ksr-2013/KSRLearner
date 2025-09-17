@@ -22,20 +22,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Support raw audio body or multipart/form-data with field 'file'
     let audioBuffer: ArrayBuffer | null = null
     const contentType = request.headers.get('content-type') || ''
     if (contentType.includes('multipart/form-data')) {
       const formData = await request.formData()
       const file = formData.get('file') as File | null
-      if (!file) {
-        return new Response(JSON.stringify({ error: 'No file provided' }), { status: 400 })
-      }
+      if (!file) return new Response(JSON.stringify({ error: 'No file provided' }), { status: 400 })
       audioBuffer = await file.arrayBuffer()
     } else {
       audioBuffer = await request.arrayBuffer()
     }
-
     if (!audioBuffer || (audioBuffer as ArrayBuffer).byteLength === 0) {
       return new Response(JSON.stringify({ error: 'Empty audio payload' }), { status: 400 })
     }
@@ -44,43 +40,23 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${cfg.token}`,
-        // Let HF detect content-type; many accept audio/webm or audio/mpeg
         'Content-Type': 'application/octet-stream',
       },
       body: Buffer.from(audioBuffer),
     })
-
     if (!hfRes.ok) {
       let details = ''
-      try {
-        const j = await hfRes.json()
-        details = j?.error || j?.message || JSON.stringify(j)
-      } catch {
-        details = await hfRes.text()
-      }
-      return new Response(
-        JSON.stringify({ error: 'HF_STT_ERROR', details }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
-      )
+      try { const j = await hfRes.json(); details = j?.error || j?.message || JSON.stringify(j) } catch { details = await hfRes.text() }
+      return new Response(JSON.stringify({ error: 'HF_STT_ERROR', details }), { status: 500, headers: { 'Content-Type': 'application/json' } })
     }
-
     const data = await hfRes.json()
-    // HF Whisper outputs can be array or object; try common shapes
     let text = ''
-    if (Array.isArray(data) && data.length && data[0].text) {
-      text = data[0].text
-    } else if (data?.text) {
-      text = data.text
-    } else if (typeof data === 'string') {
-      text = data
-    }
-
+    if (Array.isArray(data) && data.length && data[0].text) text = data[0].text
+    else if (data?.text) text = data.text
+    else if (typeof data === 'string') text = data
     return new Response(JSON.stringify({ text }), { headers: { 'Content-Type': 'application/json' } })
   } catch (e: any) {
-    return new Response(
-      JSON.stringify({ error: 'STT_SERVER_ERROR', details: e?.message || 'unknown' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    )
+    return new Response(JSON.stringify({ error: 'STT_SERVER_ERROR', details: e?.message || 'unknown' }), { status: 500, headers: { 'Content-Type': 'application/json' } })
   }
 }
 

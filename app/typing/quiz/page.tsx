@@ -42,6 +42,28 @@ export default function TypingQuiz() {
     "Cybersecurity is essential in protecting digital assets and maintaining privacy in our increasingly connected world. It involves implementing security measures, monitoring threats, and responding to incidents to safeguard information and systems."
   ]
 
+  const completeQuiz = () => {
+    setIsComplete(true)
+    setIsStarted(false)
+    setEndTime(Date.now())
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+    }
+    if (timerRef.current) {
+      clearInterval(timerRef.current)
+    }
+    const result: QuizResult = {
+      wpm,
+      accuracy,
+      errors,
+      time: selectedTimeLimit - timeRemaining,
+      date: new Date()
+    }
+    const newHistory = [result, ...quizHistory].slice(0, 10)
+    setQuizHistory(newHistory)
+    localStorage.setItem('typingQuizHistory', JSON.stringify(newHistory))
+  }
+
   useEffect(() => {
     // Load quiz history from localStorage
     const savedHistory = localStorage.getItem('typingQuizHistory')
@@ -127,31 +149,7 @@ export default function TypingQuiz() {
     }
   }
 
-  const completeQuiz = () => {
-    setIsComplete(true)
-    setIsStarted(false)
-    setEndTime(Date.now())
-    
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current)
-    }
-    if (timerRef.current) {
-      clearInterval(timerRef.current)
-    }
-
-    // Save result to history
-    const result: QuizResult = {
-      wpm,
-      accuracy,
-      errors,
-      time: selectedTimeLimit - timeRemaining,
-      date: new Date()
-    }
-    
-    const newHistory = [result, ...quizHistory].slice(0, 10) // Keep last 10 results
-    setQuizHistory(newHistory)
-    localStorage.setItem('typingQuizHistory', JSON.stringify(newHistory))
-  }
+  
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value
