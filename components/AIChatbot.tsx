@@ -45,42 +45,26 @@ const AIChatbot = () => {
   }, [messages])
 
   const buildConversationHistory = (latestUserMessage: string) => {
-    // Convert current messages into provider-agnostic history excluding the latest user turn
-    // Roles: 'user' | 'assistant'. The Gemini API maps non-'user' to 'model'.
     const history = messages
-      .filter((m) => {
-        // Drop the very last message if it matches the latest user message to avoid duplication
-        // This assumes handleSendMessage added it just before calling getBotResponse
-        return !(m.isUser && m.text === latestUserMessage)
-      })
-      .map((m) => ({
-        role: m.isUser ? 'user' : 'assistant',
-        content: m.text,
-      }))
+      .filter(m => !(m.isUser && m.text === latestUserMessage))
+      .map(m => ({ role: m.isUser ? 'user' : 'assistant', content: m.text }))
     return history
   }
 
   const getBotResponse = async (userMessage: string): Promise<void> => {
     setIsTyping(true)
     setErrorText(null)
-    
+
     try {
       const conversationHistory = buildConversationHistory(userMessage)
 
       const response = await fetch(endpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: userMessage,
-          conversationHistory,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMessage, conversationHistory }),
       })
 
       if (response.ok) {
-        // Gemini returns JSON { response: string }, OpenAI SSE route streams; but also returns fallback JSON on error
-        // Try JSON first; if not JSON, fall back to text
         let botText = ''
         const contentType = response.headers.get('Content-Type') || ''
         if (contentType.includes('application/json')) {
@@ -100,7 +84,6 @@ const AIChatbot = () => {
           isUser: false,
           timestamp: new Date()
         }
-        
         setMessages(prev => [...prev, botMessage])
       } else {
         let detail = ''
@@ -195,6 +178,8 @@ const AIChatbot = () => {
               <button
                 onClick={() => setIsOpen(false)}
                 className="text-white hover:text-gray-200 transition-colors"
+                title="Close chat"
+                aria-label="Close chat"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -281,15 +266,17 @@ const AIChatbot = () => {
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder={`Type your message... (${provider === 'openai' ? 'OpenAI' : provider === 'groq' ? 'Groq' : 'Gemini'})`}
-                  className="flex-1 px-3 py-2 border border-blue-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-700 bg-white text-black placeholder:text-slate-500"
+                  className="flex-1 px-3 py-2 border border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-black placeholder:text-slate-500"
                   disabled={isTyping}
                 />
                 <button
                   onClick={() => handleSendMessage(inputValue)}
                   disabled={!inputValue.trim() || isTyping}
-                  className="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="w-12 h-12 rounded-full flex items-center justify-center shadow-sm transition bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+                  title="Send message"
+                  aria-label="Send"
                 >
-                  <Send className="w-4 h-4" />
+                  <Send className="w-5 h-5" />
                 </button>
               </div>
             </div>
@@ -301,3 +288,5 @@ const AIChatbot = () => {
 }
 
 export default AIChatbot
+
+

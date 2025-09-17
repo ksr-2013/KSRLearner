@@ -71,7 +71,7 @@ export default function TypingPractice() {
       setCurrentText(typingTexts[level][0])
       setTotalCharacters(typingTexts[level][0].text.length)
     }
-  }, [level])
+  }, [level, typingTexts])
 
   useEffect(() => {
     if (isStarted && !isPaused && startTime) {

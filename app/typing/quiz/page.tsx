@@ -85,7 +85,7 @@ export default function TypingQuiz() {
         clearInterval(timerRef.current)
       }
     }
-  }, [isStarted, isComplete, startTime, userInput])
+  }, [isStarted, isComplete, startTime, userInput, completeQuiz])
 
   const startQuiz = () => {
     // Select random text

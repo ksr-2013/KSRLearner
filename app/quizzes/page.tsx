@@ -78,6 +78,14 @@ export default function QuizzesPage() {
               Each level contains 10 carefully crafted questions designed to test and enhance your 
               understanding of technology concepts.
             </p>
+            <div className="flex items-center justify-center gap-4">
+              <Link href="/" className="btn-outline inline-flex items-center">
+                Go Home
+              </Link>
+              <Link href="/quizzes/generator" className="btn-primary inline-flex items-center">
+                Smart Quiz Generator <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
+            </div>
           </div>
         </div>
       </section>

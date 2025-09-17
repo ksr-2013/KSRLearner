@@ -62,7 +62,7 @@ export default function TypingTest({
         clearInterval(timerRef.current)
       }
     }
-  }, [isStarted, isComplete, startTime, userInput])
+  }, [isStarted, isComplete, startTime, userInput, completeTest])
 
   const startTest = () => {
     setIsStarted(true)
