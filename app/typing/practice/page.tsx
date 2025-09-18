@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import Header from '../../../components/Header'
 import Footer from '../../../components/Footer'
 import Link from 'next/link'
@@ -35,7 +35,7 @@ export default function TypingPractice() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
   // Typing texts for different difficulty levels
-  const typingTexts: { [key: string]: TypingText[] } = {
+  const typingTexts: { [key: string]: TypingText[] } = useMemo(() => ({
     beginner: [
       { id: '1', text: 'The quick brown fox jumps over the lazy dog.', category: 'Basic', difficulty: 'Beginner' },
       { id: '2', text: 'Learning to type is fun and useful for everyone.', category: 'Basic', difficulty: 'Beginner' },
@@ -64,7 +64,7 @@ export default function TypingPractice() {
       { id: '4', text: 'The development of practical quantum internet protocols requires overcoming significant challenges in quantum entanglement distribution, quantum memory implementation, and quantum error correction, but promises to enable unbreakable encryption and quantum teleportation applications.', category: 'Quantum Internet', difficulty: 'Expert' },
       { id: '5', text: 'Synthetic biology combines principles from engineering, computer science, and molecular biology to design and construct new biological systems, potentially enabling breakthroughs in medicine, agriculture, and environmental remediation through programmable cellular behavior.', category: 'Synthetic Biology', difficulty: 'Expert' }
     ]
-  }
+  }), [])
 
   useEffect(() => {
     if (typingTexts[level] && typingTexts[level].length > 0) {

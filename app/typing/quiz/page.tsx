@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import Header from '../../../components/Header'
 import Footer from '../../../components/Footer'
 import Link from 'next/link'
@@ -42,7 +42,7 @@ export default function TypingQuiz() {
     "Cybersecurity is essential in protecting digital assets and maintaining privacy in our increasingly connected world. It involves implementing security measures, monitoring threats, and responding to incidents to safeguard information and systems."
   ]
 
-  const completeQuiz = () => {
+  const completeQuiz = useCallback(() => {
     setIsComplete(true)
     setIsStarted(false)
     setEndTime(Date.now())
@@ -76,7 +76,7 @@ export default function TypingQuiz() {
         })
       } catch {}
     })()
-  }
+  }, [wpm, accuracy, errors, selectedTimeLimit, timeRemaining, quizHistory])
 
   useEffect(() => {
     // Load quiz history from localStorage

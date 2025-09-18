@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Keyboard, Play, RotateCcw, Target, Clock } from 'lucide-react'
 
 interface TypingTestProps {
@@ -31,7 +31,7 @@ export default function TypingTest({
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
 
-  const completeTest = () => {
+  const completeTest = useCallback(() => {
     setIsComplete(true)
     setIsStarted(false)
     if (intervalRef.current) {
@@ -63,7 +63,7 @@ export default function TypingTest({
         })
       } catch {}
     })()
-  }
+  }, [wpm, accuracy, errors, timeLimit, timeRemaining, onComplete])
 
   useEffect(() => {
     if (isStarted && !isComplete && startTime) {
