@@ -56,6 +56,9 @@ export default function Header() {
             <Link href="/contact" className="text-slate-300 hover:text-blue-400 font-medium transition-colors">
               Contact
             </Link>
+            <Link href="/profile" className="text-slate-300 hover:text-blue-400 font-medium transition-colors">
+              Profile
+            </Link>
           </nav>
 
           {/* CTA Button */}
