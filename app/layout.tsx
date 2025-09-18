@@ -45,6 +45,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png" />
         <link rel="icon" href="/logo.png" type="image/png" />
         <link rel="apple-touch-icon" href="/logo.png" />
+        <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
       </head>
       <body>
         {children}

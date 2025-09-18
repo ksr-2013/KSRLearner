@@ -54,10 +54,10 @@ const AIChatbot = () => {
   const getBotResponse = async (userMessage: string): Promise<void> => {
     setIsTyping(true)
     setErrorText(null)
-
+    
     try {
       const conversationHistory = buildConversationHistory(userMessage)
-
+      
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -68,7 +68,7 @@ const AIChatbot = () => {
         let botText = ''
         const contentType = response.headers.get('Content-Type') || ''
         if (contentType.includes('application/json')) {
-          const data = await response.json()
+        const data = await response.json()
           botText = data.response || data.content || ''
         } else {
           botText = await response.text()
@@ -77,7 +77,7 @@ const AIChatbot = () => {
         const finalText = botText && typeof botText === 'string'
           ? botText
           : "Sorry, I couldn't process your request right now. Please try again!"
-
+        
         const botMessage: Message = {
           id: (Date.now() + 1).toString(),
           text: finalText,
@@ -147,16 +147,16 @@ const AIChatbot = () => {
     <>
       {/* Chat Button */}
       {!isOpen && (
-        <motion.button
-          onClick={() => setIsOpen(true)}
+      <motion.button
+        onClick={() => setIsOpen(true)}
           className="fixed bottom-6 right-6 w-16 h-16 bg-blue-800 hover:bg-blue-900 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center z-[2147483647]"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-          title="Chat with AI Assistant"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        title="Chat with AI Assistant"
           aria-label="Chat with AI Assistant"
-        >
-          <MessageCircle className="w-6 h-6" />
-        </motion.button>
+      >
+        <MessageCircle className="w-6 h-6" />
+      </motion.button>
       )}
 
       {/* Chat Window */}
