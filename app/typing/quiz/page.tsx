@@ -62,6 +62,20 @@ export default function TypingQuiz() {
     const newHistory = [result, ...quizHistory].slice(0, 10)
     setQuizHistory(newHistory)
     localStorage.setItem('typingQuizHistory', JSON.stringify(newHistory))
+    // Save score to backend (requires user to be logged in)
+    ;(async () => {
+      try {
+        await fetch('/api/scores', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            kind: 'quiz',
+            value: wpm,
+            meta: { wpm, accuracy, errors, time: result.time }
+          })
+        })
+      } catch {}
+    })()
   }
 
   useEffect(() => {

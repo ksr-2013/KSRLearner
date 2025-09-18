@@ -13,16 +13,14 @@ export default function AuthPage() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    const client = (window as any).GoTrue ? new (window as any).GoTrue({
-      APIUrl: `${window.location.origin}/.netlify/identity`,
-      setCookie: true
-    }) : null
-    // If already logged in, redirect
+    // If already logged in (via our JWT cookie), redirect to profile
     ;(async () => {
       try {
-        const current = (window as any).netlifyIdentity?.currentUser?.()
-        if (current) window.location.assign('/profile')
+        const res = await fetch('/api/auth/me', { cache: 'no-store' })
+        if (res.ok) {
+          const data = await res.json()
+          if (data?.user) window.location.assign('/profile')
+        }
       } catch {}
     })()
   }, [])
@@ -32,16 +30,13 @@ export default function AuthPage() {
     setError(null)
     setLoading(true)
     try {
-      const GoTrue = (window as any).GoTrue
-      if (!GoTrue) throw new Error('Identity client not loaded')
-      const client = new GoTrue({ APIUrl: `${window.location.origin}/.netlify/identity`, setCookie: true })
-      if (mode === 'signup') {
-        const user = await client.signup(email.trim(), password, { full_name: name.trim() })
-        if (user) window.location.assign('/profile')
-      } else {
-        const token = await client.login(email.trim(), password, true)
-        if (token) window.location.assign('/profile')
-      }
+      const url = mode === 'signup' ? '/api/auth/signup' : '/api/auth/login'
+      const body: any = { email, password }
+      if (mode === 'signup') body.name = name
+      const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data?.details || data?.error || 'Authentication failed')
+      window.location.assign('/profile')
     } catch (err: any) {
       setError(err?.message || 'Authentication failed')
     } finally {
@@ -55,7 +50,7 @@ export default function AuthPage() {
       <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-white mb-2">{mode === 'login' ? 'Log in' : 'Sign up'}</h1>
-          <p className="text-slate-300">Secure access powered by Netlify Identity</p>
+          <p className="text-slate-300">Secure access powered by custom JWT auth</p>
         </div>
         <div className="bg-slate-800 rounded-xl border border-slate-700 p-6">
           <form onSubmit={handleSubmit} className="space-y-4">

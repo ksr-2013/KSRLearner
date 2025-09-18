@@ -1,14 +1,42 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Menu, X } from 'lucide-react'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [loggedIn, setLoggedIn] = useState(false)
+  const [userName, setUserName] = useState<string>('')
+  const [avatarUrl, setAvatarUrl] = useState<string>('')
+  const [profileOpen, setProfileOpen] = useState(false)
+
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      try {
+        const res = await fetch('/api/auth/me', { cache: 'no-store' })
+        const data = await res.json()
+        if (mounted) {
+          setLoggedIn(!!data?.user)
+          setUserName(data?.user?.name || data?.user?.email || '')
+          setAvatarUrl(data?.user?.avatarUrl || '')
+        }
+      } catch {
+        if (mounted) setLoggedIn(false)
+      }
+    })()
+    return () => { mounted = false }
+  }, [])
+
+  const handleLogout = async () => {
+    try { await fetch('/api/auth/logout', { method: 'POST' }) } catch {}
+    window.location.assign('/')
+  }
 
   return (
+    <>
     <header className="bg-slate-900 shadow-lg border-b border-slate-700 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
@@ -56,16 +84,23 @@ export default function Header() {
             <Link href="/contact" className="text-slate-300 hover:text-blue-400 font-medium transition-colors">
               Contact
             </Link>
-            <Link href="/profile" className="text-slate-300 hover:text-blue-400 font-medium transition-colors">
-              Profile
-            </Link>
+            {loggedIn && (
+              <Link href="/profile" className="text-slate-300 hover:text-blue-400 font-medium transition-colors">
+                Profile
+              </Link>
+            )}
           </nav>
 
           {/* CTA Button */}
           <div className="hidden md:block">
-            <Link href="/auth" className="btn-primary">
-              Get Started
-            </Link>
+            {loggedIn ? (
+              <div className="flex items-center gap-2">
+                <Link href="/profile" className="btn-outline">Profile</Link>
+                <button onClick={handleLogout} className="btn-primary">Logout</button>
+              </div>
+            ) : (
+              <Link href="/auth" className="btn-primary">Get Started</Link>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -137,5 +172,36 @@ export default function Header() {
         )}
       </div>
     </header>
+    {/* Floating profile pill - bottom-left */}
+    {loggedIn && (
+      <div className="fixed bottom-6 left-6 z-[2147483647]">
+        <div className="bg-slate-800 border border-slate-700 rounded-full shadow-xl flex items-center relative">
+          <button
+            onClick={() => setProfileOpen(!profileOpen)}
+            className="flex items-center gap-2 px-3 py-2 rounded-full hover:bg-slate-700 transition"
+            title="Profile menu"
+            aria-label="Profile menu"
+          >
+            <div className="w-8 h-8 rounded-full overflow-hidden bg-blue-600 text-white flex items-center justify-center font-semibold">
+              {avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                (userName || 'U').trim().charAt(0).toUpperCase()
+              )}
+            </div>
+            <span className="text-slate-200 text-sm max-w-[140px] truncate">{userName || 'Profile'}</span>
+          </button>
+          {profileOpen && (
+            <div className="absolute mb-14 ml-0 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl p-2 w-44">
+              <Link href="/profile" className="block px-3 py-2 text-slate-200 hover:bg-slate-700 rounded-lg text-sm">Profile</Link>
+              <Link href="/quizzes" className="block px-3 py-2 text-slate-200 hover:bg-slate-700 rounded-lg text-sm">My learning</Link>
+              <button onClick={handleLogout} className="w-full text-left px-3 py-2 text-slate-200 hover:bg-slate-700 rounded-lg text-sm">Logout</button>
+            </div>
+          )}
+        </div>
+      </div>
+    )}
+    </>
   )
 }

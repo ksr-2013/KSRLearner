@@ -49,6 +49,20 @@ export default function TypingTest({
     if (onComplete) {
       onComplete(result)
     }
+    // Fire-and-forget save to scores API (requires logged-in user)
+    ;(async () => {
+      try {
+        await fetch('/api/scores', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            kind: 'typing',
+            value: wpm,
+            meta: { wpm, accuracy, errors, time: result.time }
+          })
+        })
+      } catch {}
+    })()
   }
 
   useEffect(() => {
