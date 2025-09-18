@@ -60,7 +60,7 @@ export default function Header() {
 
           {/* CTA Button */}
           <div className="hidden md:block">
-            <Link href="/quizzes" className="btn-primary">
+            <Link href="/auth" className="btn-primary">
               Get Started
             </Link>
           </div>
@@ -122,7 +122,7 @@ export default function Header() {
               </Link>
               <div className="pt-4">
                 <Link
-                  href="/quizzes"
+                  href="/auth"
                   className="btn-primary w-full text-center"
                   onClick={() => setIsMenuOpen(false)}
                 >
