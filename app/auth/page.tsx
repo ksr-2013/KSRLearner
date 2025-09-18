@@ -19,6 +19,7 @@ export default function AuthPage() {
 
   const open = (mode: 'login' | 'signup') => {
     const id = (window as any).netlifyIdentity
+    // Prefer custom modal look instead of widget UI theme; still use widget flow
     id?.open(mode)
   }
 
@@ -28,11 +29,23 @@ export default function AuthPage() {
       <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-white mb-2">Welcome</h1>
-          <p className="text-slate-300">Sign in to track progress and personalize your learning.</p>
+          <p className="text-slate-300">Create your account or log in to continue.</p>
         </div>
-        <div className="card">
-          <button onClick={() => open('login')} className="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold mb-3 transition">Log in</button>
-          <button onClick={() => open('signup')} className="w-full py-3 rounded-lg border border-slate-600 text-slate-200 hover:bg-slate-800 transition">Sign up</button>
+        <div className="bg-slate-800 rounded-xl border border-slate-700 p-6">
+          <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
+            <div>
+              <label className="block text-sm text-slate-300 mb-1">Email</label>
+              <input type="email" className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="you@example.com" />
+            </div>
+            <div>
+              <label className="block text-sm text-slate-300 mb-1">Password</label>
+              <input type="password" className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="••••••••" />
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button onClick={() => open('login')} className="flex-1 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition">Log in</button>
+              <button onClick={() => open('signup')} className="flex-1 py-3 rounded-lg border border-slate-600 text-slate-200 hover:bg-slate-700 transition">Sign up</button>
+            </div>
+          </form>
           <div className="mt-4 text-xs text-slate-400 text-center">Powered by Netlify Identity</div>
         </div>
       </div>
