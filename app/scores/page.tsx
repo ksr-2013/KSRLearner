@@ -14,7 +14,8 @@ interface Score {
 }
 
 export default function ScoresPage() {
-  const [scores, setScores] = useState<Score[] | null>(null)
+  const [typingScores, setTypingScores] = useState<Score[] | null>(null)
+  const [quizScores, setQuizScores] = useState<Score[] | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -26,12 +27,12 @@ export default function ScoresPage() {
           window.location.assign('/auth')
           return
         }
-        const list = await fetch('/api/scores?kind=typing', { cache: 'no-store' })
-        const list2 = await fetch('/api/scores?kind=quiz', { cache: 'no-store' })
-        const a = (await list.json()).scores || []
-        const b = (await list2.json()).scores || []
-        const combined: Score[] = [...a, ...b].sort((x: any, y: any) => new Date(y.createdAt).getTime() - new Date(x.createdAt).getTime())
-        setScores(combined)
+        const listTyping = await fetch('/api/scores?kind=typing', { cache: 'no-store' })
+        const listQuiz = await fetch('/api/scores?kind=quiz', { cache: 'no-store' })
+        const a = (await listTyping.json()).scores || []
+        const b = (await listQuiz.json()).scores || []
+        setTypingScores(a)
+        setQuizScores(b)
       } catch (e: any) {
         setError(e?.message || 'Failed to load scores')
       }
@@ -49,30 +50,55 @@ export default function ScoresPage() {
 
         {error && <div className="text-red-400 mb-4">{error}</div>}
 
-        {!scores && !error && (
+        {!typingScores && !quizScores && !error && (
           <div className="text-slate-300">Loading…</div>
         )}
 
-        {scores && scores.length === 0 && (
+        {typingScores && quizScores && typingScores.length === 0 && quizScores.length === 0 && (
           <div className="text-slate-300">No scores yet. Try a typing test or quiz!</div>
         )}
 
-        {scores && scores.length > 0 && (
-          <div className="space-y-3">
-            {scores.map((s) => (
-              <div key={s.id} className="flex items-center justify-between p-4 bg-slate-800 rounded-lg border border-slate-700">
-                <div>
-                  <div className="text-white font-semibold capitalize">{s.kind}</div>
-                  <div className="text-slate-400 text-sm">{new Date(s.createdAt).toLocaleString()}</div>
+        {(quizScores && quizScores.length > 0) && (
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold text-white mb-3">Quiz Scores</h2>
+            <div className="space-y-3">
+              {quizScores.map((s) => (
+                <div key={s.id} className="flex items-center justify-between p-4 bg-slate-800 rounded-lg border border-slate-700">
+                  <div>
+                    <div className="text-white font-semibold">Quiz</div>
+                    <div className="text-slate-400 text-sm">{new Date(s.createdAt).toLocaleString()}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-blue-400 font-bold text-lg">{s.value}</div>
+                    {s.meta?.explanation && (
+                      <div className="text-slate-400 text-xs">Has explanations</div>
+                    )}
+                  </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-blue-400 font-bold text-lg">{s.value}</div>
-                  {s.meta?.accuracy != null && (
-                    <div className="text-slate-400 text-xs">{s.meta.accuracy}% accuracy</div>
-                  )}
+              ))}
+            </div>
+          </div>
+        )}
+
+        {(typingScores && typingScores.length > 0) && (
+          <div>
+            <h2 className="text-xl font-semibold text-white mb-3">Typing Scores</h2>
+            <div className="space-y-3">
+              {typingScores.map((s) => (
+                <div key={s.id} className="flex items-center justify-between p-4 bg-slate-800 rounded-lg border border-slate-700">
+                  <div>
+                    <div className="text-white font-semibold">Typing</div>
+                    <div className="text-slate-400 text-sm">{new Date(s.createdAt).toLocaleString()}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-blue-400 font-bold text-lg">{s.value} WPM</div>
+                    {s.meta?.accuracy != null && (
+                      <div className="text-slate-400 text-xs">{s.meta.accuracy}% accuracy</div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
       </div>
