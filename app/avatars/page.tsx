@@ -23,6 +23,17 @@ function dicebearUrl(seed: string, style: string = 'thumbs', background: string 
   return `/api/avatars/dicebear?${qs.toString()}`
 }
 
+const GENERATED_SET: { style: string; seed: string; background: string }[] = [
+  { style: 'thumbs', seed: 'joy-1', background: 'b6e3f4' },
+  { style: 'thumbs', seed: 'joy-2', background: 'c0aede' },
+  { style: 'fun-emoji', seed: 'fun-1', background: 'd1d4f9' },
+  { style: 'fun-emoji', seed: 'fun-2', background: 'ffdfbf' },
+  { style: 'bottts-neutral', seed: 'bot-1', background: 'b6e3f4' },
+  { style: 'bottts-neutral', seed: 'bot-2', background: 'c0aede' },
+  { style: 'identicon', seed: 'ident-1', background: 'd1d4f9' },
+  { style: 'identicon', seed: 'ident-2', background: 'ffdfbf' }
+]
+
 export default function AvatarsPage() {
   const [user, setUser] = useState<MeUser | null>(null)
   const [current, setCurrent] = useState<string>('')
@@ -91,11 +102,11 @@ export default function AvatarsPage() {
                   <img src={src} alt="Avatar option" className="w-full aspect-square object-cover" />
                 </button>
               ))}
-              {[0,1,2,3,4,5].map((i) => {
-                const src = dicebearUrl(`user-${i}`, 'thumbs', i % 2 === 0 ? 'b6e3f4' : 'c0aede')
+              {GENERATED_SET.map((g, i) => {
+                const src = dicebearUrl(g.seed, g.style, g.background)
                 return (
                   <button
-                    key={`dice-${i}`}
+                    key={`dice-${g.style}-${g.seed}-${i}`}
                     type="button"
                     disabled={saving}
                     onClick={() => save(src)}
