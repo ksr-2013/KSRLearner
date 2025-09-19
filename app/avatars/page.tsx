@@ -11,28 +11,7 @@ interface MeUser {
   avatarUrl?: string | null
 }
 
-const BUILT_IN_AVATARS = [
-  '/avatars/av1.svg',
-  '/avatars/av2.svg',
-  '/avatars/av3.svg',
-  '/avatars/av4.svg'
-]
-
-function dicebearUrl(seed: string, style: string = 'thumbs', background: string = 'b6e3f4') {
-  const qs = new URLSearchParams({ seed, style, background })
-  return `/api/avatars/dicebear?${qs.toString()}`
-}
-
-const GENERATED_SET: { style: string; seed: string; background: string }[] = [
-  { style: 'thumbs', seed: 'joy-1', background: 'b6e3f4' },
-  { style: 'thumbs', seed: 'joy-2', background: 'c0aede' },
-  { style: 'fun-emoji', seed: 'fun-1', background: 'd1d4f9' },
-  { style: 'fun-emoji', seed: 'fun-2', background: 'ffdfbf' },
-  { style: 'bottts-neutral', seed: 'bot-1', background: 'b6e3f4' },
-  { style: 'bottts-neutral', seed: 'bot-2', background: 'c0aede' },
-  { style: 'identicon', seed: 'ident-1', background: 'd1d4f9' },
-  { style: 'identicon', seed: 'ident-2', background: 'ffdfbf' }
-]
+// Only show custom uploaded avatars
 
 export default function AvatarsPage() {
   const [user, setUser] = useState<MeUser | null>(null)
@@ -94,37 +73,6 @@ export default function AvatarsPage() {
           <>
             {message && <div className="mb-4 text-slate-300">{message}</div>}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {BUILT_IN_AVATARS.map((src) => (
-                <button
-                  key={src}
-                  type="button"
-                  disabled={saving}
-                  onClick={() => save(src)}
-                  className={`rounded-2xl overflow-hidden ring-2 transition bg-slate-800 hover:ring-blue-400 ${current === src ? 'ring-blue-500' : 'ring-slate-700'}`}
-                  title="Select avatar"
-                  aria-label="Select avatar"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt="Avatar option" className="w-full aspect-square object-cover" />
-                </button>
-              ))}
-              {GENERATED_SET.map((g, i) => {
-                const src = dicebearUrl(g.seed, g.style, g.background)
-                return (
-                  <button
-                    key={`dice-${g.style}-${g.seed}-${i}`}
-                    type="button"
-                    disabled={saving}
-                    onClick={() => save(src)}
-                    className={`rounded-2xl overflow-hidden ring-2 transition bg-slate-800 hover:ring-blue-400 ${current === src ? 'ring-blue-500' : 'ring-slate-700'}`}
-                    title="Select generated avatar"
-                    aria-label="Select generated avatar"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={src} alt="Generated avatar" className="w-full aspect-square object-cover" />
-                  </button>
-                )
-              })}
               {custom.map((src) => (
                 <button
                   key={`custom-${src}`}
