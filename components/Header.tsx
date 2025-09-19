@@ -195,6 +195,7 @@ export default function Header() {
           {profileOpen && (
             <div className="absolute mb-14 ml-0 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl p-2 w-44">
               <Link href="/profile" className="block px-3 py-2 text-slate-200 hover:bg-slate-700 rounded-lg text-sm">Profile</Link>
+              <Link href="/scores" className="block px-3 py-2 text-slate-200 hover:bg-slate-700 rounded-lg text-sm">Scores</Link>
               <Link href="/quizzes" className="block px-3 py-2 text-slate-200 hover:bg-slate-700 rounded-lg text-sm">My learning</Link>
               <button onClick={handleLogout} className="w-full text-left px-3 py-2 text-slate-200 hover:bg-slate-700 rounded-lg text-sm">Logout</button>
             </div>
