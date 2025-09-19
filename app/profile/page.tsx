@@ -11,6 +11,12 @@ interface MeUser {
   avatarUrl?: string | null
 }
 
+const BUILT_IN_AVATARS = [
+  '/avatars/av1.svg',
+  '/avatars/av2.svg',
+  '/avatars/av3.svg'
+]
+
 export default function ProfilePage() {
   const [user, setUser] = useState<MeUser | null>(null)
   const [name, setName] = useState('')
@@ -92,16 +98,27 @@ export default function ProfilePage() {
                     maxLength={100}
                   />
                 </div>
+
                 <div>
-                  <label className="block text-slate-300 text-sm mb-1">Avatar URL</label>
-                  <input
-                    value={avatarUrl}
-                    onChange={(e) => setAvatarUrl(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="https://..."
-                    maxLength={2048}
-                  />
+                  <label className="block text-slate-300 text-sm mb-2">Choose an avatar</label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {BUILT_IN_AVATARS.map((src) => (
+                      <button
+                        key={src}
+                        type="button"
+                        onClick={() => setAvatarUrl(src)}
+                        className={`rounded-xl overflow-hidden ring-2 transition ${avatarUrl === src ? 'ring-blue-500' : 'ring-transparent hover:ring-slate-600'}`}
+                        title="Select avatar"
+                        aria-label="Select avatar"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={src} alt="Avatar option" className="w-full h-20 object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                  <div className="text-xs text-slate-400 mt-2">Your selection is saved to your profile.</div>
                 </div>
+
                 {message && <div className="text-sm text-slate-300">{message}</div>}
                 <button type="submit" disabled={saving} className="btn-primary w-full">
                   {saving ? 'Saving…' : 'Save changes'}
