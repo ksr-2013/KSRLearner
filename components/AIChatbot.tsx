@@ -167,7 +167,7 @@ const AIChatbot = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-6 right-3 left-3 sm:left-auto sm:right-6 w-[calc(100vw-24px)] sm:w-96 h-[560px] bg-white rounded-2xl shadow-2xl border border-gray-200 z-[2147483646] flex flex-col overflow-hidden"
+            className="fixed bottom-6 right-3 left-3 sm:left-auto sm:right-6 w-[calc(100vw-24px)] sm:w-96 h-[560px] bg-slate-900 rounded-2xl shadow-2xl border border-slate-700 z-[2147483646] flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="bg-blue-800 text-white p-4 flex items-center justify-between">
@@ -187,20 +187,20 @@ const AIChatbot = () => {
 
             {/* Inline status / error */}
             {errorText && (
-              <div className="px-4 py-2 bg-yellow-50 text-yellow-800 text-xs border-b border-yellow-200">
+              <div className="px-4 py-2 bg-yellow-900/30 text-yellow-300 text-xs border-b border-yellow-800/50">
                 {errorText}
               </div>
             )}
 
             {/* Quick prompts */}
-            <div className="px-4 pt-3 pb-2 border-b border-gray-200 bg-gray-50">
+            <div className="px-4 pt-3 pb-2 border-b border-slate-700 bg-slate-800">
               <div className="flex flex-wrap gap-2">
                 {quickPrompts.map((q) => (
                   <button
                     key={q}
                     onClick={() => handleSendMessage(q)}
                     disabled={isTyping}
-                    className="text-xs px-3 py-1.5 rounded-full border border-blue-400 text-blue-700 bg-blue-50 hover:bg-blue-100 hover:border-blue-600 hover:text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-200 disabled:text-gray-700 disabled:border-gray-400"
+                    className="text-xs px-3 py-1.5 rounded-full border border-blue-500 text-blue-200 bg-blue-900/20 hover:bg-blue-900/40 hover:border-blue-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-700 disabled:text-slate-400 disabled:border-slate-600"
                   >
                     {q}
                   </button>
@@ -218,16 +218,16 @@ const AIChatbot = () => {
                   <div
                     className={`max-w-[80%] p-3 rounded-lg ${
                       message.isUser
-                        ? 'bg-blue-800 text-white'
-                        : 'bg-gray-100 text-black'
+                        ? 'bg-blue-700 text-white'
+                        : 'bg-slate-800 text-slate-100'
                     }`}
                   >
                     <div className="flex items-start space-x-2">
                       {!message.isUser && <Bot className="w-4 h-4 mt-1 flex-shrink-0" />}
                       {message.isUser && <User className="w-4 h-4 mt-1 flex-shrink-0" />}
                       <div className="flex-1">
-                        <p className="text-sm whitespace-pre-wrap text-black">{message.text}</p>
-                        <p className="text-xs opacity-70 mt-1 text-black">
+                        <p className="text-sm whitespace-pre-wrap">{message.text}</p>
+                        <p className="text-xs opacity-70 mt-1">
                           {message.timestamp.toLocaleTimeString([], { 
                             hour: '2-digit', 
                             minute: '2-digit' 
@@ -241,13 +241,13 @@ const AIChatbot = () => {
               
               {isTyping && (
                 <div className="flex justify-start">
-                  <div className="bg-gray-100 text-black p-3 rounded-lg">
+                  <div className="bg-slate-800 text-slate-100 p-3 rounded-lg">
                     <div className="flex items-center space-x-2">
                       <Bot className="w-4 h-4" />
                       <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                        <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
+                        <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                        <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                       </div>
                     </div>
                   </div>
@@ -258,7 +258,7 @@ const AIChatbot = () => {
             </div>
 
             {/* Input */}
-            <div className="p-4 border-t border-gray-200">
+            <div className="p-4 border-t border-slate-700 bg-slate-900">
               <div className="flex space-x-2">
                 <input
                   type="text"
@@ -266,7 +266,7 @@ const AIChatbot = () => {
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder={`Type your message... (${provider === 'openai' ? 'OpenAI' : provider === 'groq' ? 'Groq' : 'Gemini'})`}
-                  className="flex-1 px-3 py-2 border border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-black placeholder:text-slate-500"
+                  className="flex-1 px-3 py-2 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-slate-800 text-white placeholder:text-slate-400"
                   disabled={isTyping}
                 />
                 <button
