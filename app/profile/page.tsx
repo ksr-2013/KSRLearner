@@ -14,7 +14,8 @@ interface MeUser {
 const BUILT_IN_AVATARS = [
   '/avatars/av1.svg',
   '/avatars/av2.svg',
-  '/avatars/av3.svg'
+  '/avatars/av3.svg',
+  '/avatars/av4.svg'
 ]
 
 export default function ProfilePage() {

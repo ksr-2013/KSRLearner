@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <clipPath id="round">
+      <rect x="0" y="0" width="120" height="120" rx="24" ry="24" />
+    </clipPath>
+  </defs>
+  <rect width="120" height="120" rx="24" fill="#e9e7f7"/>
+  <g clip-path="url(#round)">
+    <!-- shoulders -->
+    <path d="M-10 120 Q60 88 130 120 Z" fill="#a58bb3"/>
+    <!-- neck -->
+    <rect x="54" y="70" width="12" height="10" rx="3" fill="#111827"/>
+    <!-- face -->
+    <path d="M40 35 q20 -10 40 0 v20 q0 18 -20 18 q-20 0 -20 -18z" fill="#f2996b"/>
+    <!-- hair -->
+    <path d="M40 38 q18 -18 40 0 q3 3 3 10 h-8 q-15 -10 -35 -2 z" fill="#0b0f19"/>
+    <!-- glasses -->
+    <circle cx="60" cy="52" r="8" fill="none" stroke="#3b82f6" stroke-width="3"/>
+    <circle cx="78" cy="52" r="8" fill="none" stroke="#3b82f6" stroke-width="3"/>
+    <rect x="68" y="50.5" width="8" height="3" fill="#3b82f6"/>
+    <!-- eye dots -->
+    <circle cx="60" cy="53" r="2" fill="#111827"/>
+    <circle cx="78" cy="53" r="2" fill="#111827"/>
+    <!-- smile -->
+    <path d="M62 64 q8 6 16 0" fill="none" stroke="#111827" stroke-width="2" stroke-linecap="round"/>
+    <!-- collar -->
+    <path d="M42 80 q18 -6 36 0" fill="none" stroke="#e5e7eb" stroke-width="4" stroke-linecap="round"/>
+  </g>
+</svg>
+
