@@ -39,6 +39,7 @@ export default function AvatarsPage() {
   const [current, setCurrent] = useState<string>('')
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<string>('')
+  const [custom, setCustom] = useState<string[]>([])
 
   useEffect(() => {
     ;(async () => {
@@ -51,6 +52,11 @@ export default function AvatarsPage() {
       const u: MeUser = data.user
       setUser(u)
       setCurrent(u.avatarUrl || '')
+      try {
+        const list = await fetch('/api/avatars/list', { cache: 'no-store' })
+        const payload = await list.json()
+        if (Array.isArray(payload?.avatars)) setCustom(payload.avatars)
+      } catch {}
     })()
   }, [])
 
@@ -119,6 +125,20 @@ export default function AvatarsPage() {
                   </button>
                 )
               })}
+              {custom.map((src) => (
+                <button
+                  key={`custom-${src}`}
+                  type="button"
+                  disabled={saving}
+                  onClick={() => save(src)}
+                  className={`rounded-2xl overflow-hidden ring-2 transition bg-slate-800 hover:ring-blue-400 ${current === src ? 'ring-blue-500' : 'ring-slate-700'}`}
+                  title="Select custom avatar"
+                  aria-label="Select custom avatar"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt="Custom avatar" className="w-full aspect-square object-cover" />
+                </button>
+              ))}
             </div>
           </>
         )}
