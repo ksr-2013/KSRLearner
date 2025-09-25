@@ -1,9 +1,8 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { MessageCircle, X, Send, Bot, User, Mic } from 'lucide-react'
+import { MessageCircle, X, Send, Bot, User } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import VoiceAgent from './VoiceAgent'
 
 interface Message {
   id: string
@@ -25,7 +24,6 @@ const AIChatbot = () => {
   const [inputValue, setInputValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [errorText, setErrorText] = useState<string | null>(null)
-  const [showVoiceAgent, setShowVoiceAgent] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const provider = (process.env.NEXT_PUBLIC_AI_PROVIDER || 'groq').toLowerCase()
@@ -145,20 +143,6 @@ const AIChatbot = () => {
     }
   }
 
-  const handleVoiceMessage = (message: string) => {
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      text: message,
-      isUser: true,
-      timestamp: new Date()
-    }
-    setMessages(prev => [...prev, userMessage])
-    getBotResponse(message)
-  }
-
-  const handleVoiceTranscript = (transcript: string) => {
-    setInputValue(transcript)
-  }
 
   return (
     <>
@@ -287,18 +271,6 @@ const AIChatbot = () => {
                   disabled={isTyping}
                 />
                 <button
-                  onClick={() => setShowVoiceAgent(!showVoiceAgent)}
-                  className={`w-12 h-12 rounded-full flex items-center justify-center shadow-sm transition ${
-                    showVoiceAgent 
-                      ? 'bg-green-600 text-white hover:bg-green-700' 
-                      : 'bg-slate-600 text-white hover:bg-slate-700'
-                  }`}
-                  title={showVoiceAgent ? 'Hide Voice Agent' : 'Show Voice Agent'}
-                  aria-label="Voice Agent"
-                >
-                  <Mic className="w-5 h-5" />
-                </button>
-                <button
                   onClick={() => handleSendMessage(inputValue)}
                   disabled={!inputValue.trim() || isTyping}
                   className="w-12 h-12 rounded-full flex items-center justify-center shadow-sm transition bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
@@ -313,13 +285,6 @@ const AIChatbot = () => {
         )}
       </AnimatePresence>
       
-      {/* Voice Agent */}
-      {showVoiceAgent && (
-        <VoiceAgent 
-          onMessage={handleVoiceMessage}
-          onTranscript={handleVoiceTranscript}
-        />
-      )}
     </>
   )
 }

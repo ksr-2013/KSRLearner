@@ -84,14 +84,12 @@ export default function Header() {
             <Link href="/contact" className="text-slate-300 hover:text-blue-400 font-medium transition-colors">
               Contact
             </Link>
-            <Link href="/voice-agent" className="text-slate-300 hover:text-blue-400 font-medium transition-colors">
-              Voice Agent
-            </Link>
             {loggedIn && (
               <Link href="/profile" className="text-slate-300 hover:text-blue-400 font-medium transition-colors">
                 Profile
               </Link>
             )}
+            {/* Voice Agent removed */}
           </nav>
 
           {/* CTA Button */}
@@ -161,13 +159,6 @@ export default function Header() {
               >
                 Contact
               </Link>
-              <Link
-                href="/voice-agent"
-                className="block px-3 py-2 text-slate-300 hover:text-blue-400 hover:bg-slate-700 rounded-md font-medium transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Voice Agent
-              </Link>
               <div className="pt-4">
                 <Link
                   href="/auth"
@@ -177,6 +168,7 @@ export default function Header() {
                   Get Started
                 </Link>
               </div>
+              {/* Voice Agent removed */}
             </div>
           </div>
         )}
