@@ -28,6 +28,8 @@ yarn-error.log*
 # local env files
 .env*.local
 .env
+# ignore embedded repo directory to avoid submodule checkout issues
+bolna/
 
 # vercel
 .vercel
