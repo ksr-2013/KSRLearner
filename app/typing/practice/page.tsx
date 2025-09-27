@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import Header from '../../../components/Header'
 import Footer from '../../../components/Footer'
+import SaveScore from '../../../components/SaveScore'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Keyboard, RotateCcw, Play, Pause, Target, Clock, Trophy, ArrowLeft } from 'lucide-react'
@@ -328,6 +329,23 @@ export default function TypingPractice() {
                   </div>
                   <div className="text-slate-400 text-sm">Time</div>
                 </div>
+              </div>
+
+              <div className="mb-6">
+                <SaveScore
+                  type="typing"
+                  title={`Typing Practice - ${currentText?.category || 'General'}`}
+                  wpm={wpm}
+                  level={getWpmRating(wpm).rating}
+                  completed={true}
+                  duration={Math.round((endTime - (startTime || 0)) / 1000)}
+                  details={{
+                    accuracy: accuracy,
+                    errors: errors,
+                    category: currentText?.category || 'General',
+                    level: selectedLevel
+                  }}
+                />
               </div>
               
               {currentIndex < (typingTexts[level]?.length || 0) - 1 ? (

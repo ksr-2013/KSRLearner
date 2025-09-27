@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Header from '../../../../components/Header'
 import Footer from '../../../../components/Footer'
+import SaveScore from '../../../../components/SaveScore'
 import Link from 'next/link'
 import { ArrowLeft, CheckCircle, XCircle, Trophy, Star } from 'lucide-react'
 
@@ -189,6 +190,21 @@ export default function BeginnerQuiz3() {
                 {Math.round((score / questions.length) * 100)}%
               </div>
               <p className="text-dark-300">{getScoreMessage()}</p>
+            </div>
+
+            <div className="max-w-md mx-auto mb-8">
+              <SaveScore
+                type="quiz"
+                title="Computer Fundamentals Quiz 3"
+                score={Math.round((score / questions.length) * 100)}
+                level="Beginner"
+                completed={true}
+                details={{
+                  correctAnswers: score,
+                  totalQuestions: questions.length,
+                  quizType: 'beginner'
+                }}
+              />
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Header from '../../../../components/Header'
 import Footer from '../../../../components/Footer'
+import SaveScore from '../../../../components/SaveScore'
 import Link from 'next/link'
 import { ArrowLeft, CheckCircle, XCircle, Trophy, Zap } from 'lucide-react'
 
@@ -189,6 +190,21 @@ export default function ProQuiz2() {
                 {Math.round((score / questions.length) * 100)}%
               </div>
               <p className="text-dark-300">{getScoreMessage()}</p>
+            </div>
+
+            <div className="max-w-md mx-auto mb-8">
+              <SaveScore
+                type="quiz"
+                title="Advanced Computer Systems Quiz 2"
+                score={Math.round((score / questions.length) * 100)}
+                level="Pro"
+                completed={true}
+                details={{
+                  correctAnswers: score,
+                  totalQuestions: questions.length,
+                  quizType: 'pro'
+                }}
+              />
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
