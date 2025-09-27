@@ -6,7 +6,7 @@ import Footer from '../../../components/Footer'
 import SaveScore from '../../../components/SaveScore'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { Keyboard, RotateCcw, Play, Pause, Target, Clock, Trophy, ArrowLeft } from 'lucide-react'
+import { Keyboard, RotateCcw, Play, Pause, Target, Clock, Trophy, ArrowLeft, Zap } from 'lucide-react'
 
 interface TypingText {
   id: string
@@ -34,6 +34,14 @@ export default function TypingPractice() {
   
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  const getWpmRating = (wpm: number) => {
+    if (wpm >= 80) return { rating: 'Expert', color: 'text-yellow-400', icon: Trophy }
+    if (wpm >= 60) return { rating: 'Advanced', color: 'text-purple-400', icon: Zap }
+    if (wpm >= 40) return { rating: 'Intermediate', color: 'text-blue-400', icon: Target }
+    if (wpm >= 20) return { rating: 'Beginner', color: 'text-green-400', icon: Keyboard }
+    return { rating: 'Novice', color: 'text-slate-400', icon: Keyboard }
+  }
 
   // Typing texts for different difficulty levels
   const typingTexts: { [key: string]: TypingText[] } = useMemo(() => ({
@@ -343,7 +351,7 @@ export default function TypingPractice() {
                     accuracy: accuracy,
                     errors: errors,
                     category: currentText?.category || 'General',
-                    level: selectedLevel
+                    level: level
                   }}
                 />
               </div>
