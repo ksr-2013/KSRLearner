@@ -54,6 +54,7 @@ export async function GET(request: NextRequest) {
     }
 
     // For now, return mock data. In a real app, you'd fetch from your database
+    // TODO: Replace with actual database queries
     const mockDashboardData: DashboardData = {
       user: {
         id: decoded.userId,

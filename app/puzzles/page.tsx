@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
+import SaveScore from '../../components/SaveScore'
 import { Puzzle, Lightbulb, Target, Brain, Sparkles, Trophy } from 'lucide-react'
 
 export default function PuzzlesPage() {
@@ -249,14 +250,31 @@ export default function PuzzlesPage() {
               )}
 
               {showSolution && (
-                <div className="bg-emerald-500/10 rounded-lg p-4 border border-emerald-500/30">
-                  <div className="flex items-center space-x-2 mb-3">
-                    <Target className="w-5 h-5 text-emerald-400" />
-                    <span className="text-sm font-medium text-emerald-400">Solution</span>
+                <>
+                  <div className="bg-emerald-500/10 rounded-lg p-4 border border-emerald-500/30 mb-4">
+                    <div className="flex items-center space-x-2 mb-3">
+                      <Target className="w-5 h-5 text-emerald-400" />
+                      <span className="text-sm font-medium text-emerald-400">Solution</span>
+                    </div>
+                    <p className="text-white font-semibold mb-2">{currentPuzzleData.solution}</p>
+                    <p className="text-dark-300 text-sm">{currentPuzzleData.explanation}</p>
                   </div>
-                  <p className="text-white font-semibold mb-2">{currentPuzzleData.solution}</p>
-                  <p className="text-dark-300 text-sm">{currentPuzzleData.explanation}</p>
-                </div>
+                  
+                  {/* Save Score Component */}
+                  <div className="mb-4">
+                    <SaveScore
+                      type="puzzle"
+                      title={currentPuzzleData.title}
+                      level={currentPuzzleData.difficulty}
+                      completed={true}
+                      details={{
+                        puzzleType: currentPuzzleData.type,
+                        difficulty: currentPuzzleData.difficulty,
+                        solution: currentPuzzleData.solution
+                      }}
+                    />
+                  </div>
+                </>
               )}
             </div>
 

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Header from '../../../components/Header'
 import Footer from '../../../components/Footer'
+import SaveScore from '../../../components/SaveScore'
 import Link from 'next/link'
 import { Keyboard, RotateCcw, Play, Target, Clock, Trophy, ArrowLeft, Timer, Zap } from 'lucide-react'
 
@@ -368,6 +369,24 @@ export default function TypingQuiz() {
                   </div>
                 )
               })()}
+            </div>
+
+            {/* Save Score Component */}
+            <div className="mb-6">
+              <SaveScore
+                type="typing"
+                title="Typing Speed Test"
+                wpm={wpm}
+                level={getWpmRating(wpm).rating}
+                completed={true}
+                duration={selectedTimeLimit - timeRemaining}
+                details={{
+                  accuracy: accuracy,
+                  errors: errors,
+                  timeLimit: selectedTimeLimit,
+                  rating: getWpmRating(wpm).rating
+                }}
+              />
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
