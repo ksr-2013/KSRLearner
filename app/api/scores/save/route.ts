@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
-import jwt from 'jsonwebtoken'
+import { readTokenFromRequest, verifySession } from '../../../../lib/auth'
 
 interface ScoreData {
   type: 'quiz' | 'typing' | 'puzzle'
@@ -15,16 +14,13 @@ interface ScoreData {
 
 export async function POST(request: NextRequest) {
   try {
-    const cookieStore = cookies()
-    const token = cookieStore.get('auth-token')?.value
-
+    const token = readTokenFromRequest(request)
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Verify JWT token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any
-    if (!decoded?.userId) {
+    const session = verifySession(token)
+    if (!session) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
@@ -39,7 +35,7 @@ export async function POST(request: NextRequest) {
     // In a real app, you'd save to a database
     const scoreRecord = {
       id: Date.now().toString(),
-      userId: decoded.userId,
+      userId: session.uid,
       type: scoreData.type,
       title: scoreData.title,
       score: scoreData.score || null,

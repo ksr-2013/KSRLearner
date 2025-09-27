@@ -38,7 +38,7 @@ export default function SaveScore({
         const response = await fetch('/api/auth/me', { cache: 'no-store' })
         const data = await response.json()
         setIsLoggedIn(!!data?.user)
-      } catch {
+      } catch (error) {
         setIsLoggedIn(false)
       }
     }
