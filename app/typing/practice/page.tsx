@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 import Header from '../../../components/Header'
 import Footer from '../../../components/Footer'
 import SaveScore from '../../../components/SaveScore'
+import AITypingAssistant from '../../../components/AITypingAssistant'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Keyboard, RotateCcw, Play, Pause, Target, Clock, Trophy, ArrowLeft, Zap } from 'lucide-react'
@@ -393,6 +394,16 @@ export default function TypingPractice() {
           </div>
         </div>
       </div>
+
+      {/* AI Typing Assistant */}
+      <AITypingAssistant
+        wpm={wpm}
+        accuracy={accuracy}
+        errors={errors}
+        currentText={currentText?.text || ''}
+        category={currentText?.category || 'General'}
+        difficulty={level}
+      />
 
       <Footer />
     </div>

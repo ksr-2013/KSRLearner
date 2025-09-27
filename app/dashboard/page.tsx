@@ -9,6 +9,7 @@ import RecentActivity from '../../components/RecentActivity'
 import QuickActions from '../../components/QuickActions'
 import ProgressChart from '../../components/ProgressChart'
 import LearningPath from '../../components/LearningPath'
+import AIDashboardAssistant from '../../components/AIDashboardAssistant'
 
 interface User {
   id: string
@@ -179,6 +180,19 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* AI Dashboard Assistant */}
+      <AIDashboardAssistant
+        userStats={{
+          totalQuizzes: dashboardData.stats.totalQuizzes,
+          totalTypingTests: dashboardData.stats.totalTypingTests,
+          totalPuzzles: dashboardData.stats.puzzlesSolved,
+          averageScore: dashboardData.stats.averageScore,
+          totalTimeSpent: 0 // This would need to be calculated from actual data
+        }}
+        recentActivities={dashboardData.recentActivities}
+        learningStreak={dashboardData.stats.streak}
+      />
 
       <Footer />
     </div>

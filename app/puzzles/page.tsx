@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
 import SaveScore from '../../components/SaveScore'
+import AIPuzzleSolver from '../../components/AIPuzzleSolver'
 import { Puzzle, Lightbulb, Target, Brain, Sparkles, Trophy } from 'lucide-react'
 
 export default function PuzzlesPage() {
@@ -385,6 +386,14 @@ export default function PuzzlesPage() {
           </div>
         </div>
       </section>
+
+      {/* AI Puzzle Solver */}
+      <AIPuzzleSolver
+        puzzleTitle={currentPuzzleData.title}
+        puzzleType={currentPuzzleData.type}
+        difficulty={currentPuzzleData.difficulty}
+        currentPuzzle={currentPuzzleData}
+      />
 
       <Footer />
     </div>

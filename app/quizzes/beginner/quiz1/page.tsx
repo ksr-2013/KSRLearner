@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Header from '../../../../components/Header'
 import Footer from '../../../../components/Footer'
 import SaveScore from '../../../../components/SaveScore'
+import AIQuizHelper from '../../../../components/AIQuizHelper'
 import Link from 'next/link'
 import { ArrowLeft, CheckCircle, XCircle, Trophy, Star } from 'lucide-react'
 
@@ -355,6 +356,16 @@ export default function BeginnerQuiz1() {
           </button>
         </div>
       </div>
+
+      {/* AI Quiz Helper */}
+      <AIQuizHelper
+        question={currentQ.question}
+        options={currentQ.options}
+        correctAnswer={currentQ.options[currentQ.correct]}
+        explanation={currentQ.explanation}
+        difficulty="Beginner"
+        topic="Computer Fundamentals"
+      />
 
       <Footer />
     </div>
