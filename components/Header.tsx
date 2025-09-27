@@ -85,9 +85,14 @@ export default function Header() {
               Contact
             </Link>
             {loggedIn && (
-              <Link href="/profile" className="text-slate-300 hover:text-blue-400 font-medium transition-colors">
-                Profile
-              </Link>
+              <>
+                <Link href="/dashboard" className="text-slate-300 hover:text-blue-400 font-medium transition-colors">
+                  Dashboard
+                </Link>
+                <Link href="/profile" className="text-slate-300 hover:text-blue-400 font-medium transition-colors">
+                  Profile
+                </Link>
+              </>
             )}
             {/* Voice Agent removed */}
           </nav>
@@ -159,6 +164,15 @@ export default function Header() {
               >
                 Contact
               </Link>
+              {loggedIn && (
+                <Link
+                  href="/dashboard"
+                  className="block px-3 py-2 text-slate-300 hover:text-blue-400 hover:bg-slate-700 rounded-md font-medium transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+              )}
               <div className="pt-4">
                 <Link
                   href="/auth"
@@ -196,6 +210,7 @@ export default function Header() {
           </button>
           {profileOpen && (
             <div className="absolute mb-14 ml-0 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl p-2 w-44">
+              <Link href="/dashboard" className="block px-3 py-2 text-slate-200 hover:bg-slate-700 rounded-lg text-sm">Dashboard</Link>
               <Link href="/profile" className="block px-3 py-2 text-slate-200 hover:bg-slate-700 rounded-lg text-sm">Profile</Link>
               <Link href="/avatars" className="block px-3 py-2 text-slate-200 hover:bg-slate-700 rounded-lg text-sm">Avatars</Link>
               <Link href="/scores" className="block px-3 py-2 text-slate-200 hover:bg-slate-700 rounded-lg text-sm">Scores</Link>
