@@ -8,15 +8,17 @@
   },
   "scripts": {
     "dev": "next dev",
-    "prebuild": "prisma generate",
-    "build": "next build",
+    "build": "node scripts/build.js",
+    "build:fallback": "node scripts/build-fallback.js",
+    "build:next": "next build",
     "start": "next start",
     "lint": "next lint",
     "prisma:generate": "prisma generate",
     "prisma:migrate:deploy": "prisma migrate deploy",
     "migrate:supabase": "node scripts/migrate-to-supabase.js",
     "db:push": "prisma db push",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
