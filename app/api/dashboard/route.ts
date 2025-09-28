@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import jwt from 'jsonwebtoken'
 
+export const dynamic = 'force-dynamic'
+
 interface User {
   id: string
   email: string

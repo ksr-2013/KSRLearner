@@ -2,6 +2,8 @@ import type { NextRequest } from 'next/server'
 import { prisma } from '../../../../lib/prisma'
 import { readTokenFromRequest, verifySession } from '../../../../lib/auth'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(req: NextRequest) {
   try {
     const token = readTokenFromRequest(req)

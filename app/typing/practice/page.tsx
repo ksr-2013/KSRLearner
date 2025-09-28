@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef, useMemo, Suspense } from 'react'
 import Header from '../../../components/Header'
 import Footer from '../../../components/Footer'
 import SaveScore from '../../../components/SaveScore'
@@ -16,7 +16,7 @@ interface TypingText {
   difficulty: string
 }
 
-export default function TypingPractice() {
+function TypingPracticeContent() {
   const searchParams = useSearchParams()
   const level = searchParams.get('level') || 'beginner'
   
@@ -407,5 +407,20 @@ export default function TypingPractice() {
 
       <Footer />
     </div>
+  )
+}
+
+export default function TypingPractice() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading typing practice...</p>
+        </div>
+      </div>
+    }>
+      <TypingPracticeContent />
+    </Suspense>
   )
 }

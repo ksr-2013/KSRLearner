@@ -9,6 +9,7 @@
   NODE_VERSION = "20"
   PRISMA_GENERATE_SKIP_AUTOINSTALL = "true"
   PRISMA_CLI_BINARY_TARGETS = "native,rhel-openssl-1.0.x"
+  NODE_OPTIONS = "--max-old-space-size=4096"
 #  Set NEXT_PUBLIC_APP_URL in the Netlify UI to your actual site URL.
 #  Example: https://ksrlearner.netlify.app
 
