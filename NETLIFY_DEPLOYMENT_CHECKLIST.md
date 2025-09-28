@@ -42,13 +42,13 @@ NEXT_PUBLIC_APP_URL=https://your-netlify-site-name.netlify.app
 ### Build & Deploy Settings
 1. **Build Command**: `npm run build:fallback`
 2. **Publish Directory**: `.next`
-3. **Node Version**: 20
+3. **Node Version**: 18
 
 ### Environment Variables
 Add all the variables listed above in Site Settings → Environment Variables
 
 ### Functions Settings
-- **Node Version**: 20
+- **Node Version**: 18
 - **Timeout**: 10 seconds (default)
 
 ## 🧪 Testing Before Deployment

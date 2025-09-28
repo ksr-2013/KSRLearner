@@ -6,7 +6,7 @@
   package = "@netlify/plugin-nextjs"
 
 [build.environment]
-  NODE_VERSION = "20"
+  NODE_VERSION = "18"
   PRISMA_GENERATE_SKIP_AUTOINSTALL = "true"
   PRISMA_CLI_BINARY_TARGETS = "native,rhel-openssl-1.0.x"
   NODE_OPTIONS = "--max-old-space-size=4096"
