@@ -1,0 +1,27 @@
+# Netlify Environment Variables - Quick Reference
+# Copy and paste these into your Netlify dashboard
+
+# Database Configuration (Supabase)
+DATABASE_URL=postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:5432/postgres
+
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=https://[YOUR-PROJECT-REF].supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=[YOUR-ANON-KEY]
+SUPABASE_SERVICE_ROLE_KEY=[YOUR-SERVICE-ROLE-KEY]
+
+# Authentication
+JWT_SECRET=0974420354
+
+# AI Configuration
+NEXT_PUBLIC_AI_PROVIDER=groq
+GROQ_API_KEY=your-groq-api-key
+GROQ_MODEL=llama-3.1-8b-instant
+
+# App Configuration
+NEXT_PUBLIC_APP_URL=https://your-netlify-site-name.netlify.app
+
+# Optional AI Keys (add if needed)
+GEMINI_API_KEY=your-gemini-api-key
+OPENAI_API_KEY=your-openai-api-key
+ELEVENLABS_API_KEY=your-elevenlabs-api-key
+VAPI_API_KEY=your-vapi-api-key

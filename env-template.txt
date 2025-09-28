@@ -1,0 +1,54 @@
+# ===========================================
+# KSR Learner - Environment Configuration Template
+# ===========================================
+# Copy this file to .env.local and replace the placeholder values
+
+# ===========================================
+# DATABASE CONFIGURATION (Supabase)
+# ===========================================
+# Replace with your Supabase database connection string
+# Format: postgresql://postgres:[PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres
+DATABASE_URL="postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:5432/postgres"
+
+# ===========================================
+# SUPABASE CONFIGURATION
+# ===========================================
+# Get these from your Supabase project dashboard > Settings > API
+NEXT_PUBLIC_SUPABASE_URL="https://[YOUR-PROJECT-REF].supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="[YOUR-ANON-KEY]"
+SUPABASE_SERVICE_ROLE_KEY="[YOUR-SERVICE-ROLE-KEY]"
+
+# ===========================================
+# AUTHENTICATION
+# ===========================================
+# Generate a strong JWT secret (you can use: openssl rand -base64 32)
+JWT_SECRET="your-super-secret-jwt-key-here"
+
+# ===========================================
+# AI API KEYS
+# ===========================================
+# Add your AI service API keys here
+GROQ_API_KEY="your-groq-api-key"
+GEMINI_API_KEY="your-gemini-api-key"
+OPENAI_API_KEY="your-openai-api-key"
+ELEVENLABS_API_KEY="your-elevenlabs-api-key"
+VAPI_API_KEY="your-vapi-api-key"
+
+# ===========================================
+# APP CONFIGURATION
+# ===========================================
+# Your application URL (change for production)
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+# ===========================================
+# INSTRUCTIONS
+# ===========================================
+# 1. Copy this file to .env.local
+# 2. Replace [YOUR-PASSWORD] with your Supabase database password
+# 3. Replace [YOUR-PROJECT-REF] with your Supabase project reference
+# 4. Replace [YOUR-ANON-KEY] with your Supabase anon public key
+# 5. Replace [YOUR-SERVICE-ROLE-KEY] with your Supabase service role key
+# 6. Generate a strong JWT_SECRET (use: openssl rand -base64 32)
+# 7. Add your AI service API keys
+# 8. Save the file as .env.local
+# 9. Run: npm run migrate:supabase
