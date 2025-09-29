@@ -38,3 +38,4 @@ bolna/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+\n# Ignore env files\n.env\n.env.local\n.env.*\n
