@@ -13,14 +13,8 @@ interface Message {
 
 const AIChatbot = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: "Hello! I'm KSR Learner's AI assistant. I can help you with learning questions, guide you through our platform, or answer any questions about technology topics. How can I assist you today?",
-      isUser: false,
-      timestamp: new Date()
-    }
-  ])
+  const [messages, setMessages] = useState<Message[]>([])
+  const [userName, setUserName] = useState<string>('')
   const [inputValue, setInputValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [errorText, setErrorText] = useState<string | null>(null)
@@ -44,6 +38,32 @@ const AIChatbot = () => {
     scrollToBottom()
   }, [messages])
 
+  // Load user name for personalized greeting
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      try {
+        const res = await fetch('/api/auth/me', { cache: 'no-store' })
+        const data = await res.json()
+        const name: string = data?.user?.name || data?.user?.email || ''
+        if (mounted) setUserName(name)
+      } catch {}
+      finally {
+        if (mounted) {
+          const greeting = `Hello${userName ? `, ${userName}` : ''}! I'm KSR Learner's AI assistant. I can help you with learning questions, guide you through our platform, or answer any questions about technology topics. How can I assist you today?`
+          setMessages([{
+            id: 'greet-1',
+            text: greeting,
+            isUser: false,
+            timestamp: new Date()
+          }])
+        }
+      }
+    })()
+    return () => { mounted = false }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const buildConversationHistory = (latestUserMessage: string) => {
     const history = messages
       .filter(m => !(m.isUser && m.text === latestUserMessage))
@@ -61,7 +81,7 @@ const AIChatbot = () => {
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMessage, conversationHistory }),
+        body: JSON.stringify({ message: userMessage, conversationHistory, userName }),
       })
 
       if (response.ok) {

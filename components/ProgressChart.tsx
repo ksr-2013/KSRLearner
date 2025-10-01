@@ -42,6 +42,7 @@ export default function ProgressChart({ progress }: ProgressChartProps) {
   const maxValue = Math.max(
     ...chartData.flatMap(d => [d.quizzes, d.typing, d.puzzles])
   )
+  const isAllZero = chartData.every(d => (d.quizzes + d.typing + d.puzzles) === 0)
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -83,11 +84,11 @@ export default function ProgressChart({ progress }: ProgressChartProps) {
         </div>
       </div>
 
-      {chartData.length === 0 ? (
+      {chartData.length === 0 || isAllZero ? (
         <div className="text-center py-12">
           <div className="text-4xl mb-4">📈</div>
           <div className="text-slate-400 mb-2">No progress data yet</div>
-          <div className="text-slate-500 text-sm">Start learning to see your progress chart!</div>
+          <div className="text-slate-500 text-sm">Save a quiz, typing test, or puzzle to see progress here.</div>
         </div>
       ) : (
         <div className="space-y-4">

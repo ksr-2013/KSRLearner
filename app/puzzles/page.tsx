@@ -5,6 +5,7 @@ import Header from '../../components/Header'
 import Footer from '../../components/Footer'
 import SaveScore from '../../components/SaveScore'
 import AIPuzzleSolver from '../../components/AIPuzzleSolver'
+import AIPuzzleGenerator from '../../components/AIPuzzleGenerator'
 import { Puzzle, Lightbulb, Target, Brain, Sparkles, Trophy } from 'lucide-react'
 
 export default function PuzzlesPage() {
@@ -394,6 +395,9 @@ export default function PuzzlesPage() {
         difficulty={currentPuzzleData.difficulty}
         currentPuzzle={currentPuzzleData}
       />
+
+      {/* AI Puzzle Generator */}
+      <AIPuzzleGenerator />
 
       <Footer />
     </div>

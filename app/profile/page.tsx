@@ -100,25 +100,7 @@ export default function ProfilePage() {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-slate-300 text-sm mb-2">Choose an avatar</label>
-                  <div className="grid grid-cols-3 gap-3">
-                    {BUILT_IN_AVATARS.map((src) => (
-                      <button
-                        key={src}
-                        type="button"
-                        onClick={() => setAvatarUrl(src)}
-                        className={`rounded-xl overflow-hidden ring-2 transition ${avatarUrl === src ? 'ring-blue-500' : 'ring-transparent hover:ring-slate-600'}`}
-                        title="Select avatar"
-                        aria-label="Select avatar"
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={src} alt="Avatar option" className="w-full h-20 object-cover" />
-                      </button>
-                    ))}
-                  </div>
-                  <div className="text-xs text-slate-400 mt-2">Your selection is saved to your profile.</div>
-                </div>
+                {/* Avatar chooser removed */}
 
                 {message && <div className="text-sm text-slate-300">{message}</div>}
                 <button type="submit" disabled={saving} className="btn-primary w-full">

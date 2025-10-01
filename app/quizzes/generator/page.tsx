@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Header from '../../../components/Header'
 import Footer from '../../../components/Footer'
 import { Send, Loader2, CheckCircle2, Circle } from 'lucide-react'
+import SaveScore from '../../../components/SaveScore'
 
 interface QuizQuestion {
   id: string
@@ -158,6 +159,20 @@ export default function QuizGeneratorPage() {
                   </div>
                 ))}
                 <div>
+                  <div className="mb-4">
+                    <SaveScore
+                      type="quiz"
+                      title={`Generated Quiz - ${topic}`}
+                      score={Math.round((correctCount / Math.max(questions.length, 1)) * 100)}
+                      level={level}
+                      completed={true}
+                      details={{
+                        generated: true,
+                        topic,
+                        questionCount: questions.length
+                      }}
+                    />
+                  </div>
                   <button onClick={() => setSubmitted(false)} className="btn-outline">Try Again</button>
                 </div>
               </div>

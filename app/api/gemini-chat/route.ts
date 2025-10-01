@@ -22,10 +22,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { message, conversationHistory } = await request.json()
+    const { message, conversationHistory, userName } = await request.json()
 
     // System prompt to make the AI act as KSR Learner's assistant
-    const systemPrompt = `You are KSR Learner's AI assistant, a helpful and knowledgeable guide for a technology learning platform. 
+    const displayName = typeof userName === 'string' && userName.trim().length > 0 ? userName.trim() : 'learner'
+    const systemPrompt = `You are KSR Learner's AI assistant, a helpful and knowledgeable guide for a technology learning platform. Address the user as "${displayName}" when appropriate.
 
 KSR Learner offers:
 - Interactive quizzes (Beginner, Pro, Legend, Ultra Legend levels)

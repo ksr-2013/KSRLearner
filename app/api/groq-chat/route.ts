@@ -20,9 +20,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { message, conversationHistory } = await request.json()
+    const { message, conversationHistory, userName } = await request.json()
 
-    const systemPrompt = `You are KSR Learner's AI assistant, a helpful and knowledgeable guide for a technology learning platform. Keep responses concise, supportive, and focused on learning.`
+    const displayName = typeof userName === 'string' && userName.trim().length > 0 ? userName.trim() : 'learner'
+    const systemPrompt = `You are KSR Learner's AI assistant, a helpful and knowledgeable guide for a technology learning platform. Keep responses concise, supportive, and focused on learning. When appropriate, greet the user by name as "${displayName}".`
 
     const messages = [
       { role: 'system', content: systemPrompt },

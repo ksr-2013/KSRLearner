@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
-import jwt from 'jsonwebtoken'
+import { readTokenFromRequest, verifySession } from '../../../lib/auth'
+import { prisma } from '../../../lib/prisma'
 
 export const dynamic = 'force-dynamic'
 
@@ -42,105 +42,101 @@ interface DashboardData {
 
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = cookies()
-    const token = cookieStore.get('auth-token')?.value
+    const token = readTokenFromRequest(request)
+    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const session = verifySession(token)
+    if (!session) return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
 
-    if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    // Fetch user
+    const user = await prisma.user.findUnique({ where: { id: session.uid }, select: { id: true, email: true, name: true, avatarUrl: true } })
+    if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
+
+    // Fetch scores
+    const scores = await prisma.score.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: 'desc' }
+    })
+
+    // Compute stats
+    const quizScores = scores.filter(s => s.kind === 'quiz')
+    const typingScores = scores.filter(s => s.kind === 'typing')
+    const puzzleScores = scores.filter(s => s.kind === 'puzzle')
+
+    const totalQuizzes = quizScores.length
+    const completedQuizzes = quizScores.length // treat each saved quiz as completed
+    const averageScore = quizScores.length > 0 ? quizScores.reduce((a, s) => a + (s.value || 0), 0) / quizScores.length : 0
+    const totalTypingTests = typingScores.length
+    const averageWPM = typingScores.length > 0 ? Math.round(typingScores.reduce((a, s) => a + (s.value || 0), 0) / typingScores.length) : 0
+    const puzzlesSolved = puzzleScores.length
+
+    // Simple streak: count consecutive days with any activity until a gap
+    const byDate = new Map<string, number>()
+    for (const s of scores) {
+      const key = s.createdAt.toISOString().split('T')[0]
+      byDate.set(key, (byDate.get(key) || 0) + 1)
+    }
+    let streak = 0
+    const today = new Date()
+    for (let i = 0; i < 365; i++) {
+      const d = new Date(today)
+      d.setDate(today.getDate() - i)
+      const key = d.toISOString().split('T')[0]
+      if (byDate.has(key)) streak += 1
+      else break
     }
 
-    // Verify JWT token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any
-    if (!decoded?.userId) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+    // Level heuristic based on average score and activity
+    const level = averageScore >= 85 || streak >= 14 ? 'Ultra Legend' : averageScore >= 70 || streak >= 7 ? 'Legend' : averageScore >= 50 ? 'Pro' : 'Beginner'
+
+    // Recent activities
+    const recentActivities = scores.slice(0, 10).map(s => ({
+      id: s.id,
+      type: (s.kind as 'quiz' | 'typing' | 'puzzle'),
+      title: (typeof s.meta === 'object' && (s.meta as any)?.title) || `${s.kind.toUpperCase()} Activity`,
+      score: s.kind === 'quiz' ? s.value : undefined,
+      wpm: s.kind === 'typing' ? s.value : undefined,
+      completed: true,
+      timestamp: s.createdAt.toISOString()
+    }))
+
+    // Progress last 14 days
+    const progressMap: Record<string, { quizzes: number; typing: number; puzzles: number }> = {}
+    for (const s of scores) {
+      const key = s.createdAt.toISOString().split('T')[0]
+      if (!progressMap[key]) progressMap[key] = { quizzes: 0, typing: 0, puzzles: 0 }
+      if (s.kind === 'quiz') progressMap[key].quizzes += 1
+      if (s.kind === 'typing') progressMap[key].typing += 1
+      if (s.kind === 'puzzle') progressMap[key].puzzles += 1
+    }
+    const progress: Array<{ date: string; quizzes: number; typing: number; puzzles: number }> = []
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(today)
+      d.setDate(today.getDate() - i)
+      const key = d.toISOString().split('T')[0]
+      const bucket = progressMap[key] || { quizzes: 0, typing: 0, puzzles: 0 }
+      progress.push({ date: key, ...bucket })
     }
 
-    // For now, return mock data. In a real app, you'd fetch from your database
-    // TODO: Replace with actual database queries
-    const mockDashboardData: DashboardData = {
-      user: {
-        id: decoded.userId,
-        email: decoded.email || 'user@example.com',
-        name: decoded.name || null,
-        avatarUrl: decoded.avatarUrl || null
-      },
+    const payload = {
+      user,
       stats: {
-        totalQuizzes: 15,
-        completedQuizzes: 12,
-        averageScore: 78,
-        totalTypingTests: 8,
-        averageWPM: 45,
-        puzzlesSolved: 6,
-        streak: 5,
-        level: 'Pro'
+        totalQuizzes,
+        completedQuizzes,
+        averageScore: Math.round(averageScore),
+        totalTypingTests,
+        averageWPM,
+        puzzlesSolved,
+        streak,
+        level
       },
-      recentActivities: [
-        {
-          id: '1',
-          type: 'quiz',
-          title: 'Computer Fundamentals Quiz',
-          score: 85,
-          completed: true,
-          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() // 2 hours ago
-        },
-        {
-          id: '2',
-          type: 'typing',
-          title: 'Speed Test - Intermediate',
-          wpm: 52,
-          completed: true,
-          timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString() // 4 hours ago
-        },
-        {
-          id: '3',
-          type: 'puzzle',
-          title: 'Binary Code Challenge',
-          completed: true,
-          timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString() // 6 hours ago
-        },
-        {
-          id: '4',
-          type: 'quiz',
-          title: 'Programming Concepts',
-          score: 72,
-          completed: true,
-          timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() // 1 day ago
-        },
-        {
-          id: '5',
-          type: 'typing',
-          title: 'Advanced Typing Practice',
-          wpm: 48,
-          completed: false,
-          timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() // 2 days ago
-        }
-      ],
-      progress: generateProgressData()
+      recentActivities,
+      progress
     }
 
-    return NextResponse.json(mockDashboardData)
+    return NextResponse.json(payload)
   } catch (error) {
     console.error('Dashboard API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
-
-function generateProgressData() {
-  const progress = []
-  const today = new Date()
-  
-  // Generate last 7 days of data
-  for (let i = 6; i >= 0; i--) {
-    const date = new Date(today)
-    date.setDate(date.getDate() - i)
-    
-    progress.push({
-      date: date.toISOString().split('T')[0],
-      quizzes: Math.floor(Math.random() * 4),
-      typing: Math.floor(Math.random() * 3),
-      puzzles: Math.floor(Math.random() * 3)
-    })
-  }
-  
-  return progress
-}
+ 
