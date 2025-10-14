@@ -6,9 +6,14 @@ import bcrypt from 'bcryptjs'
 export async function POST(req: NextRequest) {
   try {
     const { email, password } = await req.json()
-    if (!email || !password) return new Response(JSON.stringify({ error: 'Missing email or password' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
+    if (!email || typeof password !== 'string' || password.length === 0) {
+      return new Response(JSON.stringify({ error: 'Missing email or password' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
+    }
     const user = await prisma.user.findUnique({ where: { email } })
     if (!user) return new Response(JSON.stringify({ error: 'Invalid credentials' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
+    if (!user.passwordHash || typeof user.passwordHash !== 'string') {
+      return new Response(JSON.stringify({ error: 'Invalid credentials' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
+    }
     const ok = await bcrypt.compare(password, user.passwordHash)
     if (!ok) return new Response(JSON.stringify({ error: 'Invalid credentials' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
     const token = signSession({ uid: user.id, email: user.email })
