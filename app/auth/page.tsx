@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
+import { supabaseClient } from '../../lib/supabaseClient'
 
 export default function AuthPage() {
   const [mode, setMode] = useState<'login' | 'signup'>('login')
@@ -76,6 +77,28 @@ export default function AuthPage() {
               </button>
             </div>
           </form>
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                <div className="w-full border-t border-slate-700"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-slate-800 text-slate-400">Or continue with</span>
+              </div>
+            </div>
+            <div className="mt-4">
+              <button
+                onClick={async () => {
+                  const redirectTo = `${window.location.origin}/auth/callback`
+                  await supabaseClient.auth.signInWithOAuth({ provider: 'google', options: { redirectTo } })
+                }}
+                className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-lg border border-slate-600 text-slate-200 hover:bg-slate-700 transition"
+              >
+                <img src="/google.svg" alt="Google" className="w-5 h-5" />
+                <span>Sign in with Google</span>
+              </button>
+            </div>
+          </div>
           <div className="mt-4 text-xs text-slate-400 text-center">Theme matches site colors</div>
         </div>
       </div>
