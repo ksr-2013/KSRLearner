@@ -20,7 +20,8 @@ export async function POST(req: NextRequest) {
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Set-Cookie': makeSessionCookie(token), 'Content-Type': 'application/json' } })
   } catch (e: any) {
     console.error('oauth-bridge error:', e)
-    return new Response(JSON.stringify({ error: 'SERVER_ERROR' }), { status: 500 })
+    const message = typeof e?.message === 'string' ? e.message : 'SERVER_ERROR'
+    return new Response(JSON.stringify({ error: message }), { status: 500, headers: { 'Content-Type': 'application/json' } })
   }
 }
 
