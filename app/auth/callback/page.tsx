@@ -32,7 +32,14 @@ export default function AuthCallbackPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(profile)
         })
-        if (!res.ok) throw new Error('Bridge failed')
+        if (!res.ok) {
+          let detail = ''
+          try {
+            const text = await res.text()
+            detail = text || ''
+          } catch {}
+          throw new Error(`Bridge failed (${res.status})${detail ? `: ${detail}` : ''}`)
+        }
         window.location.replace('/profile')
       } catch (e: any) {
         setError(e?.message || 'Authentication failed')
