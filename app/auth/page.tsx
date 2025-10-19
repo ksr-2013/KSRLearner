@@ -14,14 +14,11 @@ export default function AuthPage() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    // If already logged in (via our JWT cookie), redirect to profile
+    // If already logged in with Supabase, redirect to profile
     ;(async () => {
       try {
-        const res = await fetch('/api/auth/me', { cache: 'no-store' })
-        if (res.ok) {
-          const data = await res.json()
-          if (data?.user) window.location.assign('/profile')
-        }
+        const { data } = await supabaseClient.auth.getSession()
+        if (data?.session) window.location.assign('/profile')
       } catch {}
     })()
   }, [])
