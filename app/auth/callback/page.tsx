@@ -30,10 +30,7 @@ export default function AuthCallbackPage() {
         
         // Exchange the code for a session using Supabase
         console.log('Exchanging code for session...')
-        const { data: sessionData, error: sessionError } = await supabaseClient.auth.exchangeCodeForSession({
-          code,
-          redirectTo: window.location.origin + '/auth/callback'
-        })
+        const { data: sessionData, error: sessionError } = await supabaseClient.auth.exchangeCodeForSession(window.location.href)
         
         if (sessionError) {
           throw new Error(`Session exchange failed: ${sessionError.message}`)

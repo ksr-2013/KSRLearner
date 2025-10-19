@@ -137,7 +137,7 @@ export default function VoiceAgentPage() {
         recognitionRef.current.stop()
       }
     }
-  }, [])
+  }, [handleAIResponse, isListening])
 
   const handleAIResponse = async (text: string) => {
     setIsLoading(true)
