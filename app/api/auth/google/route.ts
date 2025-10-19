@@ -23,8 +23,8 @@ export async function GET(req: NextRequest) {
     // Generate state parameter for security
     const state = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
     
-    // Build Google OAuth URL
-    const redirectUri = encodeURIComponent(`${siteUrl}/auth/callback`)
+    // Build Google OAuth URL - redirect to server-side callback
+    const redirectUri = encodeURIComponent(`${siteUrl}/api/auth/google/callback`)
     const scope = encodeURIComponent('openid email profile')
     const responseType = 'code'
     

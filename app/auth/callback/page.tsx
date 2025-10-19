@@ -10,101 +10,24 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     (async () => {
       try {
-        console.log('Auth callback started')
+        console.log('Auth callback page loaded')
         console.log('Current URL:', window.location.href)
         
-        // Check for URL parameters
+        // Check for URL parameters (errors from server-side callback)
         const urlParams = new URLSearchParams(window.location.search)
         const error = urlParams.get('error')
-        const errorDescription = urlParams.get('error_description')
-        const code = urlParams.get('code')
-        const state = urlParams.get('state')
+        const message = urlParams.get('message')
         
-        if (error) {
-          throw new Error(`OAuth error: ${error}${errorDescription ? ` - ${errorDescription}` : ''}`)
+        if (error === 'oauth_error' && message) {
+          throw new Error(message)
         }
         
-        console.log('Authorization code:', code)
-        console.log('State parameter:', state)
-        
-        if (!code) {
-          throw new Error('No authorization code received from Google')
-        }
-        
-        // Exchange authorization code for access token and user info
-        console.log('Exchanging authorization code for access token...')
-        
-        const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: new URLSearchParams({
-            client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '',
-            client_secret: process.env.GOOGLE_CLIENT_SECRET || '',
-            code: code,
-            grant_type: 'authorization_code',
-            redirect_uri: `${window.location.origin}/auth/callback`,
-          }),
-        })
-        
-        if (!tokenResponse.ok) {
-          const errorText = await tokenResponse.text()
-          throw new Error(`Token exchange failed: ${errorText}`)
-        }
-        
-        const tokenData = await tokenResponse.json()
-        console.log('Access token received')
-        
-        // Get user information from Google
-        console.log('Fetching user information from Google...')
-        const userResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-          headers: {
-            Authorization: `Bearer ${tokenData.access_token}`,
-          },
-        })
-        
-        if (!userResponse.ok) {
-          const errorText = await userResponse.text()
-          throw new Error(`User info fetch failed: ${errorText}`)
-        }
-        
-        const googleUser = await userResponse.json()
-        console.log('Google user data:', googleUser)
-        
-        const profile = {
-          email: googleUser.email,
-          name: googleUser.name,
-          avatarUrl: googleUser.picture,
-          provider: 'google',
-          providerId: googleUser.id
-        }
-
-        console.log('Profile data:', profile)
-
-        console.log('Calling OAuth bridge...')
-        const res = await fetch('/api/auth/oauth-bridge', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(profile)
-        })
-
-        console.log('Bridge response status:', res.status)
-
-        if (!res.ok) {
-          let detail = ''
-          try {
-            const text = await res.text()
-            detail = text || ''
-            console.error('Bridge error response:', text)
-          } catch (textError) {
-            console.error('Failed to read error response:', textError)
-          }
-          throw new Error(`Bridge failed (${res.status}): ${detail}`)
-        }
-
-        console.log('Bridge successful, redirecting to profile...')
+        // If we reach here, the OAuth flow should have completed successfully
+        // and we should have been redirected to /profile
+        // If we're still on this page, something went wrong
+        console.log('OAuth callback completed, redirecting to profile...')
         window.location.replace('/profile')
+        
       } catch (e: any) {
         console.error('Auth callback error:', e)
         setError(e?.message || 'Authentication failed')
