@@ -12,9 +12,9 @@ export async function GET(req: NextRequest) {
       console.log('Fixed Supabase URL from .c to .co')
     }
     
-    // Always use the current request origin to avoid accidentally redirecting to a deployed domain
+    // Use environment variable for main domain, fallback to request origin
     const reqUrl = new URL(req.url)
-    const siteUrl = reqUrl.origin
+    const siteUrl = process.env.NEXT_PUBLIC_APP_URL || reqUrl.origin
     
     console.log('Google auth route called')
     console.log('Supabase URL:', base)
