@@ -25,23 +25,31 @@ export async function POST(req: NextRequest) {
     
     if (!user) {
       console.log('Creating new user')
-      user = await prisma.user.create({ 
-        data: { 
-          email, 
-          name, 
-          avatarUrl, 
-          provider, 
-          providerId 
-        } 
+      // Sanitize string fields to prevent UTF-8 encoding issues
+      const sanitizedName = name ? name.replace(/\0/g, '') : null
+      const sanitizedAvatarUrl = avatarUrl ? avatarUrl.replace(/\0/g, '') : null
+      
+      user = await prisma.user.create({
+        data: {
+          email,
+          name: sanitizedName,
+          avatarUrl: sanitizedAvatarUrl,
+          provider,
+          providerId
+        }
       })
       console.log('User created successfully')
     } else {
       console.log('Updating existing user')
+      // Sanitize string fields to prevent UTF-8 encoding issues
+      const sanitizedName = name ? name.replace(/\0/g, '') : user.name
+      const sanitizedAvatarUrl = avatarUrl ? avatarUrl.replace(/\0/g, '') : user.avatarUrl
+      
       await prisma.user.update({ 
         where: { id: user.id }, 
         data: { 
-          name: name || user.name, 
-          avatarUrl: avatarUrl || user.avatarUrl, 
+          name: sanitizedName, 
+          avatarUrl: sanitizedAvatarUrl, 
           provider, 
           providerId 
         } 
