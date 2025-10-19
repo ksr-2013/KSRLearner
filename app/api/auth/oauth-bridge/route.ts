@@ -1,21 +1,30 @@
 import { NextRequest } from 'next/server'
-import { prisma } from '../../../../lib/prisma'
+import { PrismaClient } from '@prisma/client'
 import { makeSessionCookie, signSession } from '../../../../lib/auth'
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
+  // Create a fresh Prisma client for each request to avoid prepared statement conflicts
+  const prisma = new PrismaClient({
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL,
+      },
+    },
+  })
+
   try {
     console.log('OAuth bridge called')
     const body = await req.json()
     console.log('Request body:', body)
-    
+
     const { email, name, avatarUrl, provider, providerId } = body
     if (!email) {
       console.error('Missing email in request')
-      return new Response(JSON.stringify({ error: 'MISSING_EMAIL', details: 'Email is required' }), { 
-        status: 400, 
-        headers: { 'Content-Type': 'application/json' } 
+      return new Response(JSON.stringify({ error: 'MISSING_EMAIL', details: 'Email is required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
       })
     }
 
@@ -61,6 +70,9 @@ export async function POST(req: NextRequest) {
     const token = signSession({ uid: user.id, email: user.email })
     console.log('Session token created')
     
+    // Clean up Prisma client
+    await prisma.$disconnect()
+    
     return new Response(JSON.stringify({ ok: true }), { 
       status: 200, 
       headers: { 
@@ -71,6 +83,10 @@ export async function POST(req: NextRequest) {
   } catch (e: any) {
     console.error('oauth-bridge error:', e)
     console.error('Error stack:', e?.stack)
+    
+    // Clean up Prisma client on error
+    await prisma.$disconnect()
+    
     const message = typeof e?.message === 'string' ? e.message : 'SERVER_ERROR'
     const details = e?.stack || 'No additional details available'
     return new Response(JSON.stringify({ 
