@@ -1,8 +1,9 @@
-'use client'
+"use client"
 
 import { useEffect, useState } from 'react'
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
+import { supabaseClient } from '../../lib/supabaseClient'
 
 interface MeUser {
   id?: string
@@ -27,13 +28,17 @@ export default function ProfilePage() {
 
   useEffect(() => {
     ;(async () => {
-      const res = await fetch('/api/auth/me', { cache: 'no-store' })
-      const data = await res.json()
+      const { data } = await supabaseClient.auth.getUser()
       if (!data?.user) {
         window.location.assign('/auth')
         return
       }
-      const u: MeUser = data.user
+      const u: MeUser = {
+        id: data.user.id,
+        email: data.user.email || undefined,
+        name: data.user.user_metadata?.name || null,
+        avatarUrl: data.user.user_metadata?.avatar_url || null
+      }
       setUser(u)
       setName(u.name || '')
       setAvatarUrl(u.avatarUrl || '')
@@ -41,7 +46,7 @@ export default function ProfilePage() {
   }, [])
 
   const logout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' })
+    await supabaseClient.auth.signOut()
     window.location.assign('/')
   }
 
@@ -103,8 +108,8 @@ export default function ProfilePage() {
                 {/* Avatar chooser removed */}
 
                 {message && <div className="text-sm text-slate-300">{message}</div>}
-                <button type="submit" disabled={saving} className="btn-primary w-full">
-                  {saving ? 'Saving…' : 'Save changes'}
+                <button type="submit" disabled className="btn-primary w-full opacity-50 cursor-not-allowed">
+                  Profile editing via API is temporarily disabled
                 </button>
                 <button type="button" onClick={logout} className="btn-outline w-full">Log out</button>
               </form>
