@@ -13,31 +13,40 @@ export default function AuthCallbackPage() {
         console.log('Auth callback started')
         console.log('Current URL:', window.location.href)
         
-        // Ensure the session is established on this page load (handles both hash and code exchanges)
-        try {
-          console.log('Attempting to exchange code for session...')
-          const sessionResult = await supabaseClient.auth.exchangeCodeForSession(window.location.href)
-          console.log('Session exchange result:', sessionResult)
-        } catch (sessionError: any) {
-          console.error('Session exchange error:', sessionError)
-          // Don't throw here, continue to try getUser
-        }
-
-        console.log('Getting user data...')
-        const { data, error: userError } = await supabaseClient.auth.getUser()
-        console.log('User data:', data)
-        console.log('User error:', userError)
+        // Extract the authorization code from the URL
+        const urlParams = new URLSearchParams(window.location.search)
+        const code = urlParams.get('code')
+        const error = urlParams.get('error')
         
-        if (userError) {
-          throw new Error(`Failed to get user: ${userError.message}`)
+        if (error) {
+          throw new Error(`OAuth error: ${error}`)
         }
         
-        const user = data?.user
+        if (!code) {
+          throw new Error('No authorization code received from Google')
+        }
+        
+        console.log('Authorization code received:', code)
+        
+        // Exchange the code for a session using Supabase
+        console.log('Exchanging code for session...')
+        const { data: sessionData, error: sessionError } = await supabaseClient.auth.exchangeCodeForSession({
+          code,
+          redirectTo: window.location.origin + '/auth/callback'
+        })
+        
+        if (sessionError) {
+          throw new Error(`Session exchange failed: ${sessionError.message}`)
+        }
+        
+        console.log('Session exchange successful:', sessionData)
+        
+        const user = sessionData?.user
         if (!user) {
           throw new Error('No user data received from Supabase')
         }
         
-        const email = (user as any)?.email || (user as any)?.user_metadata?.email || (user as any)?.identities?.[0]?.identity_data?.email
+        const email = user.email || user.user_metadata?.email || user.identities?.[0]?.identity_data?.email
         console.log('Extracted email:', email)
         
         if (!email) { 
@@ -48,12 +57,12 @@ export default function AuthCallbackPage() {
 
         const profile = {
           email,
-          name: user?.user_metadata?.full_name || user?.user_metadata?.name || null,
-          avatarUrl: user?.user_metadata?.avatar_url || null,
+          name: user.user_metadata?.full_name || user.user_metadata?.name || null,
+          avatarUrl: user.user_metadata?.avatar_url || null,
           provider: 'google',
-          providerId: user?.id
+          providerId: user.id
         }
-        
+
         console.log('Profile data:', profile)
 
         console.log('Calling OAuth bridge...')
@@ -62,9 +71,9 @@ export default function AuthCallbackPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(profile)
         })
-        
+
         console.log('Bridge response status:', res.status)
-        
+
         if (!res.ok) {
           let detail = ''
           try {
@@ -76,7 +85,7 @@ export default function AuthCallbackPage() {
           }
           throw new Error(`Bridge failed (${res.status}): ${detail}`)
         }
-        
+
         console.log('Bridge successful, redirecting to profile...')
         window.location.replace('/profile')
       } catch (e: any) {
