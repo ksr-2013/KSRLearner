@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -10,24 +11,15 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     (async () => {
       try {
-        console.log('Auth callback page loaded')
-        console.log('Current URL:', window.location.href)
-        
-        // Check for URL parameters (errors from server-side callback)
-        const urlParams = new URLSearchParams(window.location.search)
-        const error = urlParams.get('error')
-        const message = urlParams.get('message')
-        
-        if (error === 'oauth_error' && message) {
-          throw new Error(message)
+        const currentUrl = window.location.href
+        console.log('Auth callback page loaded:', currentUrl)
+        // Exchange the code for a session via Supabase
+        const { data, error } = await supabaseClient.auth.exchangeCodeForSession(currentUrl)
+        if (error) {
+          throw error
         }
-        
-        // If we reach here, the OAuth flow should have completed successfully
-        // and we should have been redirected to /profile
-        // If we're still on this page, something went wrong
-        console.log('OAuth callback completed, redirecting to profile...')
+        console.log('Supabase session:', data?.session ? 'created' : 'missing')
         window.location.replace('/profile')
-        
       } catch (e: any) {
         console.error('Auth callback error:', e)
         setError(e?.message || 'Authentication failed')
