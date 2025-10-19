@@ -29,40 +29,44 @@ export async function POST(req: NextRequest) {
     }
 
     console.log('Looking up user with email:', email)
-    let user = await prisma.user.findUnique({ where: { email } })
+    
+    // Use raw SQL to avoid prepared statement conflicts
+    const sanitizedName = name ? name.replace(/\0/g, '') : null
+    const sanitizedAvatarUrl = avatarUrl ? avatarUrl.replace(/\0/g, '') : null
+    
+    // First, try to find the user using raw SQL
+    const existingUsers = await prisma.$queryRaw`
+      SELECT id, email, name, "avatarUrl", provider, "providerId" 
+      FROM "User" 
+      WHERE email = ${email}
+    ` as any[]
+    
+    let user = existingUsers[0] || null
     console.log('Found user:', user ? 'Yes' : 'No')
     
     if (!user) {
       console.log('Creating new user')
-      // Sanitize string fields to prevent UTF-8 encoding issues
-      const sanitizedName = name ? name.replace(/\0/g, '') : null
-      const sanitizedAvatarUrl = avatarUrl ? avatarUrl.replace(/\0/g, '') : null
+      // Insert new user using raw SQL
+      const newUser = await prisma.$queryRaw`
+        INSERT INTO "User" (email, name, "avatarUrl", provider, "providerId", "createdAt", "updatedAt")
+        VALUES (${email}, ${sanitizedName}, ${sanitizedAvatarUrl}, ${provider}, ${providerId}, NOW(), NOW())
+        RETURNING id, email, name, "avatarUrl", provider, "providerId"
+      ` as any[]
       
-      user = await prisma.user.create({
-        data: {
-          email,
-          name: sanitizedName,
-          avatarUrl: sanitizedAvatarUrl,
-          provider,
-          providerId
-        }
-      })
+      user = newUser[0]
       console.log('User created successfully')
     } else {
       console.log('Updating existing user')
-      // Sanitize string fields to prevent UTF-8 encoding issues
-      const sanitizedName = name ? name.replace(/\0/g, '') : user.name
-      const sanitizedAvatarUrl = avatarUrl ? avatarUrl.replace(/\0/g, '') : user.avatarUrl
-      
-      await prisma.user.update({ 
-        where: { id: user.id }, 
-        data: { 
-          name: sanitizedName, 
-          avatarUrl: sanitizedAvatarUrl, 
-          provider, 
-          providerId 
-        } 
-      })
+      // Update existing user using raw SQL
+      await prisma.$queryRaw`
+        UPDATE "User" 
+        SET name = ${sanitizedName || user.name}, 
+            "avatarUrl" = ${sanitizedAvatarUrl || user.avatarUrl}, 
+            provider = ${provider}, 
+            "providerId" = ${providerId},
+            "updatedAt" = NOW()
+        WHERE id = ${user.id}
+      `
       console.log('User updated successfully')
     }
 
