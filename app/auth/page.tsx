@@ -88,8 +88,18 @@ export default function AuthPage() {
             </div>
             <div className="mt-4">
               <button
-                onClick={() => {
-                  window.location.href = '/api/auth/google'
+                onClick={async () => {
+                  setError(null)
+                  try {
+                    const redirectTo = `${window.location.origin}/auth/callback`
+                    const { error } = await supabaseClient.auth.signInWithOAuth({
+                      provider: 'google',
+                      options: { redirectTo }
+                    })
+                    if (error) throw error
+                  } catch (e: any) {
+                    setError(e?.message || 'Failed to start Google sign-in')
+                  }
                 }}
                 className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-lg border border-slate-600 text-slate-200 hover:bg-slate-700 transition"
               >
