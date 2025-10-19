@@ -13,13 +13,20 @@ export default function AuthCallbackPage() {
       try {
         const currentUrl = window.location.href
         console.log('Auth callback page loaded:', currentUrl)
-        // Exchange the code for a session via Supabase
-        const { data, error } = await supabaseClient.auth.exchangeCodeForSession(currentUrl)
-        if (error) {
-          throw error
+        // If detectSessionInUrl=true, supabase-js may have already exchanged the code.
+        const { data: sessionResult } = await supabaseClient.auth.getSession()
+        if (sessionResult?.session) {
+          window.location.replace('/profile')
+          return
         }
-        console.log('Supabase session:', data?.session ? 'created' : 'missing')
-        window.location.replace('/profile')
+        // Fallback: try exchange explicitly if session not present
+        const { data, error } = await supabaseClient.auth.exchangeCodeForSession(currentUrl)
+        if (error) throw error
+        if (data?.session) {
+          window.location.replace('/profile')
+          return
+        }
+        throw new Error('Authentication failed: no session returned')
       } catch (e: any) {
         console.error('Auth callback error:', e)
         setError(e?.message || 'Authentication failed')
