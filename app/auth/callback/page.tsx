@@ -40,7 +40,7 @@ export default function AuthCallbackPage() {
           name: 'Test User',
           avatarUrl: null,
           provider: 'google',
-          providerId: 'test-id'
+          providerId: 'test-id-' + Date.now()
         }
 
         console.log('Profile data:', profile)
