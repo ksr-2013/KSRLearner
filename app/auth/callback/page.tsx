@@ -17,15 +17,12 @@ export default function AuthCallbackPage() {
         const urlParams = new URLSearchParams(window.location.search)
         const error = urlParams.get('error')
         const errorDescription = urlParams.get('error_description')
+        const code = urlParams.get('code')
+        const state = urlParams.get('state')
         
         if (error) {
           throw new Error(`OAuth error: ${error}${errorDescription ? ` - ${errorDescription}` : ''}`)
         }
-        
-        // Extract authorization code from URL parameters
-        const urlParams = new URLSearchParams(window.location.search)
-        const code = urlParams.get('code')
-        const state = urlParams.get('state')
         
         console.log('Authorization code:', code)
         console.log('State parameter:', state)
