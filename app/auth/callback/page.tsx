@@ -31,16 +31,53 @@ export default function AuthCallbackPage() {
           throw new Error('No authorization code received from Google')
         }
         
-        // For now, let's create a mock user profile and test the OAuth bridge
-        // This bypasses Supabase OAuth and goes directly to our custom bridge
-        console.log('Creating mock profile for testing...')
+        // Exchange authorization code for access token and user info
+        console.log('Exchanging authorization code for access token...')
+        
+        const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+            client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '',
+            client_secret: process.env.GOOGLE_CLIENT_SECRET || '',
+            code: code,
+            grant_type: 'authorization_code',
+            redirect_uri: `${window.location.origin}/auth/callback`,
+          }),
+        })
+        
+        if (!tokenResponse.ok) {
+          const errorText = await tokenResponse.text()
+          throw new Error(`Token exchange failed: ${errorText}`)
+        }
+        
+        const tokenData = await tokenResponse.json()
+        console.log('Access token received')
+        
+        // Get user information from Google
+        console.log('Fetching user information from Google...')
+        const userResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+          headers: {
+            Authorization: `Bearer ${tokenData.access_token}`,
+          },
+        })
+        
+        if (!userResponse.ok) {
+          const errorText = await userResponse.text()
+          throw new Error(`User info fetch failed: ${errorText}`)
+        }
+        
+        const googleUser = await userResponse.json()
+        console.log('Google user data:', googleUser)
         
         const profile = {
-          email: 'test@example.com', // We'll get this from Google later
-          name: 'Test User',
-          avatarUrl: null,
+          email: googleUser.email,
+          name: googleUser.name,
+          avatarUrl: googleUser.picture,
           provider: 'google',
-          providerId: 'test-id-' + Date.now()
+          providerId: googleUser.id
         }
 
         console.log('Profile data:', profile)
