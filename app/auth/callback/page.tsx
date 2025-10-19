@@ -24,6 +24,9 @@ export default function AuthCallbackPage() {
         
         // For Supabase OAuth, we need to handle the session differently
         console.log('Getting current session from Supabase...')
+        console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
+        console.log('Supabase Anon Key exists:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+        
         const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession()
         
         if (sessionError) {
@@ -34,66 +37,73 @@ export default function AuthCallbackPage() {
         if (!session) {
           // Try to exchange the code for a session
           console.log('No existing session, trying to exchange code...')
-          const { data: sessionData, error: exchangeError } = await supabaseClient.auth.exchangeCodeForSession(window.location.href)
+          console.log('Full URL for exchange:', window.location.href)
           
-          if (exchangeError) {
-            console.error('Exchange error:', exchangeError)
-            throw new Error(`Session exchange failed: ${exchangeError.message}`)
-          }
-          
-          if (!sessionData?.session) {
-            throw new Error('No session data received from Supabase')
-          }
-          
-          console.log('Session exchange successful:', sessionData)
-          
-          const user = sessionData.session.user
-          if (!user) {
-            throw new Error('No user data received from Supabase')
-          }
-          
-          const email = user.email || user.user_metadata?.email || user.identities?.[0]?.identity_data?.email
-          console.log('Extracted email:', email)
-          
-          if (!email) { 
-            setError('Missing email from provider'); 
-            setDebugInfo(`User object: ${JSON.stringify(user, null, 2)}`)
-            return 
-          }
-
-          const profile = {
-            email,
-            name: user.user_metadata?.full_name || user.user_metadata?.name || null,
-            avatarUrl: user.user_metadata?.avatar_url || null,
-            provider: 'google',
-            providerId: user.id
-          }
-
-          console.log('Profile data:', profile)
-
-          console.log('Calling OAuth bridge...')
-          const res = await fetch('/api/auth/oauth-bridge', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(profile)
-          })
-
-          console.log('Bridge response status:', res.status)
-
-          if (!res.ok) {
-            let detail = ''
-            try {
-              const text = await res.text()
-              detail = text || ''
-              console.error('Bridge error response:', text)
-            } catch (textError) {
-              console.error('Failed to read error response:', textError)
+          try {
+            const { data: sessionData, error: exchangeError } = await supabaseClient.auth.exchangeCodeForSession(window.location.href)
+            
+            if (exchangeError) {
+              console.error('Exchange error:', exchangeError)
+              throw new Error(`Session exchange failed: ${exchangeError.message}`)
             }
-            throw new Error(`Bridge failed (${res.status}): ${detail}`)
-          }
+            
+            if (!sessionData?.session) {
+              throw new Error('No session data received from Supabase')
+            }
+            
+            console.log('Session exchange successful:', sessionData)
+            
+            const user = sessionData.session.user
+            if (!user) {
+              throw new Error('No user data received from Supabase')
+            }
+            
+            const email = user.email || user.user_metadata?.email || user.identities?.[0]?.identity_data?.email
+            console.log('Extracted email:', email)
+            
+            if (!email) { 
+              setError('Missing email from provider'); 
+              setDebugInfo(`User object: ${JSON.stringify(user, null, 2)}`)
+              return 
+            }
 
-          console.log('Bridge successful, redirecting to profile...')
-          window.location.replace('/profile')
+            const profile = {
+              email,
+              name: user.user_metadata?.full_name || user.user_metadata?.name || null,
+              avatarUrl: user.user_metadata?.avatar_url || null,
+              provider: 'google',
+              providerId: user.id
+            }
+
+            console.log('Profile data:', profile)
+
+            console.log('Calling OAuth bridge...')
+            const res = await fetch('/api/auth/oauth-bridge', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(profile)
+            })
+
+            console.log('Bridge response status:', res.status)
+
+            if (!res.ok) {
+              let detail = ''
+              try {
+                const text = await res.text()
+                detail = text || ''
+                console.error('Bridge error response:', text)
+              } catch (textError) {
+                console.error('Failed to read error response:', textError)
+              }
+              throw new Error(`Bridge failed (${res.status}): ${detail}`)
+            }
+
+            console.log('Bridge successful, redirecting to profile...')
+            window.location.replace('/profile')
+          } catch (fetchError: any) {
+            console.error('Fetch error during exchange:', fetchError)
+            throw new Error(`Session exchange failed: ${fetchError?.message || 'Network error'}`)
+          }
         } else {
           // Session already exists, redirect to profile
           console.log('Session already exists, redirecting to profile...')

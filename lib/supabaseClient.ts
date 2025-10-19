@@ -13,6 +13,12 @@ if (!anon) {
   throw new Error('NEXT_PUBLIC_SUPABASE_ANON_KEY is required')
 }
 
-export const supabaseClient = createClient(url, anon)
+export const supabaseClient = createClient(url, anon, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  }
+})
 
 
