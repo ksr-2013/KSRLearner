@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
 import { Mic, MicOff, Phone, PhoneOff, Volume2, VolumeX, Settings, MessageCircle } from 'lucide-react'
@@ -40,6 +40,64 @@ export default function VoiceAgentPage() {
 
   const recognitionRef = useRef<SpeechRecognition | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+
+
+  const handleAIResponse = useCallback(async (text: string) => {
+    setIsLoading(true)
+    setError('')
+    
+    try {
+      // Try Gemini first, then fallback to Groq
+      let response = await fetch('/api/gemini-chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: text,
+          conversationHistory: [],
+          userName: 'Voice User'
+        }),
+      })
+
+      // If Gemini fails, try Groq
+      if (!response.ok) {
+        console.log('Gemini failed, trying Groq...')
+        response = await fetch('/api/groq-chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: text,
+            conversationHistory: [],
+            userName: 'Voice User'
+          }),
+        })
+      }
+
+      if (!response.ok) {
+        // If both APIs fail, provide a fallback response
+        const fallbackResponse = "Hello! I'm KSR Learner's AI assistant. I can help you learn about technology, programming, and computer science. However, I'm having trouble connecting to my AI services right now. Please check your API key configuration or try again later. You can explore our interactive quizzes, typing practice, and puzzles while we fix this!"
+        setAiResponse(fallbackResponse)
+        await textToSpeech(fallbackResponse)
+        return
+      }
+
+      const data = await response.json()
+      const aiText = data.response || data.message || 'Sorry, I could not process that request.'
+      setAiResponse(aiText)
+
+      // Convert to speech
+      await textToSpeech(aiText)
+      
+    } catch (err) {
+      console.error('AI response error:', err)
+      setError('Failed to get AI response. Please check your API keys configuration.')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
     // Initialize speech recognition with better error handling
@@ -138,63 +196,6 @@ export default function VoiceAgentPage() {
       }
     }
   }, [handleAIResponse, isListening])
-
-  const handleAIResponse = async (text: string) => {
-    setIsLoading(true)
-    setError('')
-    
-    try {
-      // Try Gemini first, then fallback to Groq
-      let response = await fetch('/api/gemini-chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: text,
-          conversationHistory: [],
-          userName: 'Voice User'
-        }),
-      })
-
-      // If Gemini fails, try Groq
-      if (!response.ok) {
-        console.log('Gemini failed, trying Groq...')
-        response = await fetch('/api/groq-chat', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            message: text,
-            conversationHistory: [],
-            userName: 'Voice User'
-          }),
-        })
-      }
-
-      if (!response.ok) {
-        // If both APIs fail, provide a fallback response
-        const fallbackResponse = "Hello! I'm KSR Learner's AI assistant. I can help you learn about technology, programming, and computer science. However, I'm having trouble connecting to my AI services right now. Please check your API key configuration or try again later. You can explore our interactive quizzes, typing practice, and puzzles while we fix this!"
-        setAiResponse(fallbackResponse)
-        await textToSpeech(fallbackResponse)
-        return
-      }
-
-      const data = await response.json()
-      const aiText = data.response || data.message || 'Sorry, I could not process that request.'
-      setAiResponse(aiText)
-
-      // Convert to speech
-      await textToSpeech(aiText)
-      
-    } catch (err) {
-      console.error('AI response error:', err)
-      setError('Failed to get AI response. Please check your API keys configuration.')
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const textToSpeech = async (text: string) => {
     try {
