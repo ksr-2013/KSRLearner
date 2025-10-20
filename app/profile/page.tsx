@@ -140,11 +140,20 @@ export default function ProfilePage() {
                   />
                 </div>
 
-                {/* Avatar chooser removed */}
+                <div>
+                  <label className="block text-slate-300 text-sm mb-1">Avatar URL</label>
+                  <input
+                    value={avatarUrl}
+                    onChange={(e) => setAvatarUrl(e.target.value)}
+                    className="w-full bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="https://example.com/avatar.jpg"
+                    maxLength={2048}
+                  />
+                </div>
 
                 {message && <div className="text-sm text-slate-300">{message}</div>}
-                <button type="submit" disabled className="btn-primary w-full opacity-50 cursor-not-allowed">
-                  Profile editing via API is temporarily disabled
+                <button type="submit" disabled={saving} className="btn-primary w-full">
+                  {saving ? 'Saving...' : 'Save Changes'}
                 </button>
                 <button type="button" onClick={logout} className="btn-outline w-full">Log out</button>
               </form>
