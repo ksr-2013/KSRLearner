@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server'
-import { prisma } from '../../../../lib/prisma'
 import { readTokenFromRequest, verifySession } from '../../../../lib/auth'
+import { db } from '../../../../lib/db'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,24 +11,17 @@ export async function GET(req: NextRequest) {
     const session = verifySession(token)
     if (!session) return new Response(JSON.stringify({ user: null }), { status: 200, headers: { 'Content-Type': 'application/json' } })
     
-    // Use raw SQL to avoid prepared statement conflicts
-    const users = await prisma.$queryRaw`
-      SELECT id, email, name, "avatarUrl", "createdAt"
-      FROM users 
-      WHERE id = ${session.uid} AND "isActive" = true
-    ` as Array<{
-      id: string
-      email: string
-      name: string | null
-      avatarUrl: string | null
-      createdAt: Date
-    }>
+    // Use direct database connection to avoid prepared statement conflicts
+    const result = await db.query(
+      'SELECT id, email, name, "avatarUrl", "createdAt" FROM users WHERE id = $1 AND "isActive" = true',
+      [session.uid]
+    )
     
-    if (users.length === 0) {
+    if (result.rows.length === 0) {
       return new Response(JSON.stringify({ user: null }), { status: 200, headers: { 'Content-Type': 'application/json' } })
     }
     
-    const user = users[0]
+    const user = result.rows[0]
     return new Response(JSON.stringify({ 
       user: {
         id: user.id,

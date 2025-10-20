@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
-import { prisma } from '../../../../lib/prisma'
 import { signSession, makeSessionCookie } from '../../../../lib/auth'
+import { db } from '../../../../lib/db'
 import bcrypt from 'bcryptjs'
 
 export async function POST(req: NextRequest) {
@@ -10,24 +10,17 @@ export async function POST(req: NextRequest) {
       return new Response(JSON.stringify({ error: 'Missing email or password' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
     }
     
-    // Use raw SQL to avoid prepared statement conflicts
-    const users = await prisma.$queryRaw`
-      SELECT id, email, name, "passwordHash", "avatarUrl" 
-      FROM users 
-      WHERE email = ${email} AND "isActive" = true
-    ` as Array<{
-      id: string
-      email: string
-      name: string | null
-      passwordHash: string | null
-      avatarUrl: string | null
-    }>
+    // Use direct database connection to avoid prepared statement conflicts
+    const result = await db.query(
+      'SELECT id, email, name, "passwordHash", "avatarUrl" FROM users WHERE email = $1 AND "isActive" = true',
+      [email]
+    )
     
-    if (users.length === 0) {
+    if (result.rows.length === 0) {
       return new Response(JSON.stringify({ error: 'Invalid credentials' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
     }
     
-    const user = users[0]
+    const user = result.rows[0]
     if (!user.passwordHash || typeof user.passwordHash !== 'string') {
       return new Response(JSON.stringify({ error: 'Invalid credentials' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
     }

@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
-import { prisma } from '../../../../lib/prisma'
 import { signSession, makeSessionCookie } from '../../../../lib/auth'
+import { db } from '../../../../lib/db'
 import bcrypt from 'bcryptjs'
 
 export async function POST(req: NextRequest) {
@@ -8,34 +8,27 @@ export async function POST(req: NextRequest) {
     const { email, password, name } = await req.json()
     if (!email || !password) return new Response(JSON.stringify({ error: 'Missing email or password' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
     
-    // Check if email already exists using raw SQL
-    const existingUsers = await prisma.$queryRaw`
-      SELECT id FROM users WHERE email = ${email}
-    ` as Array<{ id: string }>
+    // Check if email already exists using direct database connection
+    const existingResult = await db.query('SELECT id FROM users WHERE email = $1', [email])
     
-    if (existingUsers.length > 0) {
+    if (existingResult.rows.length > 0) {
       return new Response(JSON.stringify({ error: 'Email already in use' }), { status: 409, headers: { 'Content-Type': 'application/json' } })
     }
     
     const rounds = Number(process.env.BCRYPT_ROUNDS || 10)
     const hash = await bcrypt.hash(password, rounds)
     
-    // Create user using raw SQL
-    const newUsers = await prisma.$queryRaw`
-      INSERT INTO users (id, email, "passwordHash", name, "createdAt", "updatedAt", "isActive")
-      VALUES (gen_random_uuid(), ${email}, ${hash}, ${name || null}, NOW(), NOW(), true)
-      RETURNING id, email, name
-    ` as Array<{
-      id: string
-      email: string
-      name: string | null
-    }>
+    // Create user using direct database connection
+    const newUserResult = await db.query(
+      'INSERT INTO users (id, email, "passwordHash", name, "createdAt", "updatedAt", "isActive") VALUES (gen_random_uuid(), $1, $2, $3, NOW(), NOW(), true) RETURNING id, email, name',
+      [email, hash, name || null]
+    )
     
-    if (newUsers.length === 0) {
+    if (newUserResult.rows.length === 0) {
       throw new Error('Failed to create user')
     }
     
-    const user = newUsers[0]
+    const user = newUserResult.rows[0]
     const token = signSession({ uid: user.id, email: user.email })
     return new Response(JSON.stringify({ id: user.id, email: user.email, name: user.name }), {
       status: 200,
