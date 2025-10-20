@@ -48,7 +48,11 @@ export default function AvatarsPage() {
   const [message, setMessage] = useState<string>('')
   const [custom, setCustom] = useState<string[]>([])
   const [googlePhoto, setGooglePhoto] = useState<string>('')
-  const [activeTab, setActiveTab] = useState<'builtin' | 'dicebear' | 'custom' | 'google'>('builtin')
+  const [activeTab, setActiveTab] = useState<'builtin' | 'dicebear' | 'ai' | 'custom' | 'google'>('builtin')
+  const [aiPrompt, setAiPrompt] = useState<string>('')
+  const [aiStyle, setAiStyle] = useState<string>('realistic')
+  const [aiGenerating, setAiGenerating] = useState<boolean>(false)
+  const [aiGenerated, setAiGenerated] = useState<string[]>([])
 
   useEffect(() => {
     ;(async () => {
@@ -128,6 +132,38 @@ export default function AvatarsPage() {
     return `/api/avatars/dicebear?style=${encodeURIComponent(style)}&seed=${encodeURIComponent(seed)}`
   }
 
+  const generateAIAvatar = async () => {
+    if (!aiPrompt.trim()) {
+      setMessage('Please enter a prompt for AI avatar generation')
+      return
+    }
+
+    setAiGenerating(true)
+    setMessage('')
+    
+    try {
+      const res = await fetch('/api/avatars/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          prompt: aiPrompt.trim(), 
+          style: aiStyle 
+        })
+      })
+      
+      const data = await res.json()
+      if (!res.ok) throw new Error(data?.error || data?.details || 'Failed to generate AI avatar')
+      
+      // Add to generated avatars list
+      setAiGenerated(prev => [data.avatarUrl, ...prev.slice(0, 9)]) // Keep last 10
+      setMessage('AI avatar generated successfully!')
+    } catch (e: any) {
+      setMessage(e?.message || 'Failed to generate AI avatar')
+    } finally {
+      setAiGenerating(false)
+    }
+  }
+
   const renderAvatarGrid = () => {
     switch (activeTab) {
       case 'builtin':
@@ -170,6 +206,76 @@ export default function AvatarsPage() {
                 </button>
               )
             })}
+          </div>
+        )
+      
+      case 'ai':
+        return (
+          <div className="space-y-6">
+            {/* AI Generation Form */}
+            <div className="bg-slate-800 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">Generate AI Avatar</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-slate-300 text-sm mb-2">Describe your avatar</label>
+                  <input
+                    type="text"
+                    value={aiPrompt}
+                    onChange={(e) => setAiPrompt(e.target.value)}
+                    placeholder="e.g., 'professional woman with glasses', 'cyberpunk robot', 'cute anime character'"
+                    className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    maxLength={100}
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 text-sm mb-2">Style</label>
+                  <select
+                    value={aiStyle}
+                    onChange={(e) => setAiStyle(e.target.value)}
+                    className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="realistic">Realistic</option>
+                    <option value="cartoon">Cartoon</option>
+                    <option value="anime">Anime</option>
+                    <option value="pixel">Pixel Art</option>
+                    <option value="minimal">Minimal</option>
+                    <option value="abstract">Abstract</option>
+                    <option value="emoji">Emoji</option>
+                    <option value="bot">Bot</option>
+                  </select>
+                </div>
+                <button
+                  onClick={generateAIAvatar}
+                  disabled={aiGenerating || !aiPrompt.trim()}
+                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-slate-600 disabled:cursor-not-allowed transition"
+                >
+                  {aiGenerating ? 'Generating...' : 'Generate Avatar'}
+                </button>
+              </div>
+            </div>
+
+            {/* Generated AI Avatars */}
+            {aiGenerated.length > 0 && (
+              <div>
+                <h4 className="text-md font-semibold text-white mb-4">Generated Avatars</h4>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {aiGenerated.map((avatarUrl, index) => (
+                    <button
+                      key={`ai-${index}`}
+                      type="button"
+                      disabled={saving}
+                      onClick={() => save(avatarUrl)}
+                      className={`rounded-2xl overflow-hidden ring-2 transition bg-slate-800 hover:ring-blue-400 ${current === avatarUrl ? 'ring-blue-500' : 'ring-slate-700'}`}
+                      title="Select AI generated avatar"
+                      aria-label="Select AI generated avatar"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={avatarUrl} alt="AI generated avatar" className="w-full aspect-square object-cover" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )
       
@@ -261,6 +367,16 @@ export default function AvatarsPage() {
                   }`}
                 >
                   Generated
+                </button>
+                <button
+                  onClick={() => setActiveTab('ai')}
+                  className={`px-4 py-2 rounded-lg transition ${
+                    activeTab === 'ai' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                  }`}
+                >
+                  AI Generator
                 </button>
                 {googlePhoto && (
                   <button
