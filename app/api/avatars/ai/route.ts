@@ -63,11 +63,15 @@ async function generateAIAvatar(prompt: string, style: string, seed: string): Pr
   // In production, this would call an actual AI service
   
   const dicebearStyle = mapStyleToDicebear(style)
-  const encodedPrompt = encodeURIComponent(prompt.substring(0, 50)) // Limit prompt length
   const encodedSeed = encodeURIComponent(seed)
   
-  // Use our existing Dicebear proxy
-  return `/api/avatars/dicebear?style=${dicebearStyle}&seed=${encodedSeed}&background=gradient`
+  // Use relative URL for same-domain requests
+  const avatarUrl = `/api/avatars/dicebear?style=${dicebearStyle}&seed=${encodedSeed}&background=gradient`
+  
+  console.log('Generated AI avatar URL:', avatarUrl)
+  console.log('Style:', dicebearStyle, 'Seed:', seed)
+  
+  return avatarUrl
 }
 
 // Map our style options to Dicebear styles

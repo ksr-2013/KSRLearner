@@ -154,6 +154,9 @@ export default function AvatarsPage() {
       const data = await res.json()
       if (!res.ok) throw new Error(data?.error || data?.details || 'Failed to generate AI avatar')
       
+      console.log('AI avatar generated:', data.avatarUrl)
+      console.log('Full response:', data)
+      
       // Add to generated avatars list
       setAiGenerated(prev => [data.avatarUrl, ...prev.slice(0, 9)]) // Keep last 10
       setMessage('AI avatar generated successfully!')
@@ -270,7 +273,16 @@ export default function AvatarsPage() {
                       aria-label="Select AI generated avatar"
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={avatarUrl} alt="AI generated avatar" className="w-full aspect-square object-cover" />
+                      <img 
+                        src={avatarUrl} 
+                        alt="AI generated avatar" 
+                        className="w-full aspect-square object-cover"
+                        onError={(e) => {
+                          console.error('Failed to load AI avatar:', avatarUrl)
+                          e.currentTarget.src = '/avatars/av1.svg' // Fallback
+                        }}
+                        onLoad={() => console.log('AI avatar loaded successfully:', avatarUrl)}
+                      />
                     </button>
                   ))}
                 </div>
