@@ -45,8 +45,8 @@ export default function GlobalLoading() {
             />
           </div>
           {/* Loading bar */}
-          <div className="absolute -bottom-2 left-0 w-full h-1 bg-slate-700 rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-blue-500 to-purple-500 animate-pulse rounded-full"></div>
+          <div className="absolute -bottom-2 left-0 w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-blue-900 to-blue-700 animate-pulse rounded-full"></div>
           </div>
         </div>
         
@@ -59,8 +59,8 @@ export default function GlobalLoading() {
         </div>
         
         {/* Progress bar */}
-        <div className="w-80 h-3 bg-slate-700 rounded-full mt-6 overflow-hidden">
-          <div className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full animate-pulse"></div>
+        <div className="w-80 h-3 bg-slate-800 rounded-full mt-6 overflow-hidden">
+          <div className="h-full bg-gradient-to-r from-blue-900 via-blue-800 to-blue-700 rounded-full animate-pulse"></div>
         </div>
         
         {/* Welcome text */}
