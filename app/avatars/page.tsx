@@ -48,11 +48,16 @@ export default function AvatarsPage() {
   const [message, setMessage] = useState<string>('')
   const [custom, setCustom] = useState<string[]>([])
   const [googlePhoto, setGooglePhoto] = useState<string>('')
-  const [activeTab, setActiveTab] = useState<'builtin' | 'dicebear' | 'ai' | 'custom' | 'google'>('builtin')
+  const [activeTab, setActiveTab] = useState<'builtin' | 'dicebear' | 'ai' | 'lightx' | 'custom' | 'google'>('builtin')
   const [aiPrompt, setAiPrompt] = useState<string>('')
   const [aiStyle, setAiStyle] = useState<string>('realistic')
   const [aiGenerating, setAiGenerating] = useState<boolean>(false)
   const [aiGenerated, setAiGenerated] = useState<string[]>([])
+  const [lightxImageUrl, setLightxImageUrl] = useState<string>('')
+  const [lightxTextPrompt, setLightxTextPrompt] = useState<string>('')
+  const [lightxStyleImageUrl, setLightxStyleImageUrl] = useState<string>('')
+  const [lightxGenerating, setLightxGenerating] = useState<boolean>(false)
+  const [lightxGenerated, setLightxGenerated] = useState<string[]>([])
 
   useEffect(() => {
     ;(async () => {
@@ -154,9 +159,6 @@ export default function AvatarsPage() {
       const data = await res.json()
       if (!res.ok) throw new Error(data?.error || data?.details || 'Failed to generate AI avatar')
       
-      console.log('AI avatar generated:', data.avatarUrl)
-      console.log('Full response:', data)
-      
       // Add to generated avatars list
       setAiGenerated(prev => [data.avatarUrl, ...prev.slice(0, 9)]) // Keep last 10
       setMessage('AI avatar generated successfully!')
@@ -164,6 +166,42 @@ export default function AvatarsPage() {
       setMessage(e?.message || 'Failed to generate AI avatar')
     } finally {
       setAiGenerating(false)
+    }
+  }
+
+  const generateLightXAvatar = async () => {
+    if (!lightxImageUrl.trim()) {
+      setMessage('Please enter an image URL for LightX avatar generation')
+      return
+    }
+
+    setLightxGenerating(true)
+    setMessage('')
+    
+    try {
+      const res = await fetch('/api/avatars/lightx', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          imageUrl: lightxImageUrl.trim(),
+          textPrompt: lightxTextPrompt.trim() || undefined,
+          styleImageUrl: lightxStyleImageUrl.trim() || undefined
+        })
+      })
+      
+      const data = await res.json()
+      if (!res.ok) throw new Error(data?.error || data?.details || 'Failed to generate LightX avatar')
+      
+      console.log('LightX avatar generated:', data.avatarUrl)
+      console.log('Full response:', data)
+      
+      // Add to generated avatars list
+      setLightxGenerated(prev => [data.avatarUrl, ...prev.slice(0, 9)]) // Keep last 10
+      setMessage('LightX avatar generated successfully!')
+    } catch (e: any) {
+      setMessage(e?.message || 'Failed to generate LightX avatar')
+    } finally {
+      setLightxGenerating(false)
     }
   }
 
@@ -273,15 +311,90 @@ export default function AvatarsPage() {
                       aria-label="Select AI generated avatar"
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={avatarUrl} alt="AI generated avatar" className="w-full aspect-square object-cover" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )
+      
+      case 'lightx':
+        return (
+          <div className="space-y-6">
+            {/* LightX Generation Form */}
+            <div className="bg-slate-800 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">Generate LightX Avatar</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-slate-300 text-sm mb-2">Image URL (Required)</label>
+                  <input
+                    type="url"
+                    value={lightxImageUrl}
+                    onChange={(e) => setLightxImageUrl(e.target.value)}
+                    placeholder="https://example.com/your-photo.jpg"
+                    className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <p className="text-xs text-slate-400 mt-1">Upload your photo to an image hosting service and paste the URL here</p>
+                </div>
+                <div>
+                  <label className="block text-slate-300 text-sm mb-2">Text Prompt (Optional)</label>
+                  <input
+                    type="text"
+                    value={lightxTextPrompt}
+                    onChange={(e) => setLightxTextPrompt(e.target.value)}
+                    placeholder="e.g., 'professional headshot', 'artistic portrait', 'cartoon style'"
+                    className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    maxLength={200}
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 text-sm mb-2">Style Image URL (Optional)</label>
+                  <input
+                    type="url"
+                    value={lightxStyleImageUrl}
+                    onChange={(e) => setLightxStyleImageUrl(e.target.value)}
+                    placeholder="https://example.com/style-reference.jpg"
+                    className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <p className="text-xs text-slate-400 mt-1">Reference image to influence the avatar style</p>
+                </div>
+                <button
+                  onClick={generateLightXAvatar}
+                  disabled={lightxGenerating || !lightxImageUrl.trim()}
+                  className="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 disabled:bg-slate-600 disabled:cursor-not-allowed transition"
+                >
+                  {lightxGenerating ? 'Generating...' : 'Generate LightX Avatar'}
+                </button>
+              </div>
+            </div>
+
+            {/* Generated LightX Avatars */}
+            {lightxGenerated.length > 0 && (
+              <div>
+                <h4 className="text-md font-semibold text-white mb-4">Generated LightX Avatars</h4>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {lightxGenerated.map((avatarUrl, index) => (
+                    <button
+                      key={`lightx-${index}`}
+                      type="button"
+                      disabled={saving}
+                      onClick={() => save(avatarUrl)}
+                      className={`rounded-2xl overflow-hidden ring-2 transition bg-slate-800 hover:ring-blue-400 ${current === avatarUrl ? 'ring-blue-500' : 'ring-slate-700'}`}
+                      title="Select LightX generated avatar"
+                      aria-label="Select LightX generated avatar"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img 
                         src={avatarUrl} 
-                        alt="AI generated avatar" 
+                        alt="LightX generated avatar" 
                         className="w-full aspect-square object-cover"
                         onError={(e) => {
-                          console.error('Failed to load AI avatar:', avatarUrl)
+                          console.error('Failed to load LightX avatar:', avatarUrl)
                           e.currentTarget.src = '/avatars/av1.svg' // Fallback
                         }}
-                        onLoad={() => console.log('AI avatar loaded successfully:', avatarUrl)}
+                        onLoad={() => console.log('LightX avatar loaded successfully:', avatarUrl)}
                       />
                     </button>
                   ))}
@@ -389,6 +502,16 @@ export default function AvatarsPage() {
                   }`}
                 >
                   AI Generator
+                </button>
+                <button
+                  onClick={() => setActiveTab('lightx')}
+                  className={`px-4 py-2 rounded-lg transition ${
+                    activeTab === 'lightx' 
+                      ? 'bg-purple-600 text-white' 
+                      : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                  }`}
+                >
+                  LightX
                 </button>
                 {googlePhoto && (
                   <button
