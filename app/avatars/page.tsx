@@ -179,11 +179,67 @@ export default function AvatarsPage() {
           <h1 className="text-3xl font-bold text-white">Choose an Avatar</h1>
         </div>
 
-        {!user && <div className="text-slate-300">Loading…</div>}
+        {!user && (
+          <div className="flex flex-col items-center justify-center py-20">
+            {/* Logo with spinning animation */}
+            <div className="relative mb-8">
+              <div className="w-16 h-16 animate-spin">
+                <img 
+                  src="/logo.png" 
+                  alt="KSRLearner Logo" 
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              {/* Loading bar */}
+              <div className="absolute -bottom-2 left-0 w-full h-1 bg-slate-700 rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-blue-500 to-purple-500 animate-pulse rounded-full"></div>
+              </div>
+            </div>
+            
+            {/* Loading text with dots animation */}
+            <div className="text-slate-300 text-lg">
+              <span className="animate-pulse">Loading</span>
+              <span className="inline-block animate-bounce" style={{ animationDelay: '0.1s' }}>.</span>
+              <span className="inline-block animate-bounce" style={{ animationDelay: '0.2s' }}>.</span>
+              <span className="inline-block animate-bounce" style={{ animationDelay: '0.3s' }}>.</span>
+            </div>
+            
+            {/* Progress bar */}
+            <div className="w-64 h-2 bg-slate-700 rounded-full mt-4 overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full animate-pulse"></div>
+            </div>
+          </div>
+        )}
 
         {user && (
           <>
             {message && <div className="mb-4 text-slate-300">{message}</div>}
+            
+            {/* Saving overlay */}
+            {saving && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-slate-800 rounded-lg p-8 flex flex-col items-center">
+                  {/* Logo with spinning animation */}
+                  <div className="relative mb-4">
+                    <div className="w-12 h-12 animate-spin">
+                      <img 
+                        src="/logo.png" 
+                        alt="KSRLearner Logo" 
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    {/* Loading bar */}
+                    <div className="absolute -bottom-1 left-0 w-full h-1 bg-slate-700 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-blue-500 to-purple-500 animate-pulse rounded-full"></div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-slate-300 text-lg animate-pulse">
+                    Saving avatar...
+                  </div>
+                </div>
+              </div>
+            )}
             
             {/* Only Custom Tab */}
             <div className="mb-6">
