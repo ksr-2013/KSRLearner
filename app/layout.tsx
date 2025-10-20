@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Script from 'next/script'
 import './globals.css'
 import AIChatbot from '../components/AIChatbot'
+import GlobalLoading from '../components/GlobalLoading'
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
@@ -51,6 +52,7 @@ export default function RootLayout({
         {/* Existing scripts */}
       </head>
       <body>
+        <GlobalLoading />
         {children}
         <AIChatbot />
       </body>

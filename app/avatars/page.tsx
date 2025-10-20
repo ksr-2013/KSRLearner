@@ -61,9 +61,6 @@ export default function AvatarsPage() {
 
   useEffect(() => {
     ;(async () => {
-      // Add artificial delay to see loading animation (remove in production)
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
       // Check authentication - try both Supabase and JWT systems
       let userData = null
       
