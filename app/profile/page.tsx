@@ -72,16 +72,20 @@ export default function ProfilePage() {
 
   const logout = async () => {
     try {
-      // Try Supabase logout first
-      const { error } = await supabaseClient.auth.signOut()
-      if (error) {
-        console.log('Supabase logout failed, trying JWT logout...')
-        // Fallback to JWT logout
-        await fetch('/api/auth/logout', { method: 'POST' })
+      // Call the logout API which handles both auth systems
+      await fetch('/api/auth/logout', { method: 'POST' })
+      
+      // Also try direct Supabase logout as backup
+      try {
+        await supabaseClient.auth.signOut()
+      } catch (supabaseError) {
+        console.log('Direct Supabase logout failed:', supabaseError)
       }
-    } catch {
-      // If both fail, just redirect
+    } catch (error) {
+      console.error('Logout API failed:', error)
     }
+    
+    // Always redirect to home page
     window.location.assign('/')
   }
 
