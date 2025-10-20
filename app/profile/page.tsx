@@ -144,16 +144,24 @@ export default function ProfilePage() {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-slate-300 text-sm mb-1">Avatar URL</label>
-                  <input
-                    value={avatarUrl}
-                    onChange={(e) => setAvatarUrl(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="https://example.com/avatar.jpg"
-                    maxLength={2048}
-                  />
-                </div>
+                       <div>
+                         <label className="block text-slate-300 text-sm mb-1">Avatar URL</label>
+                         <div className="flex gap-2">
+                           <input
+                             value={avatarUrl}
+                             onChange={(e) => setAvatarUrl(e.target.value)}
+                             className="flex-1 bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                             placeholder="https://example.com/avatar.jpg"
+                             maxLength={2048}
+                           />
+                           <a
+                             href="/avatars"
+                             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm whitespace-nowrap"
+                           >
+                             Choose Avatar
+                           </a>
+                         </div>
+                       </div>
 
                 {message && <div className="text-sm text-slate-300">{message}</div>}
                 <button type="submit" disabled={saving} className="btn-primary w-full">
