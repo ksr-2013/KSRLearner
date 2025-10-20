@@ -12,15 +12,15 @@ export async function POST(req: NextRequest) {
     
     // Use raw SQL to avoid prepared statement conflicts
     const users = await prisma.$queryRaw`
-      SELECT id, email, name, password_hash, avatar_url 
+      SELECT id, email, name, "passwordHash", "avatarUrl" 
       FROM users 
-      WHERE email = ${email} AND is_active = true
+      WHERE email = ${email} AND "isActive" = true
     ` as Array<{
       id: string
       email: string
       name: string | null
-      password_hash: string | null
-      avatar_url: string | null
+      passwordHash: string | null
+      avatarUrl: string | null
     }>
     
     if (users.length === 0) {
@@ -28,11 +28,11 @@ export async function POST(req: NextRequest) {
     }
     
     const user = users[0]
-    if (!user.password_hash || typeof user.password_hash !== 'string') {
+    if (!user.passwordHash || typeof user.passwordHash !== 'string') {
       return new Response(JSON.stringify({ error: 'Invalid credentials' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
     }
     
-    const ok = await bcrypt.compare(password, user.password_hash)
+    const ok = await bcrypt.compare(password, user.passwordHash)
     if (!ok) return new Response(JSON.stringify({ error: 'Invalid credentials' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
     
     const token = signSession({ uid: user.id, email: user.email })

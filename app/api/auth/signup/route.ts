@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     
     // Create user using raw SQL
     const newUsers = await prisma.$queryRaw`
-      INSERT INTO users (id, email, password_hash, name, created_at, updated_at, is_active)
+      INSERT INTO users (id, email, "passwordHash", name, "createdAt", "updatedAt", "isActive")
       VALUES (gen_random_uuid(), ${email}, ${hash}, ${name || null}, NOW(), NOW(), true)
       RETURNING id, email, name
     ` as Array<{

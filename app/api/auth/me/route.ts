@@ -13,15 +13,15 @@ export async function GET(req: NextRequest) {
     
     // Use raw SQL to avoid prepared statement conflicts
     const users = await prisma.$queryRaw`
-      SELECT id, email, name, avatar_url, created_at
+      SELECT id, email, name, "avatarUrl", "createdAt"
       FROM users 
-      WHERE id = ${session.uid} AND is_active = true
+      WHERE id = ${session.uid} AND "isActive" = true
     ` as Array<{
       id: string
       email: string
       name: string | null
-      avatar_url: string | null
-      created_at: Date
+      avatarUrl: string | null
+      createdAt: Date
     }>
     
     if (users.length === 0) {
@@ -34,8 +34,8 @@ export async function GET(req: NextRequest) {
         id: user.id,
         email: user.email,
         name: user.name,
-        avatarUrl: user.avatar_url,
-        createdAt: user.created_at
+        avatarUrl: user.avatarUrl,
+        createdAt: user.createdAt
       }
     }), { status: 200, headers: { 'Content-Type': 'application/json' } })
   } catch (e: any) {
