@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Menu, X } from 'lucide-react'
+import { supabaseClient } from '../lib/supabaseClient'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -16,12 +17,40 @@ export default function Header() {
     let mounted = true
     ;(async () => {
       try {
-        const res = await fetch('/api/auth/me', { cache: 'no-store' })
-        const data = await res.json()
+        // Check authentication - try both Supabase and JWT systems
+        let userData = null
+        
+        // First try Supabase auth
+        try {
+          const { data: { session }, error } = await supabaseClient.auth.getSession()
+          if (session?.user) {
+            userData = {
+              user: {
+                id: session.user.id,
+                email: session.user.email,
+                name: session.user.user_metadata?.full_name || session.user.user_metadata?.name,
+                avatarUrl: session.user.user_metadata?.avatar_url
+              }
+            }
+          }
+        } catch (supabaseError) {
+          console.log('Supabase auth check failed, trying JWT...')
+        }
+        
+        // If Supabase auth failed, try JWT auth
+        if (!userData) {
+          try {
+            const res = await fetch('/api/auth/me', { cache: 'no-store' })
+            userData = await res.json()
+          } catch (jwtError) {
+            console.log('JWT auth check failed')
+          }
+        }
+        
         if (mounted) {
-          setLoggedIn(!!data?.user)
-          setUserName(data?.user?.name || data?.user?.email || '')
-          setAvatarUrl(data?.user?.avatarUrl || '')
+          setLoggedIn(!!userData?.user)
+          setUserName(userData?.user?.name || userData?.user?.email || '')
+          setAvatarUrl(userData?.user?.avatarUrl || '')
         }
       } catch {
         if (mounted) setLoggedIn(false)
@@ -31,7 +60,17 @@ export default function Header() {
   }, [])
 
   const handleLogout = async () => {
-    try { await fetch('/api/auth/logout', { method: 'POST' }) } catch {}
+    try {
+      // Try Supabase logout first
+      const { error } = await supabaseClient.auth.signOut()
+      if (error) {
+        console.log('Supabase logout failed, trying JWT logout...')
+        // Fallback to JWT logout
+        await fetch('/api/auth/logout', { method: 'POST' })
+      }
+    } catch {
+      // If both fail, just redirect
+    }
     window.location.assign('/')
   }
 

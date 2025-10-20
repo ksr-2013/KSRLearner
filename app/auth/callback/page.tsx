@@ -16,14 +16,14 @@ export default function AuthCallbackPage() {
         // If detectSessionInUrl=true, supabase-js may have already exchanged the code.
         const { data: sessionResult } = await supabaseClient.auth.getSession()
         if (sessionResult?.session) {
-          window.location.replace('/profile')
+          window.location.replace('/dashboard')
           return
         }
         // Fallback: try exchange explicitly if session not present
         const { data, error } = await supabaseClient.auth.exchangeCodeForSession(currentUrl)
         if (error) throw error
         if (data?.session) {
-          window.location.replace('/profile')
+          window.location.replace('/dashboard')
           return
         }
         throw new Error('Authentication failed: no session returned')

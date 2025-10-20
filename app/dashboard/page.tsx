@@ -10,6 +10,7 @@ import QuickActions from '../../components/QuickActions'
 import ProgressChart from '../../components/ProgressChart'
 import LearningPath from '../../components/LearningPath'
 import AIDashboardAssistant from '../../components/AIDashboardAssistant'
+import { supabaseClient } from '../../lib/supabaseClient'
 
 interface User {
   id: string
@@ -56,9 +57,35 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Check authentication
-        const authRes = await fetch('/api/auth/me', { cache: 'no-store' })
-        const authData = await authRes.json()
+        // Check authentication - try both Supabase and JWT systems
+        let authData = null
+        
+        // First try Supabase auth
+        try {
+          const { data: { session }, error } = await supabaseClient.auth.getSession()
+          if (session?.user) {
+            authData = {
+              user: {
+                id: session.user.id,
+                email: session.user.email,
+                name: session.user.user_metadata?.full_name || session.user.user_metadata?.name,
+                avatarUrl: session.user.user_metadata?.avatar_url
+              }
+            }
+          }
+        } catch (supabaseError) {
+          console.log('Supabase auth check failed, trying JWT...')
+        }
+        
+        // If Supabase auth failed, try JWT auth
+        if (!authData) {
+          try {
+            const authRes = await fetch('/api/auth/me', { cache: 'no-store' })
+            authData = await authRes.json()
+          } catch (jwtError) {
+            console.log('JWT auth check failed')
+          }
+        }
         
         if (!authData?.user) {
           router.push('/auth')

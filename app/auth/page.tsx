@@ -14,11 +14,11 @@ export default function AuthPage() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    // If already logged in with Supabase, redirect to profile
+    // If already logged in with Supabase, redirect to dashboard
     ;(async () => {
       try {
         const { data } = await supabaseClient.auth.getSession()
-        if (data?.session) window.location.assign('/profile')
+        if (data?.session) window.location.assign('/dashboard')
       } catch {}
     })()
   }, [])
@@ -34,7 +34,7 @@ export default function AuthPage() {
       const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
       const data = await res.json()
       if (!res.ok) throw new Error(data?.details || data?.error || 'Authentication failed')
-      window.location.assign('/profile')
+      window.location.assign('/dashboard')
     } catch (err: any) {
       setError(err?.message || 'Authentication failed')
     } finally {

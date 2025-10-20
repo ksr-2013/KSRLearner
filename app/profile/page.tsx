@@ -28,25 +28,60 @@ export default function ProfilePage() {
 
   useEffect(() => {
     ;(async () => {
-      const { data } = await supabaseClient.auth.getUser()
-      if (!data?.user) {
+      // Check authentication - try both Supabase and JWT systems
+      let userData = null
+      
+      // First try Supabase auth
+      try {
+        const { data: { user }, error } = await supabaseClient.auth.getUser()
+        if (user) {
+          userData = {
+            id: user.id,
+            email: user.email || undefined,
+            name: user.user_metadata?.full_name || user.user_metadata?.name || null,
+            avatarUrl: user.user_metadata?.avatar_url || null
+          }
+        }
+      } catch (supabaseError) {
+        console.log('Supabase auth check failed, trying JWT...')
+      }
+      
+      // If Supabase auth failed, try JWT auth
+      if (!userData) {
+        try {
+          const res = await fetch('/api/auth/me', { cache: 'no-store' })
+          const data = await res.json()
+          if (data?.user) {
+            userData = data.user
+          }
+        } catch (jwtError) {
+          console.log('JWT auth check failed')
+        }
+      }
+      
+      if (!userData) {
         window.location.assign('/auth')
         return
       }
-      const u: MeUser = {
-        id: data.user.id,
-        email: data.user.email || undefined,
-        name: data.user.user_metadata?.name || null,
-        avatarUrl: data.user.user_metadata?.avatar_url || null
-      }
-      setUser(u)
-      setName(u.name || '')
-      setAvatarUrl(u.avatarUrl || '')
+      
+      setUser(userData)
+      setName(userData.name || '')
+      setAvatarUrl(userData.avatarUrl || '')
     })()
   }, [])
 
   const logout = async () => {
-    await supabaseClient.auth.signOut()
+    try {
+      // Try Supabase logout first
+      const { error } = await supabaseClient.auth.signOut()
+      if (error) {
+        console.log('Supabase logout failed, trying JWT logout...')
+        // Fallback to JWT logout
+        await fetch('/api/auth/logout', { method: 'POST' })
+      }
+    } catch {
+      // If both fail, just redirect
+    }
     window.location.assign('/')
   }
 
