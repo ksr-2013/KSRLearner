@@ -117,6 +117,7 @@ export default function DashboardPage() {
         const dashboard = await dashboardRes.json()
         
         if (dashboardRes.ok) {
+          console.log('Dashboard API response:', dashboard)
           setDashboardData(dashboard)
         } else {
           // If no dashboard data, create default structure

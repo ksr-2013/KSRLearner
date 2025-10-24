@@ -16,6 +16,9 @@ interface ProgressChartProps {
 export default function ProgressChart({ progress }: ProgressChartProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('week')
 
+  // Debug: Log the progress data
+  console.log('ProgressChart received progress:', progress)
+
   // Generate sample data if none provided
   const generateSampleData = (period: string) => {
     const data: ProgressData[] = []
