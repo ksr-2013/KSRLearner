@@ -11,9 +11,6 @@ import QuickActions from '../../components/QuickActions'
 import ProgressChart from '../../components/ProgressChart'
 import LearningPath from '../../components/LearningPath'
 import AIDashboardAssistant from '../../components/AIDashboardAssistant'
-import CustomDashboard from '../../components/CustomDashboard'
-import RealTimeAnalytics from '../../components/RealTimeAnalytics'
-import AnalyticsChart from '../../components/AnalyticsChart'
 import { supabaseClient } from '../../lib/supabaseClient'
 
 interface User {
@@ -168,61 +165,7 @@ export default function DashboardPage() {
           <DashboardStats stats={dashboardData.stats} />
         </div>
 
-        {/* Custom Analytics Dashboard */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-white">Advanced Analytics</h2>
-            <div className="flex space-x-3">
-              <span className="text-green-400 text-sm flex items-center">
-                🎯 Custom Built
-              </span>
-              <span className="text-blue-400 text-sm flex items-center">
-                📊 Real-time Data
-              </span>
-              <span className="text-purple-400 text-sm flex items-center">
-                🧠 AI Insights
-              </span>
-            </div>
-          </div>
-          <CustomDashboard />
-        </div>
 
-        {/* Real-time Analytics */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-white mb-4">Live Analytics</h2>
-          <RealTimeAnalytics />
-        </div>
-
-        {/* Analytics Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <AnalyticsChart
-            title="Weekly Performance"
-            data={[
-              { label: 'Mon', value: 85, trend: 5 },
-              { label: 'Tue', value: 88, trend: 8 },
-              { label: 'Wed', value: 92, trend: 12 },
-              { label: 'Thu', value: 89, trend: 9 },
-              { label: 'Fri', value: 94, trend: 15 },
-              { label: 'Sat', value: 91, trend: 11 },
-              { label: 'Sun', value: 87, trend: 7 }
-            ]}
-            type="bar"
-            height={250}
-          />
-          
-          <AnalyticsChart
-            title="Category Performance"
-            data={[
-              { label: 'Programming', value: 92, trend: 12, color: 'bg-gradient-to-r from-blue-500 to-blue-600' },
-              { label: 'Mathematics', value: 88, trend: 8, color: 'bg-gradient-to-r from-green-500 to-green-600' },
-              { label: 'Science', value: 90, trend: 15, color: 'bg-gradient-to-r from-purple-500 to-purple-600' },
-              { label: 'Language', value: 85, trend: 6, color: 'bg-gradient-to-r from-orange-500 to-orange-600' },
-              { label: 'History', value: 87, trend: 9, color: 'bg-gradient-to-r from-pink-500 to-pink-600' }
-            ]}
-            type="progress"
-            height={250}
-          />
-        </div>
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
