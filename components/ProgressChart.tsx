@@ -16,8 +16,6 @@ interface ProgressChartProps {
 export default function ProgressChart({ progress }: ProgressChartProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('week')
 
-  // Debug: Log the progress data
-  console.log('ProgressChart received progress:', progress)
 
   // Generate sample data if none provided
   const generateSampleData = (period: string) => {
@@ -40,7 +38,8 @@ export default function ProgressChart({ progress }: ProgressChartProps) {
     return data
   }
 
-  const chartData = progress.length > 0 ? progress : generateSampleData(selectedPeriod)
+  // Don't use mock data - show real data or empty state
+  const chartData = progress
   
   const maxValue = Math.max(
     ...chartData.flatMap(d => [d.quizzes, d.typing, d.puzzles])
@@ -91,7 +90,8 @@ export default function ProgressChart({ progress }: ProgressChartProps) {
         <div className="text-center py-12">
           <div className="text-4xl mb-4">📈</div>
           <div className="text-slate-400 mb-2">No progress data yet</div>
-          <div className="text-slate-500 text-sm">Save a quiz, typing test, or puzzle to see progress here.</div>
+          <div className="text-slate-500 text-sm">Complete quizzes, typing tests, or puzzles to see your learning progress here.</div>
+          <div className="text-slate-600 text-xs mt-2">Your progress will be tracked automatically when you save scores.</div>
         </div>
       ) : (
         <div className="space-y-4">
