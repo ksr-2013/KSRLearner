@@ -117,7 +117,7 @@ export default function Header() {
 
           {/* Right spacer to keep center alignment */}
           <div className="ml-auto" />
-        </div>
+          </div>
 
         {/* Left Drawer Navigation */}
         {isMenuOpen && (
@@ -130,14 +130,14 @@ export default function Header() {
           <div className="fixed left-0 top-0 h-screen w-72 max-w-[85vw] bg-slate-800 border-r border-slate-700 shadow-2xl p-3 z-[60] overflow-y-auto">
             <div className="flex items-center justify-between mb-2">
               <span className="text-slate-200 font-semibold">Navigation</span>
-              <button
+          <button
                 className="p-2 rounded-md text-slate-300 hover:text-blue-400 hover:bg-slate-700"
                 onClick={() => setIsMenuOpen(false)}
                 aria-label="Close navigation menu"
-              >
+          >
                 <X className="w-5 h-5" />
-              </button>
-            </div>
+          </button>
+        </div>
             <div className="space-y-1 pb-24">
               <Link href="/" className="block px-3 py-2 text-slate-300 hover:text-blue-400 hover:bg-slate-700 rounded-lg font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>Home</Link>
               <Link href="/quizzes" className="block px-3 py-2 text-slate-300 hover:text-blue-400 hover:bg-slate-700 rounded-lg font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>Quizzes</Link>
@@ -177,7 +177,7 @@ export default function Header() {
                 </Link>
               </div>
             )}
-          </div>
+            </div>
           </>
         )}
       </div>

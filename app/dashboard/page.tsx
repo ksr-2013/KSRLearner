@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Settings } from 'lucide-react'
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
 import DashboardStats from '../../components/DashboardStats'
@@ -10,6 +11,7 @@ import QuickActions from '../../components/QuickActions'
 import ProgressChart from '../../components/ProgressChart'
 import LearningPath from '../../components/LearningPath'
 import AIDashboardAssistant from '../../components/AIDashboardAssistant'
+import PowerBIDashboard from '../../components/PowerBIDashboard'
 import { supabaseClient } from '../../lib/supabaseClient'
 
 interface User {
@@ -162,6 +164,21 @@ export default function DashboardPage() {
         {/* Stats Overview */}
         <div className="mb-8">
           <DashboardStats stats={dashboardData.stats} />
+        </div>
+
+        {/* Power BI Analytics Section */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-white">Advanced Analytics</h2>
+            <a
+              href="/powerbi-setup"
+              className="text-blue-400 hover:text-blue-300 text-sm flex items-center"
+            >
+              <Settings className="w-4 h-4 mr-1" />
+              Configure Power BI
+            </a>
+          </div>
+          <PowerBIDashboard />
         </div>
 
         {/* Main Content Grid */}
