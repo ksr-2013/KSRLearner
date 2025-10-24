@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { supabaseClient } from '../lib/supabaseClient'
 import { Save, Check, X } from 'lucide-react'
 
 interface SaveScoreProps {
@@ -51,20 +52,36 @@ export default function SaveScore({
     setMessage('')
 
     try {
-      const response = await fetch('/api/scores/save', {
+      // Get Supabase session token for authentication
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      }
+      
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession()
+        if (session?.access_token) {
+          headers['authorization'] = `Bearer ${session.access_token}`
+        }
+      } catch (error) {
+        console.log('Could not get Supabase session token')
+      }
+      
+      // Use the real API that saves to database
+      const response = await fetch('/api/scores', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({
-          type,
-          title,
-          score,
-          wpm,
-          level,
-          completed,
-          duration,
-          details
+          kind: type, // Map type to kind for the API
+          value: score || wpm || 0, // Use score or wpm as the value
+          meta: {
+            title,
+            score,
+            wpm,
+            level,
+            completed,
+            duration,
+            details
+          }
         })
       })
 
