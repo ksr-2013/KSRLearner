@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server'
-import { prisma } from '../../../lib/prisma'
+import { db } from '../../../lib/db'
 import { readTokenFromRequest, verifySession } from '../../../lib/auth'
 import { createClient } from '@supabase/supabase-js'
 
@@ -39,12 +39,18 @@ export async function GET(req: NextRequest) {
   
   try {
     const kind = new URL(req.url).searchParams.get('kind') || undefined
-    const scores = await prisma.score.findMany({
-      where: { userId: String(userId), ...(kind ? { kind } : {}) },
-      orderBy: { createdAt: 'desc' },
-      take: 50
-    })
-    return new Response(JSON.stringify({ scores }), { status: 200, headers: { 'Content-Type': 'application/json' } })
+    let query = 'SELECT * FROM scores WHERE "userId" = $1'
+    const params = [userId]
+    
+    if (kind) {
+      query += ' AND kind = $2'
+      params.push(kind)
+    }
+    
+    query += ' ORDER BY "createdAt" DESC LIMIT 50'
+    
+    const result = await db.query(query, params)
+    return new Response(JSON.stringify({ scores: result.rows }), { status: 200, headers: { 'Content-Type': 'application/json' } })
   } catch (e: any) {
     console.error('Scores GET error:', e)
     return new Response(JSON.stringify({ error: 'SERVER_ERROR', details: e?.message || 'unknown' }), { status: 500, headers: { 'Content-Type': 'application/json' } })
@@ -89,8 +95,17 @@ export async function POST(req: NextRequest) {
     if (!kind || !Number.isFinite(value)) {
       return new Response(JSON.stringify({ error: 'INVALID_INPUT' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
     }
-    const created = await prisma.score.create({ data: { userId: String(userId), kind, value, meta } })
-    return new Response(JSON.stringify({ score: created }), { status: 201, headers: { 'Content-Type': 'application/json' } })
+    
+    // Generate a unique ID using cuid-like format
+    const id = 'c' + Date.now().toString(36) + Math.random().toString(36).substr(2, 9)
+    
+    const result = await db.query(`
+      INSERT INTO scores (id, "userId", kind, value, meta, "createdAt", "updatedAt")
+      VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
+      RETURNING *
+    `, [id, String(userId), kind, value, JSON.stringify(meta)])
+    
+    return new Response(JSON.stringify({ score: result.rows[0] }), { status: 201, headers: { 'Content-Type': 'application/json' } })
   } catch (e: any) {
     console.error('Scores POST error:', e)
     return new Response(JSON.stringify({ error: 'SERVER_ERROR', details: e?.message || 'unknown' }), { status: 500, headers: { 'Content-Type': 'application/json' } })
