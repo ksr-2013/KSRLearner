@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Script from 'next/script'
 import './globals.css'
+import './styles/animations.css'
 import AIChatbot from '../components/AIChatbot'
 import GlobalLoading from '../components/GlobalLoading'
 
