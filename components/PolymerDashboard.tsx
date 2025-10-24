@@ -11,10 +11,10 @@ interface PolymerDashboardProps {
 }
 
 export default function PolymerDashboard({ 
-  workspaceId = 'your-workspace-id',
-  dashboardId = 'your-dashboard-id',
-  apiKey,
-  embedUrl
+  workspaceId = 'ksrlearner',
+  dashboardId,
+  apiKey = '8dafdfaf-4477-41b9-bd42-88a6c377809e',
+  embedUrl = 'https://v3.polymersearch.com/ksrlearner/Ksr\'s Workspace'
 }: PolymerDashboardProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -45,6 +45,12 @@ export default function PolymerDashboard({
           return
         }
 
+        // If no dashboard ID, embed the workspace directly
+        if (!dashboardId) {
+          initializeEmbed()
+          return
+        }
+
         // Load Polymer dashboard
         if (embedUrl) {
           initializeEmbed()
@@ -60,7 +66,7 @@ export default function PolymerDashboard({
     const initializeEmbed = () => {
       try {
         const iframe = document.createElement('iframe')
-        iframe.src = embedUrl || 'https://app.polymersearch.com/embed/demo'
+        iframe.src = embedUrl || 'https://v3.polymersearch.com/ksrlearner/Ksr\'s Workspace'
         iframe.style.width = '100%'
         iframe.style.height = '100%'
         iframe.style.border = 'none'

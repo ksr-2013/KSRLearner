@@ -4,14 +4,14 @@ export async function GET(request: NextRequest) {
   try {
     // Polymer AI configuration
     const config = {
-      workspaceId: process.env.POLYMER_WORKSPACE_ID || 'your-workspace-id',
-      dashboardId: process.env.POLYMER_DASHBOARD_ID || 'your-dashboard-id',
-      apiKey: process.env.POLYMER_API_KEY || 'your-api-key',
-      embedUrl: process.env.POLYMER_EMBED_URL || 'https://app.polymersearch.com/embed/demo',
+      workspaceId: process.env.POLYMER_WORKSPACE_ID || 'ksrlearner',
+      dashboardId: process.env.POLYMER_DASHBOARD_ID || '',
+      apiKey: process.env.POLYMER_API_KEY || '8dafdfaf-4477-41b9-bd42-88a6c377809e',
+      embedUrl: process.env.POLYMER_EMBED_URL || 'https://v3.polymersearch.com/ksrlearner/Ksr\'s Workspace',
       // Polymer API endpoints
-      apiUrl: process.env.POLYMER_API_URL || 'https://api.polymersearch.com',
+      apiUrl: process.env.POLYMER_API_URL || 'https://v3.polymersearch.com/api/v1',
       // Authentication endpoint
-      authUrl: process.env.POLYMER_AUTH_URL || 'https://app.polymersearch.com/api/auth',
+      authUrl: process.env.POLYMER_AUTH_URL || 'https://v3.polymersearch.com/api/v1/auth',
       // Scopes for Polymer AI
       scopes: [
         'dashboard:read',
@@ -32,11 +32,11 @@ export async function GET(request: NextRequest) {
       },
       setup: {
         required: [
-          'POLYMER_WORKSPACE_ID',
-          'POLYMER_DASHBOARD_ID',
           'POLYMER_API_KEY'
         ],
         optional: [
+          'POLYMER_WORKSPACE_ID',
+          'POLYMER_DASHBOARD_ID',
           'POLYMER_EMBED_URL',
           'POLYMER_API_URL',
           'POLYMER_AUTH_URL'
