@@ -131,13 +131,18 @@ export default function PowerBISetupPage() {
               <div>
                 <h3 className="text-white font-medium">Create Power BI App Registration</h3>
                 <p className="text-slate-400 text-sm">Register your application in Azure Active Directory</p>
-                <button
-                  onClick={openAzurePortal}
-                  className="mt-2 inline-flex items-center text-blue-400 hover:text-blue-300 text-sm"
-                >
-                  <ExternalLink className="w-4 h-4 mr-1" />
-                  Open Azure Portal
-                </button>
+                <div className="mt-2 space-y-2">
+                  <button
+                    onClick={openAzurePortal}
+                    className="inline-flex items-center text-blue-400 hover:text-blue-300 text-sm mr-4"
+                  >
+                    <ExternalLink className="w-4 h-4 mr-1" />
+                    Open Azure Portal
+                  </button>
+                  <div className="text-xs text-slate-500">
+                    Get: Client ID, Tenant ID, and create Client Secret
+                  </div>
+                </div>
               </div>
             </div>
             
@@ -146,13 +151,18 @@ export default function PowerBISetupPage() {
               <div>
                 <h3 className="text-white font-medium">Configure Power BI Workspace</h3>
                 <p className="text-slate-400 text-sm">Set up your workspace and create reports</p>
-                <button
-                  onClick={openPowerBIPortal}
-                  className="mt-2 inline-flex items-center text-blue-400 hover:text-blue-300 text-sm"
-                >
-                  <ExternalLink className="w-4 h-4 mr-1" />
-                  Open Power BI Portal
-                </button>
+                <div className="mt-2 space-y-2">
+                  <button
+                    onClick={openPowerBIPortal}
+                    className="inline-flex items-center text-blue-400 hover:text-blue-300 text-sm mr-4"
+                  >
+                    <ExternalLink className="w-4 h-4 mr-1" />
+                    Open Power BI Portal
+                  </button>
+                  <div className="text-xs text-slate-500">
+                    Get: Workspace ID and Report ID from URLs
+                  </div>
+                </div>
               </div>
             </div>
             
@@ -261,6 +271,31 @@ export default function PowerBISetupPage() {
           </div>
         )}
 
+        {/* Quick Reference */}
+        <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 mb-8">
+          <h2 className="text-xl font-semibold text-white mb-4">🔑 Credential Quick Reference</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="bg-slate-700/50 rounded-lg p-4">
+              <h3 className="text-white font-medium mb-2">From Azure Portal</h3>
+              <div className="space-y-1 text-sm">
+                <div className="text-slate-300">• Client ID → App Registration → Overview</div>
+                <div className="text-slate-300">• Tenant ID → App Registration → Overview</div>
+                <div className="text-slate-300">• Client Secret → Certificates & secrets</div>
+              </div>
+            </div>
+            
+            <div className="bg-slate-700/50 rounded-lg p-4">
+              <h3 className="text-white font-medium mb-2">From Power BI Portal</h3>
+              <div className="space-y-1 text-sm">
+                <div className="text-slate-300">• Workspace ID → Workspace URL</div>
+                <div className="text-slate-300">• Group ID → Same as Workspace ID</div>
+                <div className="text-slate-300">• Report ID → Report URL</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Environment Variables */}
         <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 mb-8">
           <h2 className="text-xl font-semibold text-white mb-4">Required Environment Variables</h2>
@@ -329,6 +364,27 @@ export default function PowerBISetupPage() {
 
         {/* Navigation */}
         <div className="flex justify-between">
+          <button
+            onClick={() => router.back()}
+            className="bg-slate-700 hover:bg-slate-600 text-white px-6 py-2 rounded-lg"
+          >
+            Go Back
+          </button>
+          
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
+          >
+            View Dashboard
+          </button>
+        </div>
+      </div>
+      
+      <Footer />
+    </div>
+  )
+}
+
           <button
             onClick={() => router.back()}
             className="bg-slate-700 hover:bg-slate-600 text-white px-6 py-2 rounded-lg"
