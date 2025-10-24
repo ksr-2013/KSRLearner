@@ -170,13 +170,27 @@ export default function DashboardPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-white">Advanced Analytics</h2>
-            <a
-              href="/powerbi-setup"
-              className="text-blue-400 hover:text-blue-300 text-sm flex items-center"
-            >
-              <Settings className="w-4 h-4 mr-1" />
-              Configure Power BI
-            </a>
+            <div className="flex space-x-3">
+              <a
+                href="/powerbi-credentials-guide"
+                className="text-green-400 hover:text-green-300 text-sm flex items-center"
+              >
+                📋 Get Credentials
+              </a>
+              <a
+                href="/powerbi-quick-reference"
+                className="text-purple-400 hover:text-purple-300 text-sm flex items-center"
+              >
+                ⚡ Quick Reference
+              </a>
+              <a
+                href="/powerbi-setup"
+                className="text-blue-400 hover:text-blue-300 text-sm flex items-center"
+              >
+                <Settings className="w-4 h-4 mr-1" />
+                Configure
+              </a>
+            </div>
           </div>
           <PowerBIDashboard />
         </div>
