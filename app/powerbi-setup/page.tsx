@@ -384,24 +384,3 @@ export default function PowerBISetupPage() {
     </div>
   )
 }
-
-          <button
-            onClick={() => router.back()}
-            className="bg-slate-700 hover:bg-slate-600 text-white px-6 py-2 rounded-lg"
-          >
-            Go Back
-          </button>
-          
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
-          >
-            View Dashboard
-          </button>
-        </div>
-      </div>
-      
-      <Footer />
-    </div>
-  )
-}
