@@ -95,8 +95,25 @@ export default function DashboardPage() {
 
         setUser(authData.user)
 
-        // Fetch dashboard data
-        const dashboardRes = await fetch('/api/dashboard', { cache: 'no-store' })
+        // Fetch dashboard data with authentication
+        const headers: HeadersInit = { 'cache': 'no-store' }
+        
+        // Add Supabase auth token if available
+        if (authData.user) {
+          try {
+            const { data: { session } } = await supabaseClient.auth.getSession()
+            if (session?.access_token) {
+              headers['authorization'] = `Bearer ${session.access_token}`
+            }
+          } catch (error) {
+            console.log('Could not get Supabase session token')
+          }
+        }
+        
+        const dashboardRes = await fetch('/api/dashboard', { 
+          cache: 'no-store',
+          headers 
+        })
         const dashboard = await dashboardRes.json()
         
         if (dashboardRes.ok) {

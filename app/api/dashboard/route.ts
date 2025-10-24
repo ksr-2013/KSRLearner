@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { readTokenFromRequest, verifySession } from '../../../lib/auth'
 import { prisma } from '../../../lib/prisma'
+import { createClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 
@@ -42,13 +43,43 @@ interface DashboardData {
 
 export async function GET(request: NextRequest) {
   try {
-    const token = readTokenFromRequest(request)
-    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    const session = verifySession(token)
-    if (!session) return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+    let userId = null
+    let userEmail = null
+    
+    // Try Supabase authentication first
+    try {
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      )
+      
+      const authHeader = request.headers.get('authorization')
+      if (authHeader?.startsWith('Bearer ')) {
+        const token = authHeader.substring(7)
+        const { data: { user }, error } = await supabase.auth.getUser(token)
+        if (user && !error) {
+          userId = user.id
+          userEmail = user.email
+        }
+      }
+    } catch (supabaseError) {
+      console.log('Supabase auth failed, trying JWT...')
+    }
+    
+    // If Supabase auth failed, try JWT auth
+    if (!userId) {
+      const token = readTokenFromRequest(request)
+      if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      const session = verifySession(token)
+      if (!session) return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+      userId = session.uid
+    }
 
-    // Fetch user
-    const user = await prisma.user.findUnique({ where: { id: session.uid }, select: { id: true, email: true, name: true, avatarUrl: true } })
+    // Fetch user from database
+    const user = await prisma.user.findUnique({ 
+      where: { id: userId }, 
+      select: { id: true, email: true, name: true, avatarUrl: true } 
+    })
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
 
     // Fetch scores
