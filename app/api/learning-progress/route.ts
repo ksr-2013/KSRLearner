@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
     if (averageScore >= 85 || totalQuizzes >= 10) unlockedLevels.push('ultra-legend')
 
     // Determine next level to unlock
-    let nextLevel = null
+    let nextLevel: string | undefined = undefined
     if (!unlockedLevels.includes('pro')) nextLevel = 'Pro'
     else if (!unlockedLevels.includes('legend')) nextLevel = 'Legend'
     else if (!unlockedLevels.includes('ultra-legend')) nextLevel = 'Ultra Legend'
