@@ -103,59 +103,32 @@ export async function POST(req: NextRequest) {
       return new Response(JSON.stringify({ error: 'INVALID_INPUT' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
     }
     
-    // Check if user exists in database, if not create them
+    // Check if user exists in database, if not create them with simple approach
     let dbUserId = userId
     try {
       const userCheck = await db.query('SELECT id FROM users WHERE id = $1', [userId])
       if (userCheck.rows.length === 0) {
-        console.log('👤 User not found in database, creating user...')
+        console.log('👤 User not found in database, creating user with basic info...')
         
-        // Get user info from Supabase if available
-        let userEmail = 'user@example.com'
-        let userName = 'User'
+        // Create user with basic info - no complex Supabase admin calls
+        const userEmail = `user-${userId.slice(-8)}@example.com`
+        const userName = 'User'
         
-        try {
-          const supabase = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.SUPABASE_SERVICE_ROLE_KEY!
-          )
-          const { data: { user }, error } = await supabase.auth.admin.getUserById(userId)
-          if (user && !error) {
-            userEmail = user.email || userEmail
-            userName = user.user_metadata?.full_name || user.user_metadata?.name || userName
-            console.log('✅ Got user info from Supabase:', { userEmail, userName })
-          } else {
-            console.log('⚠️ Could not get user info from Supabase, using defaults')
-          }
-        } catch (supabaseError) {
-          console.log('⚠️ Supabase admin API failed, using default user info:', supabaseError)
-        }
+        const newUserResult = await db.query(`
+          INSERT INTO users (id, email, name, "createdAt", "updatedAt", "isActive")
+          VALUES ($1, $2, $3, NOW(), NOW(), true)
+          RETURNING id
+        `, [userId, userEmail, userName])
         
-        // Create user in database with fallback values
-        try {
-          const newUserResult = await db.query(`
-            INSERT INTO users (id, email, name, "createdAt", "updatedAt", "isActive")
-            VALUES ($1, $2, $3, NOW(), NOW(), true)
-            RETURNING id
-          `, [userId, userEmail, userName])
-          
-          console.log('✅ User created in database:', newUserResult.rows[0])
-          dbUserId = newUserResult.rows[0].id
-        } catch (insertError) {
-          console.error('❌ Failed to create user in database:', insertError)
-          // Continue with original userId if user creation fails
-          console.log('⚠️ Continuing with original userId:', userId)
-          dbUserId = userId
-        }
+        console.log('✅ User created in database:', newUserResult.rows[0])
+        dbUserId = newUserResult.rows[0].id
       } else {
         console.log('✅ User exists in database')
         dbUserId = userCheck.rows[0].id
       }
     } catch (userError) {
-      console.error('❌ Error checking/creating user:', userError)
-      
-      // Don't fail the entire request, just log the error and continue
-      console.log('⚠️ User check failed, continuing with original userId:', userId)
+      console.error('❌ Error with user:', userError)
+      console.log('⚠️ Continuing with original userId:', userId)
       dbUserId = userId
     }
     
