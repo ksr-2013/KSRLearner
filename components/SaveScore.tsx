@@ -114,12 +114,23 @@ export default function SaveScore({
         // Track learning progress for quizzes
         if (type === 'quiz' && level) {
           try {
+            // Get the session token again for learning progress tracking
+            const progressHeaders: HeadersInit = {
+              'Content-Type': 'application/json',
+            }
+            
+            try {
+              const { data: { session: progressSession } } = await supabaseClient.auth.getSession()
+              if (progressSession?.access_token) {
+                progressHeaders['authorization'] = `Bearer ${progressSession.access_token}`
+              }
+            } catch (error) {
+              console.log('Could not get session for progress tracking:', error)
+            }
+            
             await fetch('/api/learning-progress', {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'authorization': `Bearer ${session?.access_token || ''}`
-              },
+              headers: progressHeaders,
               body: JSON.stringify({
                 level,
                 quizId: title,

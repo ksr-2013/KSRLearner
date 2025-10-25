@@ -209,101 +209,108 @@ export default function LearningPath({ level, userStats }: LearningPathProps) {
       {/* Learning Steps */}
       <div className="space-y-4">
         {learningSteps.map((step, index) => {
-          const StepComponent = step.locked ? 'div' : Link
-          const stepProps = step.locked ? {} : { href: step.href }
+          const className = `block p-4 rounded-lg border transition-all duration-200 ${
+            step.locked 
+              ? 'cursor-not-allowed opacity-60' 
+              : 'hover:scale-[1.02] cursor-pointer'
+          } ${
+            step.completed 
+              ? 'hover:border-green-400/50' 
+              : step.current 
+                ? 'hover:border-blue-400/50'
+                : 'hover:border-slate-500'
+          } ${getStepBgColor(step.color, step.completed, step.current, step.locked)}`
+          
+          const stepContent = (
+            <div className="flex items-center space-x-4">
+              {/* Step Number */}
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                step.completed 
+                  ? 'bg-green-500 text-white' 
+                  : step.current 
+                    ? 'bg-blue-500 text-white'
+                    : step.locked
+                      ? 'bg-slate-700 text-slate-500'
+                      : 'bg-slate-600 text-slate-300'
+              }`}>
+                {step.completed ? '✓' : index + 1}
+              </div>
+
+              {/* Step Icon */}
+              <div className="text-2xl">{step.icon}</div>
+
+              {/* Step Content */}
+              <div className="flex-1">
+                <div className={`font-semibold ${getStepColor(step.color, step.completed, step.current, step.locked)}`}>
+                  {step.title}
+                </div>
+                <div className="text-slate-400 text-sm">
+                  {step.description}
+                </div>
+                
+                {/* Requirements */}
+                {step.locked && (
+                  <div className="mt-2 text-xs text-slate-500">
+                    {step.requiredScore && `Requires ${step.requiredScore}% average score`}
+                    {step.requiredQuizzes && ` • ${step.requiredQuizzes} quizzes completed`}
+                  </div>
+                )}
+                
+                {/* Progress Bar for Current Level */}
+                {step.current && !step.completed && step.progress !== undefined && (
+                  <div className="mt-2">
+                    <div className="w-full bg-slate-700 rounded-full h-1.5">
+                      <div 
+                        className="h-1.5 rounded-full bg-gradient-to-r from-blue-500 to-blue-400 transition-all duration-300"
+                        style={{ width: `${step.progress}%` }}
+                      />
+                    </div>
+                    <div className="text-xs text-slate-400 mt-1">
+                      {step.progress}% Complete
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Status Indicator */}
+              <div className="flex items-center space-x-2">
+                {step.completed && (
+                  <div className="text-green-400 text-sm font-medium flex items-center">
+                    <CheckCircle className="w-4 h-4 mr-1" />
+                    Completed
+                  </div>
+                )}
+                {step.current && !step.completed && (
+                  <div className="text-blue-400 text-sm font-medium flex items-center">
+                    <Star className="w-4 h-4 mr-1" />
+                    Current
+                  </div>
+                )}
+                {step.locked && (
+                  <div className="text-slate-500 text-sm flex items-center">
+                    <Lock className="w-4 h-4 mr-1" />
+                    Locked
+                  </div>
+                )}
+                {!step.locked && (
+                  <div className="text-slate-400">→</div>
+                )}
+              </div>
+            </div>
+          )
+          
+          if (step.locked) {
+            return (
+              <div key={step.id} className={className}>
+                {stepContent}
+              </div>
+            )
+          }
           
           return (
-            <StepComponent
-              key={step.id}
-              {...stepProps}
-              className={`block p-4 rounded-lg border transition-all duration-200 ${
-                step.locked 
-                  ? 'cursor-not-allowed opacity-60' 
-                  : 'hover:scale-[1.02] cursor-pointer'
-              } ${
-                step.completed 
-                  ? 'hover:border-green-400/50' 
-                  : step.current 
-                    ? 'hover:border-blue-400/50'
-                    : 'hover:border-slate-500'
-              } ${getStepBgColor(step.color, step.completed, step.current, step.locked)}`}
-            >
-              <div className="flex items-center space-x-4">
-                {/* Step Number */}
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                  step.completed 
-                    ? 'bg-green-500 text-white' 
-                    : step.current 
-                      ? 'bg-blue-500 text-white'
-                      : step.locked
-                        ? 'bg-slate-700 text-slate-500'
-                        : 'bg-slate-600 text-slate-300'
-                }`}>
-                  {step.completed ? '✓' : index + 1}
-                </div>
-
-                {/* Step Icon */}
-                <div className="text-2xl">{step.icon}</div>
-
-                {/* Step Content */}
-                <div className="flex-1">
-                  <div className={`font-semibold ${getStepColor(step.color, step.completed, step.current, step.locked)}`}>
-                    {step.title}
-                  </div>
-                  <div className="text-slate-400 text-sm">
-                    {step.description}
-                  </div>
-                  
-                  {/* Requirements */}
-                  {step.locked && (
-                    <div className="mt-2 text-xs text-slate-500">
-                      {step.requiredScore && `Requires ${step.requiredScore}% average score`}
-                      {step.requiredQuizzes && ` • ${step.requiredQuizzes} quizzes completed`}
-                    </div>
-                  )}
-                  
-                  {/* Progress Bar for Current Level */}
-                  {step.current && !step.completed && step.progress !== undefined && (
-                    <div className="mt-2">
-                      <div className="w-full bg-slate-700 rounded-full h-1.5">
-                        <div 
-                          className="h-1.5 rounded-full bg-gradient-to-r from-blue-500 to-blue-400 transition-all duration-300"
-                          style={{ width: `${step.progress}%` }}
-                        />
-                      </div>
-                      <div className="text-xs text-slate-400 mt-1">
-                        {step.progress}% Complete
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Status Indicator */}
-                <div className="flex items-center space-x-2">
-                  {step.completed && (
-                    <div className="text-green-400 text-sm font-medium flex items-center">
-                      <CheckCircle className="w-4 h-4 mr-1" />
-                      Completed
-                    </div>
-                  )}
-                  {step.current && !step.completed && (
-                    <div className="text-blue-400 text-sm font-medium flex items-center">
-                      <Star className="w-4 h-4 mr-1" />
-                      Current
-                    </div>
-                  )}
-                  {step.locked && (
-                    <div className="text-slate-500 text-sm flex items-center">
-                      <Lock className="w-4 h-4 mr-1" />
-                      Locked
-                    </div>
-                  )}
-                  {!step.locked && (
-                    <div className="text-slate-400">→</div>
-                  )}
-                </div>
-              </div>
-            </StepComponent>
+            <Link key={step.id} href={step.href} className={className}>
+              {stepContent}
+            </Link>
           )
         })}
       </div>
