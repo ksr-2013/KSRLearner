@@ -33,13 +33,22 @@ export default function SaveScore({
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null)
 
   useEffect(() => {
-    // Check if user is logged in
+    // Check if user is logged in (try both Supabase and JWT)
     const checkAuth = async () => {
       try {
+        // First try Supabase auth
+        const { data: { session } } = await supabaseClient.auth.getSession()
+        if (session?.user) {
+          setIsLoggedIn(true)
+          return
+        }
+        
+        // If Supabase auth failed, try JWT auth
         const response = await fetch('/api/auth/me', { cache: 'no-store' })
         const data = await response.json()
         setIsLoggedIn(!!data?.user)
       } catch (error) {
+        console.log('Auth check failed:', error)
         setIsLoggedIn(false)
       }
     }
@@ -104,7 +113,7 @@ export default function SaveScore({
         onSave?.()
       } else if (response.status === 401) {
         setSaveStatus('error')
-        setMessage('Please log in to save your score')
+        setMessage('Authentication failed. Please refresh the page and try again.')
       } else {
         setSaveStatus('error')
         setMessage(data.error || 'Failed to save score')
