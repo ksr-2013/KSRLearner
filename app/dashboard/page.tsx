@@ -9,7 +9,6 @@ import DashboardStats from '../../components/DashboardStats'
 import RecentActivity from '../../components/RecentActivity'
 import QuickActions from '../../components/QuickActions'
 import ProgressChart from '../../components/ProgressChart'
-import LearningPath from '../../components/LearningPath'
 import AIDashboardAssistant from '../../components/AIDashboardAssistant'
 import { supabaseClient } from '../../lib/supabaseClient'
 
@@ -186,17 +185,9 @@ export default function DashboardPage() {
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          {/* Left Column - Progress and Learning Path */}
+          {/* Left Column - Progress Chart */}
           <div className="lg:col-span-2 space-y-8">
             <ProgressChart progress={dashboardData.progress} />
-            <LearningPath 
-              level={dashboardData.stats.level} 
-              userStats={{
-                totalQuizzes: dashboardData.stats.totalQuizzes,
-                averageScore: dashboardData.stats.averageScore,
-                streak: dashboardData.stats.streak
-              }}
-            />
           </div>
 
           {/* Right Column - Quick Actions and Recent Activity */}

@@ -116,8 +116,19 @@ export async function GET(request: NextRequest) {
       else break
     }
 
-    // Level heuristic based on average score and activity
-    const level = averageScore >= 85 || streak >= 14 ? 'Ultra Legend' : averageScore >= 70 || streak >= 7 ? 'Legend' : averageScore >= 50 ? 'Pro' : 'Beginner'
+    // Level heuristic based on average score and total quizzes completed
+    // More conservative approach - requires both good scores AND sufficient activity
+    let level = 'Beginner'
+    
+    if (totalQuizzes >= 10 && averageScore >= 85) {
+      level = 'Ultra Legend'
+    } else if (totalQuizzes >= 5 && averageScore >= 70) {
+      level = 'Legend'
+    } else if (totalQuizzes >= 3 && averageScore >= 50) {
+      level = 'Pro'
+    } else {
+      level = 'Beginner'
+    }
 
     // Recent activities
     const recentActivities = scores.slice(0, 10).map(s => ({
