@@ -143,7 +143,13 @@ export async function POST(req: NextRequest) {
       }
     } catch (userError) {
       console.error('❌ Error checking/creating user:', userError)
-      return new Response(JSON.stringify({ error: 'USER_ERROR', details: userError.message }), { status: 500, headers: { 'Content-Type': 'application/json' } })
+      
+      const message = userError instanceof Error ? userError.message : String(userError)
+      
+      return new Response(JSON.stringify({ error: 'USER_ERROR', details: message }), { 
+        status: 500, 
+        headers: { 'Content-Type': 'application/json' } 
+      })
     }
     
     // Generate a unique ID using cuid-like format
