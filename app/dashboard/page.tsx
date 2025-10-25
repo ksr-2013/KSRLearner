@@ -189,7 +189,14 @@ export default function DashboardPage() {
           {/* Left Column - Progress and Learning Path */}
           <div className="lg:col-span-2 space-y-8">
             <ProgressChart progress={dashboardData.progress} />
-            <LearningPath level={dashboardData.stats.level} />
+            <LearningPath 
+              level={dashboardData.stats.level} 
+              userStats={{
+                totalQuizzes: dashboardData.stats.totalQuizzes,
+                averageScore: dashboardData.stats.averageScore,
+                streak: dashboardData.stats.streak
+              }}
+            />
           </div>
 
           {/* Right Column - Quick Actions and Recent Activity */}

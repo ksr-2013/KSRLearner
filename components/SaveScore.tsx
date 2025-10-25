@@ -110,6 +110,28 @@ export default function SaveScore({
       if (response.ok) {
         setSaveStatus('success')
         setMessage('Score saved successfully! 🎉')
+        
+        // Track learning progress for quizzes
+        if (type === 'quiz' && level) {
+          try {
+            await fetch('/api/learning-progress', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'authorization': `Bearer ${session?.access_token || ''}`
+              },
+              body: JSON.stringify({
+                level,
+                quizId: title,
+                score: score || 0
+              })
+            })
+          } catch (progressError) {
+            console.log('Learning progress tracking failed:', progressError)
+            // Don't fail the main save if progress tracking fails
+          }
+        }
+        
         onSave?.()
       } else if (response.status === 401) {
         setSaveStatus('error')
