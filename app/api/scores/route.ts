@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
         console.log('👤 User not found in database, creating user...')
         
         // Get user info from Supabase if available
-        let userEmail = 'unknown@example.com'
+        let userEmail = 'user@example.com'
         let userName = 'User'
         
         try {
@@ -123,20 +123,30 @@ export async function POST(req: NextRequest) {
           if (user && !error) {
             userEmail = user.email || userEmail
             userName = user.user_metadata?.full_name || user.user_metadata?.name || userName
+            console.log('✅ Got user info from Supabase:', { userEmail, userName })
+          } else {
+            console.log('⚠️ Could not get user info from Supabase, using defaults')
           }
         } catch (supabaseError) {
-          console.log('Could not get user info from Supabase:', supabaseError)
+          console.log('⚠️ Supabase admin API failed, using default user info:', supabaseError)
         }
         
-        // Create user in database
-        const newUserResult = await db.query(`
-          INSERT INTO users (id, email, name, "createdAt", "updatedAt", "isActive")
-          VALUES ($1, $2, $3, NOW(), NOW(), true)
-          RETURNING id
-        `, [userId, userEmail, userName])
-        
-        console.log('✅ User created in database:', newUserResult.rows[0])
-        dbUserId = newUserResult.rows[0].id
+        // Create user in database with fallback values
+        try {
+          const newUserResult = await db.query(`
+            INSERT INTO users (id, email, name, "createdAt", "updatedAt", "isActive")
+            VALUES ($1, $2, $3, NOW(), NOW(), true)
+            RETURNING id
+          `, [userId, userEmail, userName])
+          
+          console.log('✅ User created in database:', newUserResult.rows[0])
+          dbUserId = newUserResult.rows[0].id
+        } catch (insertError) {
+          console.error('❌ Failed to create user in database:', insertError)
+          // Continue with original userId if user creation fails
+          console.log('⚠️ Continuing with original userId:', userId)
+          dbUserId = userId
+        }
       } else {
         console.log('✅ User exists in database')
         dbUserId = userCheck.rows[0].id
@@ -144,12 +154,9 @@ export async function POST(req: NextRequest) {
     } catch (userError) {
       console.error('❌ Error checking/creating user:', userError)
       
-      const message = userError instanceof Error ? userError.message : String(userError)
-      
-      return new Response(JSON.stringify({ error: 'USER_ERROR', details: message }), { 
-        status: 500, 
-        headers: { 'Content-Type': 'application/json' } 
-      })
+      // Don't fail the entire request, just log the error and continue
+      console.log('⚠️ User check failed, continuing with original userId:', userId)
+      dbUserId = userId
     }
     
     // Generate a unique ID using cuid-like format
