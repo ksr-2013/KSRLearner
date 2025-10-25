@@ -103,16 +103,59 @@ export async function POST(req: NextRequest) {
       return new Response(JSON.stringify({ error: 'INVALID_INPUT' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
     }
     
+    // Check if user exists in database, if not create them
+    let dbUserId = userId
+    try {
+      const userCheck = await db.query('SELECT id FROM users WHERE id = $1', [userId])
+      if (userCheck.rows.length === 0) {
+        console.log('👤 User not found in database, creating user...')
+        
+        // Get user info from Supabase if available
+        let userEmail = 'unknown@example.com'
+        let userName = 'User'
+        
+        try {
+          const supabase = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!
+          )
+          const { data: { user }, error } = await supabase.auth.admin.getUserById(userId)
+          if (user && !error) {
+            userEmail = user.email || userEmail
+            userName = user.user_metadata?.full_name || user.user_metadata?.name || userName
+          }
+        } catch (supabaseError) {
+          console.log('Could not get user info from Supabase:', supabaseError)
+        }
+        
+        // Create user in database
+        const newUserResult = await db.query(`
+          INSERT INTO users (id, email, name, "createdAt", "updatedAt", "isActive")
+          VALUES ($1, $2, $3, NOW(), NOW(), true)
+          RETURNING id
+        `, [userId, userEmail, userName])
+        
+        console.log('✅ User created in database:', newUserResult.rows[0])
+        dbUserId = newUserResult.rows[0].id
+      } else {
+        console.log('✅ User exists in database')
+        dbUserId = userCheck.rows[0].id
+      }
+    } catch (userError) {
+      console.error('❌ Error checking/creating user:', userError)
+      return new Response(JSON.stringify({ error: 'USER_ERROR', details: userError.message }), { status: 500, headers: { 'Content-Type': 'application/json' } })
+    }
+    
     // Generate a unique ID using cuid-like format
     const id = 'c' + Date.now().toString(36) + Math.random().toString(36).substr(2, 9)
     console.log('🆔 Generated ID:', id)
     
-    console.log('📊 Attempting database insert...')
+    console.log('📊 Attempting database insert with user ID:', dbUserId)
     const result = await db.query(`
       INSERT INTO scores (id, "userId", kind, value, meta, "createdAt", "updatedAt")
       VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
       RETURNING *
-    `, [id, String(userId), kind, value, JSON.stringify(meta)])
+    `, [id, dbUserId, kind, value, JSON.stringify(meta)])
     
     console.log('✅ Score inserted successfully:', result.rows[0])
     return new Response(JSON.stringify({ score: result.rows[0] }), { status: 201, headers: { 'Content-Type': 'application/json' } })
