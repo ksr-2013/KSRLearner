@@ -61,29 +61,40 @@ export default function SaveScore({
         const { data: { session } } = await supabaseClient.auth.getSession()
         if (session?.access_token) {
           headers['authorization'] = `Bearer ${session.access_token}`
+          console.log('🔑 Supabase session token found')
+        } else {
+          console.log('❌ No Supabase session token')
         }
       } catch (error) {
-        console.log('Could not get Supabase session token')
+        console.log('❌ Could not get Supabase session token:', error)
       }
+      
+      const requestBody = {
+        kind: type, // Map type to kind for the API
+        value: score || wpm || 0, // Use score or wpm as the value
+        meta: {
+          title,
+          score,
+          wpm,
+          level,
+          completed,
+          duration,
+          details
+        }
+      }
+      
+      console.log('📤 Sending score save request:', requestBody)
+      console.log('📤 Headers:', headers)
       
       // Use the real API that saves to database
       const response = await fetch('/api/scores', {
         method: 'POST',
         headers,
-        body: JSON.stringify({
-          kind: type, // Map type to kind for the API
-          value: score || wpm || 0, // Use score or wpm as the value
-          meta: {
-            title,
-            score,
-            wpm,
-            level,
-            completed,
-            duration,
-            details
-          }
-        })
+        body: JSON.stringify(requestBody)
       })
+      
+      console.log('📥 Response status:', response.status)
+      console.log('📥 Response ok:', response.ok)
 
       const data = await response.json()
 
