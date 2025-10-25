@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { readTokenFromRequest, verifySession } from '../../../lib/auth'
-import { prisma } from '../../../lib/prisma'
+import { db } from '../../../lib/db'
 import { createClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
@@ -76,17 +76,17 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch user from database
-    const user = await prisma.user.findUnique({ 
-      where: { id: userId }, 
-      select: { id: true, email: true, name: true, avatarUrl: true } 
-    })
-    if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    const userResult = await db.query('SELECT id, email, name, "avatarUrl" FROM users WHERE id = $1', [userId])
+    if (userResult.rows.length === 0) return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    const user = userResult.rows[0]
 
     // Fetch scores
-    const scores = await prisma.score.findMany({
-      where: { userId: user.id },
-      orderBy: { createdAt: 'desc' }
-    })
+    const scoresResult = await db.query(`
+      SELECT * FROM scores 
+      WHERE "userId" = $1 
+      ORDER BY "createdAt" DESC
+    `, [user.id])
+    const scores = scoresResult.rows
 
     // Compute stats
     const quizScores = scores.filter(s => s.kind === 'quiz')
