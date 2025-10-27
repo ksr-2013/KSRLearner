@@ -23,7 +23,7 @@ export default function PrivacyPage() {
             <section className="space-y-4">
               <h2 className="text-2xl font-semibold text-white mt-8 mb-4">Entity and Contact Information</h2>
               <p>
-                This Privacy Policy is published on behalf of an individual operator located in Andhra Pradesh, India. Business names and registered addresses are not applicable in this case. All references to "I", "me", or "my" refer to the individual operator.
+                This Privacy Policy is published on behalf of an individual operator located in Penumantra, India. Business names and registered addresses are not applicable in this case. All references to "I", "me", or "my" refer to the individual operator.
               </p>
               
               <h3 className="text-xl font-semibold text-white mt-6 mb-2">How to Contact Us</h3>
@@ -280,7 +280,7 @@ export default function PrivacyPage() {
                 We strive to maintain transparent and robust privacy practices. Thank you for trusting ksrlearner.netlify.com with your information. Please review this Policy periodically for updates.
               </p>
               <p className="mt-6">
-                <strong className="text-white">Publisher:</strong> ksrlearner.netlify.com (Andhra Pradesh, India).
+                <strong className="text-white">Publisher:</strong> ksrlearner.netlify.com (Penumantra, India).
               </p>
               <p>
                 <strong className="text-white">Last updated:</strong> October 27, 2025.

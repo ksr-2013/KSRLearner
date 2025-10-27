@@ -83,7 +83,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center space-x-3">
                 <MapPin className="w-4 h-4 text-blue-400" />
-                <span className="text-slate-300">123 Learning St, Tech City</span>
+                <span className="text-slate-300">Penumantra, India</span>
               </li>
             </ul>
           </div>
@@ -92,7 +92,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-slate-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-slate-400 text-sm">
-            © 2024 KSR Learner. All rights reserved.
+            © 2025 KSR Learner. All rights reserved.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <Link href="/privacy" className="text-slate-400 hover:text-blue-400 text-sm transition-colors">
