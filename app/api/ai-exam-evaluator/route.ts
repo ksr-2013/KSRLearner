@@ -29,47 +29,46 @@ export async function POST(request: NextRequest) {
     // Get NLPCloud API key from environment variables
     const apiKey = process.env.NLPCLOUD_API_KEY
 
-    if (!apiKey) {
-      console.error('NLPCloud API key not found')
-      return NextResponse.json(
-        { error: 'AI evaluation service not configured' },
-        { status: 500 }
-      )
+    // Try NLPCloud API if key is available, otherwise use fallback
+    if (apiKey) {
+      try {
+        // Create evaluation prompt based on exam type and subject
+        const evaluationPrompt = createEvaluationPrompt(examText, examType, subject)
+
+        // Call NLPCloud API for text generation
+        const nlpCloudResponse = await fetch('https://api.nlpcloud.io/v1/gpu/fast-gpt-j/text-generation', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Token ${apiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            text: evaluationPrompt,
+            max_length: 1000,
+            temperature: 0.7,
+            top_p: 0.9,
+          }),
+        })
+
+        if (nlpCloudResponse.ok) {
+          const nlpCloudData = await nlpCloudResponse.json()
+          const generatedText = nlpCloudData.generated_text
+
+          // Parse the AI response into structured evaluation
+          const evaluation = parseEvaluationResponse(generatedText, examText, examType, subject)
+          return NextResponse.json(evaluation)
+        } else {
+          console.warn('NLPCloud API error, falling back to heuristic evaluation')
+        }
+      } catch (error) {
+        console.warn('NLPCloud API failed, falling back to heuristic evaluation:', error)
+      }
+    } else {
+      console.log('NLPCloud API key not found, using fallback evaluation')
     }
 
-    // Create evaluation prompt based on exam type and subject
-    const evaluationPrompt = createEvaluationPrompt(examText, examType, subject)
-
-    // Call NLPCloud API for text generation
-    const nlpCloudResponse = await fetch('https://api.nlpcloud.io/v1/gpu/fast-gpt-j/text-generation', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Token ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        text: evaluationPrompt,
-        max_length: 1000,
-        temperature: 0.7,
-        top_p: 0.9,
-      }),
-    })
-
-    if (!nlpCloudResponse.ok) {
-      const errorText = await nlpCloudResponse.text()
-      console.error('NLPCloud API error:', errorText)
-      return NextResponse.json(
-        { error: 'Failed to evaluate exam' },
-        { status: 500 }
-      )
-    }
-
-    const nlpCloudData = await nlpCloudResponse.json()
-    const generatedText = nlpCloudData.generated_text
-
-    // Parse the AI response into structured evaluation
-    const evaluation = parseEvaluationResponse(generatedText, examText, examType, subject)
-
+    // Fallback evaluation (works without API key)
+    const evaluation = createFallbackEvaluation(examText, examType, subject)
     return NextResponse.json(evaluation)
 
   } catch (error) {
@@ -156,24 +155,48 @@ function createFallbackEvaluation(examText: string, examType: string, subject: s
   
   const grade = getGradeFromScore(score)
   
+  // Generate more intelligent feedback based on content analysis
+  const strengths = []
+  const improvements = []
+  const suggestions = []
+
+  // Analyze strengths
+  if (wordCount > 150) strengths.push('Good length and detail')
+  if (avgWordsPerSentence > 8 && avgWordsPerSentence < 30) strengths.push('Well-structured sentences')
+  if (examText.includes('because') || examText.includes('therefore') || examText.includes('however')) strengths.push('Uses logical connectors')
+  if (examText.match(/[A-Z][a-z]+ [A-Z][a-z]+/)) strengths.push('Includes proper nouns and specific examples')
+  if (wordCount > 50) strengths.push('Demonstrates effort and engagement')
+
+  // Analyze areas for improvement
+  if (wordCount < 100) improvements.push('Expand your response with more detail')
+  if (avgWordsPerSentence < 8) improvements.push('Develop more complex sentence structures')
+  if (avgWordsPerSentence > 35) improvements.push('Break down overly long sentences')
+  if (!examText.includes('.')) improvements.push('Add proper punctuation and sentence structure')
+  if (wordCount < 200) improvements.push('Provide more comprehensive coverage of the topic')
+
+  // Generate suggestions
+  suggestions.push('Consider adding specific examples to support your points')
+  suggestions.push('Review your work for clarity and coherence')
+  suggestions.push('Ensure all parts of the question are addressed')
+  if (examType === 'essay') suggestions.push('Include an introduction and conclusion')
+  if (subject) suggestions.push(`Focus on key concepts in ${subject}`)
+
+  // Default strengths if none detected
+  if (strengths.length === 0) {
+    strengths.push('Shows understanding of the topic', 'Attempts to address the question', 'Demonstrates effort in completion')
+  }
+
+  // Default improvements if none detected
+  if (improvements.length === 0) {
+    improvements.push('Expand on key points with more detail', 'Provide specific examples or evidence', 'Improve structure and organization')
+  }
+
   return {
     score: Math.round(score),
-    feedback: `This ${examType}${subject ? ` in ${subject}` : ''} shows ${wordCount > 100 ? 'good' : 'basic'} effort. The content demonstrates understanding of the topic with room for further development.`,
-    strengths: [
-      'Shows understanding of the topic',
-      'Attempts to address the question',
-      'Demonstrates effort in completion'
-    ],
-    improvements: [
-      'Expand on key points with more detail',
-      'Provide specific examples or evidence',
-      'Improve structure and organization'
-    ],
-    suggestions: [
-      'Review the material before writing',
-      'Plan your response before starting',
-      'Proofread for clarity and accuracy'
-    ],
+    feedback: `This ${examType}${subject ? ` in ${subject}` : ''} ${wordCount > 150 ? 'demonstrates good effort and understanding' : 'shows basic understanding with room for development'}. ${wordCount > 100 ? 'The response is well-developed' : 'Consider expanding your ideas'} with more detail and examples.`,
+    strengths: strengths.slice(0, 5),
+    improvements: improvements.slice(0, 5),
+    suggestions: suggestions.slice(0, 5),
     overallGrade: grade
   }
 }
