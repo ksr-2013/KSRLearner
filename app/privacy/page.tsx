@@ -15,8 +15,8 @@ export default function PrivacyPage() {
           
           <div className="text-slate-300 space-y-6">
             <p>
-              This Privacy Policy explains how we collect, use, disclose, and protect the personal information you provide or that we collect when you access or use our services when you use our website or mobile application (the "Platform"). It explains your privacy rights and choices, and how to contact us about our privacy practices. Please read this Policy carefully. By using our Platform, you consent to the data practices described in this Policy. This Privacy Policy has been created with the help of the{' '}
-              <a href="https://listwr.com/privacy-policy-generator" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">
+              This Privacy Policy explains how we collect, use, disclose, and protect the personal information you provide or that we collect when you access or use our services when you use our website or mobile application (the "Platform"). It explains your privacy rights and choices, and how to contact us about our privacy practices. Please read this Policy carefully. By using our Platform, you consent to the data practices described in this Policy.
+              <a href="" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">
                 Free Privacy Policy Generator
               </a>.
             </p>
