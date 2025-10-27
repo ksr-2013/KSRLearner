@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
     const generatedText = nlpCloudData.generated_text
 
     // Parse the AI response into structured evaluation
-    const evaluation = parseEvaluationResponse(generatedText, examType, subject)
+    const evaluation = parseEvaluationResponse(generatedText, examText, examType, subject)
 
     return NextResponse.json(evaluation)
 
@@ -111,7 +111,7 @@ Please be constructive and specific in your feedback. Focus on helping the stude
   return basePrompt
 }
 
-function parseEvaluationResponse(generatedText: string, examType: string, subject: string): NLPCloudResponse {
+function parseEvaluationResponse(generatedText: string, examText: string, examType: string, subject: string): NLPCloudResponse {
   try {
     // Try to extract JSON from the response
     const jsonMatch = generatedText.match(/\{[\s\S]*\}/)
