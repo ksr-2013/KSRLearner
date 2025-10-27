@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
-import { Brain, FileText, CheckCircle, AlertCircle, Loader2, Star, TrendingUp, Award, Plus, BookOpen, Lightbulb } from 'lucide-react'
+import { Brain, FileText, CheckCircle, AlertCircle, Loader2, Star, TrendingUp, Award, BookOpen } from 'lucide-react'
 
 interface EvaluationResult {
   score: number
@@ -29,31 +29,46 @@ interface GeneratedQuestion {
   difficulty: string
 }
 
-export default function AIExamEvaluatorPage() {
-  const [activeTab, setActiveTab] = useState<'evaluate' | 'generate'>('evaluate')
-  
-  // Evaluation states
-  const [examText, setExamText] = useState('')
-  const [examType, setExamType] = useState('essay')
-  const [subject, setSubject] = useState('')
-  const [isEvaluating, setIsEvaluating] = useState(false)
-  const [result, setResult] = useState<EvaluationResult | null>(null)
-  const [error, setError] = useState('')
+export default function AIExamConductorPage() {
+  // Subject selection
+  const [selectedSubject, setSelectedSubject] = useState('')
+  const [customSubject, setCustomSubject] = useState('')
   
   // Question generation states
-  const [topic, setTopic] = useState('')
-  const [questionType, setQuestionType] = useState('multiple-choice')
-  const [difficulty, setDifficulty] = useState('medium')
-  const [numberOfQuestions, setNumberOfQuestions] = useState(5)
-  const [isGenerating, setIsGenerating] = useState(false)
   const [generatedQuestions, setGeneratedQuestions] = useState<GeneratedQuestion[]>([])
+  const [isGenerating, setIsGenerating] = useState(false)
   const [generationError, setGenerationError] = useState('')
+  
+  // Exam answering states
+  const [userAnswers, setUserAnswers] = useState<{ [key: string]: string }>({})
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  
+  // Evaluation states
+  const [result, setResult] = useState<EvaluationResult | null>(null)
+  const [error, setError] = useState('')
+  const [showResults, setShowResults] = useState(false)
 
-  const handleGenerateQuestions = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const subjects = [
+    'Mathematics',
+    'Science',
+    'English',
+    'History',
+    'Geography',
+    'Computer Science',
+    'Physics',
+    'Chemistry',
+    'Biology',
+    'Economics',
+    'Psychology',
+    'Literature'
+  ]
+
+  const handleGenerateQuestions = async () => {
+    const subjectToUse = selectedSubject || customSubject
     
-    if (!topic.trim()) {
-      setGenerationError('Please enter a topic to generate questions')
+    if (!subjectToUse.trim()) {
+      setGenerationError('Please select or enter a subject')
       return
     }
 
@@ -68,10 +83,10 @@ export default function AIExamEvaluatorPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          topic,
-          questionType,
-          difficulty,
-          numberOfQuestions,
+          topic: subjectToUse,
+          questionType: 'multiple-choice',
+          difficulty: 'medium',
+          numberOfQuestions: 5,
         }),
       })
 
@@ -81,6 +96,9 @@ export default function AIExamEvaluatorPage() {
 
       const data = await response.json()
       setGeneratedQuestions(data.questions)
+      setCurrentQuestionIndex(0)
+      setUserAnswers({})
+      setShowResults(false)
     } catch (err) {
       setGenerationError(err instanceof Error ? err.message : 'An error occurred during question generation')
     } finally {
@@ -88,28 +106,32 @@ export default function AIExamEvaluatorPage() {
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!examText.trim()) {
-      setError('Please enter exam content to evaluate')
+  const handleSubmitExam = async () => {
+    if (generatedQuestions.length === 0) {
+      setError('No questions available')
       return
     }
 
-    setIsEvaluating(true)
+    setIsSubmitting(true)
     setError('')
     setResult(null)
 
     try {
+      // Collect user's answers
+      const answersText = generatedQuestions.map((q, index) => {
+        const userAnswer = userAnswers[q.id] || 'Not answered'
+        return `Question ${index + 1}: ${q.question}\nYour Answer: ${userAnswer}\n`
+      }).join('\n')
+
       const response = await fetch('/api/ai-exam-evaluator', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          examText,
-          examType,
-          subject,
+          examText: answersText,
+          examType: 'multiple-choice',
+          subject: selectedSubject || customSubject,
         }),
       })
 
@@ -119,24 +141,25 @@ export default function AIExamEvaluatorPage() {
 
       const data = await response.json()
       setResult(data)
+      setShowResults(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred during evaluation')
     } finally {
-      setIsEvaluating(false)
+      setIsSubmitting(false)
     }
   }
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-400'
-    if (score >= 60) return 'text-yellow-400'
-    return 'text-red-400'
+    if (score >= 60) return 'text-blue-400'
+    return 'text-yellow-400'
   }
 
   const getGradeColor = (grade: string) => {
     if (grade === 'A' || grade === 'A+') return 'text-green-400'
     if (grade === 'B' || grade === 'B+') return 'text-blue-400'
     if (grade === 'C' || grade === 'C+') return 'text-yellow-400'
-    return 'text-red-400'
+    return 'text-orange-400'
   }
 
   const getPerformanceColor = (level: string) => {
@@ -155,466 +178,296 @@ export default function AIExamEvaluatorPage() {
         {/* Header Section */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex items-center justify-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-700 to-blue-900 rounded-xl flex items-center justify-center shadow-lg">
               <Brain className="w-8 h-8 text-white" />
             </div>
           </div>
           <h1 className="text-4xl font-bold text-white mb-4">AI Exam Conductor</h1>
           <p className="text-xl text-slate-400 max-w-3xl mx-auto">
-            Conduct comprehensive exam evaluations with AI-powered analysis or generate custom questions for any topic. 
-            Get detailed marks, grades, and improvement suggestions.
+            Select a subject, answer AI-generated questions, and receive comprehensive evaluation with marks, grades, and detailed feedback.
           </p>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex justify-center mb-8">
-          <div className="bg-slate-800 rounded-lg p-1 border border-slate-700">
-            <button
-              onClick={() => setActiveTab('evaluate')}
-              className={`px-6 py-3 rounded-md font-medium transition-all duration-200 ${
-                activeTab === 'evaluate'
-                  ? 'bg-blue-600 text-white shadow-lg'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-700'
-              }`}
-            >
-              <FileText className="w-5 h-5 inline mr-2" />
-              Conduct Exam
-            </button>
-            <button
-              onClick={() => setActiveTab('generate')}
-              className={`px-6 py-3 rounded-md font-medium transition-all duration-200 ${
-                activeTab === 'generate'
-                  ? 'bg-blue-600 text-white shadow-lg'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-700'
-              }`}
-            >
-              <Lightbulb className="w-5 h-5 inline mr-2" />
-              Generate Questions
-            </button>
-          </div>
-        </div>
-
-        {/* Tab Content */}
-        {activeTab === 'evaluate' ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Input Form */}
-            <div className="bg-slate-800 rounded-xl p-8 border border-slate-700">
-              <h2 className="text-2xl font-semibold text-white mb-6 flex items-center">
-                <FileText className="w-6 h-6 mr-3 text-blue-400" />
-                Submit Your Exam for AI Conduction
-              </h2>
+        {!generatedQuestions.length ? (
+          /* Subject Selection and Question Generation */
+          <div className="bg-slate-800 rounded-xl p-8 border border-slate-700 max-w-2xl mx-auto">
+            <h2 className="text-2xl font-semibold text-white mb-6 flex items-center">
+              <BookOpen className="w-6 h-6 mr-3 text-blue-400" />
+              Select Subject
+            </h2>
             
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Exam Type
+                <label className="block text-sm font-medium text-slate-300 mb-3">
+                  Choose a Subject
                 </label>
-                <select
-                  value={examType}
-                  onChange={(e) => setExamType(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="essay">Essay</option>
-                  <option value="short-answer">Short Answer</option>
-                  <option value="multiple-choice">Multiple Choice</option>
-                  <option value="problem-solving">Problem Solving</option>
-                  <option value="creative-writing">Creative Writing</option>
-                </select>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {subjects.map((subject) => (
+                    <button
+                      key={subject}
+                      onClick={() => {
+                        setSelectedSubject(subject)
+                        setCustomSubject('')
+                      }}
+                      className={`px-4 py-3 rounded-lg border transition-all duration-200 ${
+                        selectedSubject === subject
+                          ? 'bg-blue-700 border-blue-600 text-white shadow-lg'
+                          : 'bg-slate-700 border-slate-600 text-slate-300 hover:border-blue-500 hover:text-white'
+                      }`}
+                    >
+                      {subject}
+                    </button>
+                  ))}
+                </div>
               </div>
 
+              <div className="text-center text-slate-400">OR</div>
+
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Subject/Topic
+                  Enter Custom Subject
                 </label>
                 <input
                   type="text"
-                  value={subject}
-                  onChange={(e) => setSubject(e.target.value)}
-                  placeholder="e.g., Mathematics, English Literature, Science"
+                  value={customSubject}
+                  onChange={(e) => {
+                    setCustomSubject(e.target.value)
+                    setSelectedSubject('')
+                  }}
+                  placeholder="e.g., Quantum Physics, Ancient History"
                   className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Exam Content
-                </label>
-                <textarea
-                  value={examText}
-                  onChange={(e) => setExamText(e.target.value)}
-                  placeholder="Paste your exam answers, essay, or problem solutions here..."
-                  rows={12}
-                  className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                />
-              </div>
-
-              {error && (
+              {generationError && (
                 <div className="flex items-center p-4 bg-red-900/20 border border-red-500/30 rounded-lg">
                   <AlertCircle className="w-5 h-5 text-red-400 mr-3" />
-                  <span className="text-red-400">{error}</span>
+                  <span className="text-red-400">{generationError}</span>
                 </div>
               )}
 
               <button
-                type="submit"
-                disabled={isEvaluating}
-                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-slate-600 disabled:to-slate-600 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center"
+                onClick={handleGenerateQuestions}
+                disabled={isGenerating}
+                className="w-full bg-gradient-to-r from-blue-700 to-blue-900 hover:from-blue-800 hover:to-blue-950 disabled:from-slate-600 disabled:to-slate-600 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center"
               >
-                {isEvaluating ? (
+                {isGenerating ? (
                   <>
                     <Loader2 className="w-5 h-5 mr-3 animate-spin" />
-                    Conducting...
+                    Generating Questions...
                   </>
                 ) : (
                   <>
                     <Brain className="w-5 h-5 mr-3" />
-                    Conduct Exam
+                    Generate Questions
                   </>
                 )}
               </button>
-            </form>
+            </div>
           </div>
-
-          {/* Results Section */}
-          <div className="bg-slate-800 rounded-xl p-8 border border-slate-700">
-            <h2 className="text-2xl font-semibold text-white mb-6 flex items-center">
-              <Award className="w-6 h-6 mr-3 text-yellow-400" />
-              Exam Conduction Results
-            </h2>
-
-            {!result && !isEvaluating && (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <FileText className="w-8 h-8 text-slate-400" />
-                </div>
-                <p className="text-slate-400">Submit your exam to see AI-powered conduction results</p>
-              </div>
-            )}
-
-            {isEvaluating && (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Loader2 className="w-8 h-8 text-white animate-spin" />
-                </div>
-                <p className="text-slate-400">AI is conducting your exam...</p>
-                <p className="text-sm text-slate-500 mt-2">This may take a few moments</p>
-              </div>
-            )}
-
-            {result && (
-              <div className="space-y-6">
-                {/* Score and Grade */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="bg-slate-700 rounded-lg p-4 text-center">
-                    <div className={`text-3xl font-bold ${getScoreColor(result.score)}`}>
-                      {result.score}%
-                    </div>
-                    <div className="text-slate-400 text-sm">Percentage</div>
-                  </div>
-                  <div className="bg-slate-700 rounded-lg p-4 text-center">
-                    <div className={`text-3xl font-bold ${getScoreColor(result.score)}`}>
-                      {result.marksObtained}/{result.totalMarks}
-                    </div>
-                    <div className="text-slate-400 text-sm">Marks</div>
-                  </div>
-                  <div className="bg-slate-700 rounded-lg p-4 text-center">
-                    <div className={`text-3xl font-bold ${getGradeColor(result.overallGrade)}`}>
-                      {result.overallGrade}
-                    </div>
-                    <div className="text-slate-400 text-sm">Grade</div>
-                  </div>
-                  <div className="bg-slate-700 rounded-lg p-4 text-center">
-                    <div className={`text-lg font-bold ${getPerformanceColor(result.performanceLevel)}`}>
-                      {result.performanceLevel}
-                    </div>
-                    <div className="text-slate-400 text-sm">Performance</div>
-                  </div>
-                </div>
-
-                {/* Grade Description */}
-                <div className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border border-blue-500/30 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-blue-400 mb-3 flex items-center">
-                    <Award className="w-5 h-5 mr-2" />
-                    Grade Description
-                  </h3>
-                  <p className="text-slate-300">{result.gradeDescription}</p>
-                </div>
-
-                {/* Overall Feedback */}
-                <div className="bg-slate-700 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-white mb-3 flex items-center">
-                    <CheckCircle className="w-5 h-5 mr-2 text-green-400" />
-                    Overall Feedback
-                  </h3>
-                  <p className="text-slate-300 leading-relaxed">{result.feedback}</p>
-                </div>
-
-                {/* Strengths */}
-                {result.strengths.length > 0 && (
-                  <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-6">
-                    <h3 className="text-lg font-semibold text-green-400 mb-3 flex items-center">
-                      <TrendingUp className="w-5 h-5 mr-2" />
-                      Strengths
-                    </h3>
-                    <ul className="space-y-2">
-                      {result.strengths.map((strength, index) => (
-                        <li key={index} className="flex items-start">
-                          <Star className="w-4 h-4 text-green-400 mr-2 mt-1 flex-shrink-0" />
-                          <span className="text-slate-300">{strength}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Areas for Improvement */}
-                {result.improvements.length > 0 && (
-                  <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-6">
-                    <h3 className="text-lg font-semibold text-yellow-400 mb-3 flex items-center">
-                      <AlertCircle className="w-5 h-5 mr-2" />
-                      Areas for Improvement
-                    </h3>
-                    <ul className="space-y-2">
-                      {result.improvements.map((improvement, index) => (
-                        <li key={index} className="flex items-start">
-                          <AlertCircle className="w-4 h-4 text-yellow-400 mr-2 mt-1 flex-shrink-0" />
-                          <span className="text-slate-300">{improvement}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Suggestions */}
-                {result.suggestions.length > 0 && (
-                  <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-6">
-                    <h3 className="text-lg font-semibold text-blue-400 mb-3 flex items-center">
-                      <Brain className="w-5 h-5 mr-2" />
-                      Suggestions
-                    </h3>
-                    <ul className="space-y-2">
-                      {result.suggestions.map((suggestion, index) => (
-                        <li key={index} className="flex items-start">
-                          <div className="w-2 h-2 bg-blue-400 rounded-full mr-3 mt-2 flex-shrink-0" />
-                          <span className="text-slate-300">{suggestion}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-        ) : (
-          /* Question Generation Tab */
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Question Generation Form */}
-            <div className="bg-slate-800 rounded-xl p-8 border border-slate-700">
-              <h2 className="text-2xl font-semibold text-white mb-6 flex items-center">
-                <Lightbulb className="w-6 h-6 mr-3 text-yellow-400" />
-                Generate Questions
-              </h2>
-              
-              <form onSubmit={handleGenerateQuestions} className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Topic/Subject
-                  </label>
-                  <input
-                    type="text"
-                    value={topic}
-                    onChange={(e) => setTopic(e.target.value)}
-                    placeholder="e.g., Mathematics, World History, Computer Science"
-                    className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Question Type
-                  </label>
-                  <select
-                    value={questionType}
-                    onChange={(e) => setQuestionType(e.target.value)}
-                    className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="multiple-choice">Multiple Choice</option>
-                    <option value="essay">Essay</option>
-                    <option value="short-answer">Short Answer</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Difficulty Level
-                  </label>
-                  <select
-                    value={difficulty}
-                    onChange={(e) => setDifficulty(e.target.value)}
-                    className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="easy">Easy</option>
-                    <option value="medium">Medium</option>
-                    <option value="hard">Hard</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Number of Questions
-                  </label>
-                  <select
-                    value={numberOfQuestions}
-                    onChange={(e) => setNumberOfQuestions(Number(e.target.value))}
-                    className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value={3}>3 Questions</option>
-                    <option value={5}>5 Questions</option>
-                    <option value={10}>10 Questions</option>
-                    <option value={15}>15 Questions</option>
-                  </select>
-                </div>
-
-                {generationError && (
-                  <div className="flex items-center p-4 bg-red-900/20 border border-red-500/30 rounded-lg">
-                    <AlertCircle className="w-5 h-5 text-red-400 mr-3" />
-                    <span className="text-red-400">{generationError}</span>
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={isGenerating}
-                  className="w-full bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 disabled:from-slate-600 disabled:to-slate-600 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center"
-                >
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="w-5 h-5 mr-3 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-5 h-5 mr-3" />
-                      Generate Questions
-                    </>
-                  )}
-                </button>
-              </form>
+        ) : showResults && result ? (
+          /* Results Display */
+          <div className="space-y-6">
+            <div className="bg-gradient-to-r from-blue-700/20 to-blue-900/20 border border-blue-600/30 rounded-xl p-8 text-center">
+              <h2 className="text-3xl font-bold text-white mb-2">Exam Conduction Complete</h2>
+              <p className="text-blue-400 text-lg">{selectedSubject || customSubject}</p>
             </div>
 
-            {/* Generated Questions Display */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-slate-800 rounded-lg p-4 border border-slate-700 text-center">
+                <div className={`text-3xl font-bold ${getScoreColor(result.score)}`}>
+                  {result.score}%
+                </div>
+                <div className="text-slate-400 text-sm">Percentage</div>
+              </div>
+              <div className="bg-slate-800 rounded-lg p-4 border border-slate-700 text-center">
+                <div className={`text-3xl font-bold ${getScoreColor(result.score)}`}>
+                  {result.marksObtained}/{result.totalMarks}
+                </div>
+                <div className="text-slate-400 text-sm">Marks</div>
+              </div>
+              <div className="bg-slate-800 rounded-lg p-4 border border-slate-700 text-center">
+                <div className={`text-3xl font-bold ${getGradeColor(result.overallGrade)}`}>
+                  {result.overallGrade}
+                </div>
+                <div className="text-slate-400 text-sm">Grade</div>
+              </div>
+              <div className="bg-slate-800 rounded-lg p-4 border border-slate-700 text-center">
+                <div className={`text-lg font-bold ${getPerformanceColor(result.performanceLevel)}`}>
+                  {result.performanceLevel}
+                </div>
+                <div className="text-slate-400 text-sm">Performance</div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-blue-700/20 to-blue-900/20 border border-blue-600/30 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-blue-400 mb-3 flex items-center">
+                <Award className="w-5 h-5 mr-2" />
+                Grade Description
+              </h3>
+              <p className="text-slate-300">{result.gradeDescription}</p>
+            </div>
+
+            <div className="bg-slate-800 rounded-lg p-6 border border-slate-700">
+              <h3 className="text-lg font-semibold text-white mb-3 flex items-center">
+                <CheckCircle className="w-5 h-5 mr-2 text-green-400" />
+                Overall Feedback
+              </h3>
+              <p className="text-slate-300 leading-relaxed">{result.feedback}</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-green-400 mb-3 flex items-center">
+                  <Star className="w-5 h-5 mr-2" />
+                  Strengths
+                </h3>
+                <ul className="space-y-2">
+                  {result.strengths.map((strength, index) => (
+                    <li key={index} className="flex items-start">
+                      <Star className="w-4 h-4 text-green-400 mr-2 mt-1 flex-shrink-0" />
+                      <span className="text-slate-300">{strength}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-yellow-400 mb-3 flex items-center">
+                  <TrendingUp className="w-5 h-5 mr-2" />
+                  Areas for Improvement
+                </h3>
+                <ul className="space-y-2">
+                  {result.improvements.map((improvement, index) => (
+                    <li key={index} className="flex items-start">
+                      <AlertCircle className="w-4 h-4 text-yellow-400 mr-2 mt-1 flex-shrink-0" />
+                      <span className="text-slate-300">{improvement}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                setGeneratedQuestions([])
+                setResult(null)
+                setShowResults(false)
+                setUserAnswers({})
+                setSelectedSubject('')
+                setCustomSubject('')
+              }}
+              className="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center"
+            >
+              <FileText className="w-5 h-5 mr-3" />
+              Take Another Exam
+            </button>
+          </div>
+        ) : (
+          /* Question Display and Answering */
+          <div className="space-y-6">
+            <div className="bg-gradient-to-r from-blue-700/20 to-blue-900/20 border border-blue-600/30 rounded-xl p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-white">{selectedSubject || customSubject}</h2>
+                  <p className="text-blue-400">Question {currentQuestionIndex + 1} of {generatedQuestions.length}</p>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm text-slate-400">Progress</div>
+                  <div className="text-lg font-bold text-white">
+                    {Math.round(((currentQuestionIndex + 1) / generatedQuestions.length) * 100)}%
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 w-full bg-slate-700 rounded-full h-2">
+                <div 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${((currentQuestionIndex + 1) / generatedQuestions.length) * 100}%` }}
+                />
+              </div>
+            </div>
+
             <div className="bg-slate-800 rounded-xl p-8 border border-slate-700">
-              <h2 className="text-2xl font-semibold text-white mb-6 flex items-center">
-                <BookOpen className="w-6 h-6 mr-3 text-green-400" />
-                Generated Questions
-              </h2>
+              <div className="flex items-start justify-between mb-6">
+                <h3 className="text-2xl font-semibold text-white">
+                  {generatedQuestions[currentQuestionIndex].question}
+                </h3>
+                <span className="px-3 py-1 bg-blue-700 text-white rounded-full text-sm font-medium">
+                  {generatedQuestions[currentQuestionIndex].difficulty}
+                </span>
+              </div>
 
-              {!generatedQuestions.length && !isGenerating && (
-                <div className="text-center py-12">
-                  <div className="w-16 h-16 bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Lightbulb className="w-8 h-8 text-slate-400" />
-                  </div>
-                  <p className="text-slate-400">Enter a topic to generate custom questions</p>
-                </div>
-              )}
-
-              {isGenerating && (
-                <div className="text-center py-12">
-                  <div className="w-16 h-16 bg-gradient-to-br from-yellow-600 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Loader2 className="w-8 h-8 text-white animate-spin" />
-                  </div>
-                  <p className="text-slate-400">AI is generating questions...</p>
-                  <p className="text-sm text-slate-500 mt-2">This may take a few moments</p>
-                </div>
-              )}
-
-              {generatedQuestions.length > 0 && (
-                <div className="space-y-6 max-h-96 overflow-y-auto">
-                  {generatedQuestions.map((question, index) => (
-                    <div key={question.id} className="bg-slate-700 rounded-lg p-6 border border-slate-600">
-                      <div className="flex items-start justify-between mb-3">
-                        <h3 className="text-lg font-semibold text-white">
-                          Question {index + 1}
-                        </h3>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          question.difficulty === 'easy' ? 'bg-green-900/30 text-green-400' :
-                          question.difficulty === 'medium' ? 'bg-yellow-900/30 text-yellow-400' :
-                          'bg-red-900/30 text-red-400'
-                        }`}>
-                          {question.difficulty}
-                        </span>
-                      </div>
-                      
-                      <p className="text-slate-300 mb-4">{question.question}</p>
-                      
-                      {question.options && question.options.length > 0 && (
-                        <div className="space-y-2 mb-4">
-                          {question.options.map((option, optIndex) => (
-                            <div key={optIndex} className="flex items-center">
-                              <span className="text-slate-400 mr-3">
-                                {String.fromCharCode(65 + optIndex)})
-                              </span>
-                              <span className={`${
-                                option === question.correctAnswer ? 'text-green-400 font-medium' : 'text-slate-300'
-                              }`}>
-                                {option}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      
-                      {question.explanation && (
-                        <div className="bg-slate-600 rounded-lg p-3">
-                          <p className="text-sm text-slate-300">
-                            <strong className="text-blue-400">Explanation:</strong> {question.explanation}
-                          </p>
-                        </div>
-                      )}
-                    </div>
+              {generatedQuestions[currentQuestionIndex].options && (
+                <div className="space-y-3">
+                  {generatedQuestions[currentQuestionIndex].options.map((option, optIndex) => (
+                    <button
+                      key={optIndex}
+                      onClick={() => {
+                        setUserAnswers({
+                          ...userAnswers,
+                          [generatedQuestions[currentQuestionIndex].id]: option
+                        })
+                      }}
+                      className={`w-full text-left p-4 rounded-lg border-2 transition-all duration-200 ${
+                        userAnswers[generatedQuestions[currentQuestionIndex].id] === option
+                          ? 'bg-blue-700 border-blue-600 text-white'
+                          : 'bg-slate-700 border-slate-600 text-slate-300 hover:border-blue-500 hover:text-white'
+                      }`}
+                    >
+                      <span className="font-medium mr-3">{String.fromCharCode(65 + optIndex)})</span>
+                      {option}
+                    </button>
                   ))}
                 </div>
               )}
             </div>
+
+            <div className="flex gap-4">
+              <button
+                onClick={() => {
+                  if (currentQuestionIndex > 0) {
+                    setCurrentQuestionIndex(currentQuestionIndex - 1)
+                  }
+                }}
+                disabled={currentQuestionIndex === 0}
+                className="flex-1 bg-slate-700 hover:bg-slate-600 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200"
+              >
+                Previous
+              </button>
+              
+              {currentQuestionIndex < generatedQuestions.length - 1 ? (
+                <button
+                  onClick={() => {
+                    if (currentQuestionIndex < generatedQuestions.length - 1) {
+                      setCurrentQuestionIndex(currentQuestionIndex + 1)
+                    }
+                  }}
+                  className="flex-1 bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200"
+                >
+                  Next Question
+                </button>
+              ) : (
+                <button
+                  onClick={handleSubmitExam}
+                  disabled={isSubmitting}
+                  className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 disabled:from-slate-600 disabled:to-slate-600 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-3 animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-5 h-5 mr-3" />
+                      Submit Exam
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
           </div>
         )}
-
-        {/* Features Section */}
-        <div className="mt-16">
-          <h2 className="text-3xl font-bold text-white text-center mb-12">
-            Why Use Our AI Exam Conductor?
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-white mb-3">Comprehensive Conduction</h3>
-              <p className="text-slate-400">
-                Get detailed marks, grades, and comprehensive feedback on your exam performance instantly.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-yellow-600 to-orange-600 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <Lightbulb className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-white mb-3">Auto Question Generation</h3>
-              <p className="text-slate-400">
-                Generate custom questions for any topic with different difficulty levels and question types.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <Brain className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-white mb-3">AI-Powered Analysis</h3>
-              <p className="text-slate-400">
-                Advanced AI technology provides comprehensive analysis and intelligent question generation.
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
 
       <Footer />
