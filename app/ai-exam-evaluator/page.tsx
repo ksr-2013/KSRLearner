@@ -16,7 +16,7 @@ interface EvaluationResult {
 
 export default function AIExamEvaluatorPage() {
   const [examText, setExamText] = useState('')
-  const [examType, setExamType] = useState('essay')
+  const [examType, setExamType] = useState('easy')
   const [subject, setSubject] = useState('')
   const [isEvaluating, setIsEvaluating] = useState(false)
   const [result, setResult] = useState<EvaluationResult | null>(null)
