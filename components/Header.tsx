@@ -144,7 +144,7 @@ export default function Header() {
               <Link href="/puzzles" className="block px-3 py-2 text-slate-300 hover:text-blue-400 hover:bg-slate-700 rounded-lg font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>Puzzles</Link>
               <Link href="/typing" className="block px-3 py-2 text-slate-300 hover:text-blue-400 hover:bg-slate-700 rounded-lg font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>Typing</Link>
               <Link href="/animations" className="block px-3 py-2 text-slate-300 hover:text-blue-400 hover:bg-slate-700 rounded-lg font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>Explainer Videos</Link>
-              <Link href="/ai-exam-evaluator" className="block px-3 py-2 text-slate-300 hover:text-blue-400 hover:bg-slate-700 rounded-lg font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>AI Exam Evaluator</Link>
+              <Link href="/ai-exam-evaluator" className="block px-3 py-2 text-slate-300 hover:text-blue-400 hover:bg-slate-700 rounded-lg font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>AI Exam Conductor</Link>
               <Link href="/about" className="block px-3 py-2 text-slate-300 hover:text-blue-400 hover:bg-slate-700 rounded-lg font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>About</Link>
               <Link href="/contact" className="block px-3 py-2 text-slate-300 hover:text-blue-400 hover:bg-slate-700 rounded-lg font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>Contact</Link>
               {loggedIn && (

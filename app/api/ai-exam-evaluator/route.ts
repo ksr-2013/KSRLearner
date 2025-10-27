@@ -8,11 +8,16 @@ interface EvaluationRequest {
 
 interface NLPCloudResponse {
   score: number
+  marksObtained: number
+  totalMarks: number
+  percentage: number
   feedback: string
   strengths: string[]
   improvements: string[]
   suggestions: string[]
   overallGrade: string
+  gradeDescription: string
+  performanceLevel: string
 }
 
 export async function POST(request: NextRequest) {
@@ -89,11 +94,16 @@ Exam Content:
 Please provide your evaluation in the following JSON format:
 {
   "score": [number between 0-100],
+  "marksObtained": [marks earned out of total],
+  "totalMarks": [total possible marks],
+  "percentage": [percentage score],
   "feedback": "[detailed overall feedback about the exam performance]",
   "strengths": ["strength1", "strength2", "strength3"],
   "improvements": ["improvement1", "improvement2", "improvement3"],
   "suggestions": ["suggestion1", "suggestion2", "suggestion3"],
-  "overallGrade": "[A+, A, B+, B, C+, C, D, F]"
+  "overallGrade": "[A+, A, B+, B, C+, C, D, F]",
+  "gradeDescription": "[description of what this grade means]",
+  "performanceLevel": "[Excellent, Good, Satisfactory, Needs Improvement, Poor]"
 }
 
 Evaluation Criteria:
@@ -119,13 +129,23 @@ function parseEvaluationResponse(generatedText: string, examText: string, examTy
       const parsed = JSON.parse(jsonMatch[0])
       
       // Validate and sanitize the response
+      const score = Math.max(0, Math.min(100, parsed.score || 0))
+      const totalMarks = parsed.totalMarks || 100
+      const marksObtained = parsed.marksObtained || Math.round((score / 100) * totalMarks)
+      const percentage = parsed.percentage || score
+      
       return {
-        score: Math.max(0, Math.min(100, parsed.score || 0)),
+        score: score,
+        marksObtained: marksObtained,
+        totalMarks: totalMarks,
+        percentage: percentage,
         feedback: parsed.feedback || 'No specific feedback available.',
         strengths: Array.isArray(parsed.strengths) ? parsed.strengths.slice(0, 5) : ['Good effort shown'],
         improvements: Array.isArray(parsed.improvements) ? parsed.improvements.slice(0, 5) : ['Continue practicing'],
         suggestions: Array.isArray(parsed.suggestions) ? parsed.suggestions.slice(0, 5) : ['Keep up the good work'],
-        overallGrade: parsed.overallGrade || 'C'
+        overallGrade: parsed.overallGrade || 'C',
+        gradeDescription: parsed.gradeDescription || getGradeDescription(parsed.overallGrade || 'C'),
+        performanceLevel: parsed.performanceLevel || getPerformanceLevel(score)
       }
     }
   } catch (error) {
@@ -191,13 +211,22 @@ function createFallbackEvaluation(examText: string, examType: string, subject: s
     improvements.push('Expand on key points with more detail', 'Provide specific examples or evidence', 'Improve structure and organization')
   }
 
+  const totalMarks = 100
+  const marksObtained = Math.round((score / 100) * totalMarks)
+  const percentage = Math.round(score)
+
   return {
     score: Math.round(score),
+    marksObtained: marksObtained,
+    totalMarks: totalMarks,
+    percentage: percentage,
     feedback: `This ${examType}${subject ? ` in ${subject}` : ''} ${wordCount > 150 ? 'demonstrates good effort and understanding' : 'shows basic understanding with room for development'}. ${wordCount > 100 ? 'The response is well-developed' : 'Consider expanding your ideas'} with more detail and examples.`,
     strengths: strengths.slice(0, 5),
     improvements: improvements.slice(0, 5),
     suggestions: suggestions.slice(0, 5),
-    overallGrade: grade
+    overallGrade: grade,
+    gradeDescription: getGradeDescription(grade),
+    performanceLevel: getPerformanceLevel(score)
   }
 }
 
@@ -210,4 +239,26 @@ function getGradeFromScore(score: number): string {
   if (score >= 70) return 'C'
   if (score >= 60) return 'D'
   return 'F'
+}
+
+function getGradeDescription(grade: string): string {
+  const descriptions: { [key: string]: string } = {
+    'A+': 'Outstanding performance with exceptional understanding and execution',
+    'A': 'Excellent work demonstrating strong mastery of the subject',
+    'B+': 'Very good performance with solid understanding and good execution',
+    'B': 'Good work showing competent understanding of the material',
+    'C+': 'Satisfactory performance with adequate understanding',
+    'C': 'Acceptable work meeting basic requirements',
+    'D': 'Below average performance requiring improvement',
+    'F': 'Unsatisfactory performance requiring significant improvement'
+  }
+  return descriptions[grade] || 'Performance evaluation completed'
+}
+
+function getPerformanceLevel(score: number): string {
+  if (score >= 90) return 'Excellent'
+  if (score >= 80) return 'Good'
+  if (score >= 70) return 'Satisfactory'
+  if (score >= 60) return 'Needs Improvement'
+  return 'Poor'
 }

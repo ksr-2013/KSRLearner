@@ -7,11 +7,16 @@ import { Brain, FileText, CheckCircle, AlertCircle, Loader2, Star, TrendingUp, A
 
 interface EvaluationResult {
   score: number
+  marksObtained: number
+  totalMarks: number
+  percentage: number
   feedback: string
   strengths: string[]
   improvements: string[]
   suggestions: string[]
   overallGrade: string
+  gradeDescription: string
+  performanceLevel: string
 }
 
 interface GeneratedQuestion {
@@ -134,6 +139,14 @@ export default function AIExamEvaluatorPage() {
     return 'text-red-400'
   }
 
+  const getPerformanceColor = (level: string) => {
+    if (level === 'Excellent') return 'text-green-400'
+    if (level === 'Good') return 'text-blue-400'
+    if (level === 'Satisfactory') return 'text-yellow-400'
+    if (level === 'Needs Improvement') return 'text-orange-400'
+    return 'text-red-400'
+  }
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-300">
       <Header />
@@ -146,10 +159,10 @@ export default function AIExamEvaluatorPage() {
               <Brain className="w-8 h-8 text-white" />
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-white mb-4">AI Exam Tools</h1>
+          <h1 className="text-4xl font-bold text-white mb-4">AI Exam Conductor</h1>
           <p className="text-xl text-slate-400 max-w-3xl mx-auto">
-            Evaluate your exams with AI-powered analysis or generate custom questions for any topic. 
-            Get instant feedback, scores, and improvement suggestions.
+            Conduct comprehensive exam evaluations with AI-powered analysis or generate custom questions for any topic. 
+            Get detailed marks, grades, and improvement suggestions.
           </p>
         </div>
 
@@ -165,7 +178,7 @@ export default function AIExamEvaluatorPage() {
               }`}
             >
               <FileText className="w-5 h-5 inline mr-2" />
-              Evaluate Exam
+              Conduct Exam
             </button>
             <button
               onClick={() => setActiveTab('generate')}
@@ -188,7 +201,7 @@ export default function AIExamEvaluatorPage() {
             <div className="bg-slate-800 rounded-xl p-8 border border-slate-700">
               <h2 className="text-2xl font-semibold text-white mb-6 flex items-center">
                 <FileText className="w-6 h-6 mr-3 text-blue-400" />
-                Submit Your Exam
+                Submit Your Exam for AI Conduction
               </h2>
             
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -250,12 +263,12 @@ export default function AIExamEvaluatorPage() {
                 {isEvaluating ? (
                   <>
                     <Loader2 className="w-5 h-5 mr-3 animate-spin" />
-                    Evaluating...
+                    Conducting...
                   </>
                 ) : (
                   <>
                     <Brain className="w-5 h-5 mr-3" />
-                    Evaluate Exam
+                    Conduct Exam
                   </>
                 )}
               </button>
@@ -266,7 +279,7 @@ export default function AIExamEvaluatorPage() {
           <div className="bg-slate-800 rounded-xl p-8 border border-slate-700">
             <h2 className="text-2xl font-semibold text-white mb-6 flex items-center">
               <Award className="w-6 h-6 mr-3 text-yellow-400" />
-              Evaluation Results
+              Exam Conduction Results
             </h2>
 
             {!result && !isEvaluating && (
@@ -274,7 +287,7 @@ export default function AIExamEvaluatorPage() {
                 <div className="w-16 h-16 bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FileText className="w-8 h-8 text-slate-400" />
                 </div>
-                <p className="text-slate-400">Submit your exam to see AI-powered evaluation results</p>
+                <p className="text-slate-400">Submit your exam to see AI-powered conduction results</p>
               </div>
             )}
 
@@ -283,7 +296,7 @@ export default function AIExamEvaluatorPage() {
                 <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Loader2 className="w-8 h-8 text-white animate-spin" />
                 </div>
-                <p className="text-slate-400">AI is analyzing your exam...</p>
+                <p className="text-slate-400">AI is conducting your exam...</p>
                 <p className="text-sm text-slate-500 mt-2">This may take a few moments</p>
               </div>
             )}
@@ -291,12 +304,18 @@ export default function AIExamEvaluatorPage() {
             {result && (
               <div className="space-y-6">
                 {/* Score and Grade */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="bg-slate-700 rounded-lg p-4 text-center">
                     <div className={`text-3xl font-bold ${getScoreColor(result.score)}`}>
                       {result.score}%
                     </div>
-                    <div className="text-slate-400 text-sm">Score</div>
+                    <div className="text-slate-400 text-sm">Percentage</div>
+                  </div>
+                  <div className="bg-slate-700 rounded-lg p-4 text-center">
+                    <div className={`text-3xl font-bold ${getScoreColor(result.score)}`}>
+                      {result.marksObtained}/{result.totalMarks}
+                    </div>
+                    <div className="text-slate-400 text-sm">Marks</div>
                   </div>
                   <div className="bg-slate-700 rounded-lg p-4 text-center">
                     <div className={`text-3xl font-bold ${getGradeColor(result.overallGrade)}`}>
@@ -304,6 +323,21 @@ export default function AIExamEvaluatorPage() {
                     </div>
                     <div className="text-slate-400 text-sm">Grade</div>
                   </div>
+                  <div className="bg-slate-700 rounded-lg p-4 text-center">
+                    <div className={`text-lg font-bold ${getPerformanceColor(result.performanceLevel)}`}>
+                      {result.performanceLevel}
+                    </div>
+                    <div className="text-slate-400 text-sm">Performance</div>
+                  </div>
+                </div>
+
+                {/* Grade Description */}
+                <div className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border border-blue-500/30 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold text-blue-400 mb-3 flex items-center">
+                    <Award className="w-5 h-5 mr-2" />
+                    Grade Description
+                  </h3>
+                  <p className="text-slate-300">{result.gradeDescription}</p>
                 </div>
 
                 {/* Overall Feedback */}
@@ -549,16 +583,16 @@ export default function AIExamEvaluatorPage() {
         {/* Features Section */}
         <div className="mt-16">
           <h2 className="text-3xl font-bold text-white text-center mb-12">
-            Why Use Our AI Exam Tools?
+            Why Use Our AI Exam Conductor?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="w-16 h-16 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">Instant Evaluation</h3>
+              <h3 className="text-xl font-semibold text-white mb-3">Comprehensive Conduction</h3>
               <p className="text-slate-400">
-                Get immediate, detailed feedback on your exam performance without waiting for manual grading.
+                Get detailed marks, grades, and comprehensive feedback on your exam performance instantly.
               </p>
             </div>
             <div className="text-center">
