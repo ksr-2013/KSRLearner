@@ -48,6 +48,7 @@ export default function AIExamConductorPage() {
   const [result, setResult] = useState<EvaluationResult | null>(null)
   const [error, setError] = useState('')
   const [showResults, setShowResults] = useState(false)
+  const [showScorePreview, setShowScorePreview] = useState(false)
 
   const subjects = [
     'Mathematics',
@@ -147,6 +148,21 @@ export default function AIExamConductorPage() {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const calculateScore = () => {
+    if (generatedQuestions.length === 0) return 0
+    
+    let correct = 0
+    generatedQuestions.forEach(question => {
+      const userAnswer = userAnswers[question.id]
+      const correctAnswer = question.correctAnswer
+      if (userAnswer && userAnswer === correctAnswer) {
+        correct++
+      }
+    })
+    
+    return Math.round((correct / generatedQuestions.length) * 100)
   }
 
   const getScoreColor = (score: number) => {
@@ -421,6 +437,33 @@ export default function AIExamConductorPage() {
                 </div>
               )}
             </div>
+
+            <button
+              onClick={() => setShowScorePreview(!showScorePreview)}
+              className="w-full bg-gradient-to-r from-purple-700 to-blue-900 hover:from-purple-800 hover:to-blue-950 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center mb-4"
+            >
+              <Award className="w-5 h-5 mr-3" />
+              {showScorePreview ? 'Hide' : 'View'} Score
+            </button>
+
+            {showScorePreview && (
+              <div className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 border border-purple-600/30 rounded-lg p-6 mb-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-purple-400 mb-2">Your Current Score</h3>
+                    <p className="text-slate-400">Based on {Object.keys(userAnswers).length} answered questions</p>
+                  </div>
+                  <div className="text-right">
+                    <div className={`text-4xl font-bold ${getScoreColor(calculateScore())}`}>
+                      {calculateScore()}%
+                    </div>
+                    <div className="text-slate-400 text-sm">
+                      {Object.keys(userAnswers).length}/{generatedQuestions.length} answered
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="flex gap-4">
               <button
