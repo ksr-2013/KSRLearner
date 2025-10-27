@@ -48,7 +48,7 @@ export default function AIExamConductorPage() {
   const [result, setResult] = useState<EvaluationResult | null>(null)
   const [error, setError] = useState('')
   const [showResults, setShowResults] = useState(false)
-  const [showScorePreview, setShowScorePreview] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
 
   const subjects = [
     'Mathematics',
@@ -107,6 +107,50 @@ export default function AIExamConductorPage() {
     }
   }
 
+  const handleSaveScore = async () => {
+    if (!result) {
+      setError('No exam results to save')
+      return
+    }
+
+    setIsSaving(true)
+    setError('')
+
+    try {
+      const response = await fetch('/api/scores', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'ai-exam',
+          subject: selectedSubject || customSubject,
+          score: result.score,
+          level: result.overallGrade,
+          details: {
+            marksObtained: result.marksObtained,
+            totalMarks: result.totalMarks,
+            percentage: result.percentage,
+            performanceLevel: result.performanceLevel
+          }
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to save score')
+      }
+
+      const data = await response.json()
+      
+      // Show success message (you can use a toast or alert here)
+      alert('Score saved successfully to your dashboard!')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save score')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
   const handleSubmitExam = async () => {
     if (generatedQuestions.length === 0) {
       setError('No questions available')
@@ -148,21 +192,6 @@ export default function AIExamConductorPage() {
     } finally {
       setIsSubmitting(false)
     }
-  }
-
-  const calculateScore = () => {
-    if (generatedQuestions.length === 0) return 0
-    
-    let correct = 0
-    generatedQuestions.forEach(question => {
-      const userAnswer = userAnswers[question.id]
-      const correctAnswer = question.correctAnswer
-      if (userAnswer && userAnswer === correctAnswer) {
-        correct++
-      }
-    })
-    
-    return Math.round((correct / generatedQuestions.length) * 100)
   }
 
   const getScoreColor = (score: number) => {
@@ -364,20 +393,47 @@ export default function AIExamConductorPage() {
               </div>
             </div>
 
-            <button
-              onClick={() => {
-                setGeneratedQuestions([])
-                setResult(null)
-                setShowResults(false)
-                setUserAnswers({})
-                setSelectedSubject('')
-                setCustomSubject('')
-              }}
-              className="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center"
-            >
-              <FileText className="w-5 h-5 mr-3" />
-              Take Another Exam
-            </button>
+            {error && (
+              <div className="flex items-center p-4 bg-red-900/20 border border-red-500/30 rounded-lg">
+                <AlertCircle className="w-5 h-5 text-red-400 mr-3" />
+                <span className="text-red-400">{error}</span>
+              </div>
+            )}
+
+            <div className="flex gap-4">
+              <button
+                onClick={handleSaveScore}
+                disabled={isSaving}
+                className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 disabled:from-slate-600 disabled:to-slate-600 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-3 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Award className="w-5 h-5 mr-3" />
+                    Save Score to Dashboard
+                  </>
+                )}
+              </button>
+
+              <button
+                onClick={() => {
+                  setGeneratedQuestions([])
+                  setResult(null)
+                  setShowResults(false)
+                  setUserAnswers({})
+                  setSelectedSubject('')
+                  setCustomSubject('')
+                }}
+                className="flex-1 bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center"
+              >
+                <FileText className="w-5 h-5 mr-3" />
+                Take Another Exam
+              </button>
+            </div>
           </div>
         ) : (
           /* Question Display and Answering */
@@ -437,33 +493,6 @@ export default function AIExamConductorPage() {
                 </div>
               )}
             </div>
-
-            <button
-              onClick={() => setShowScorePreview(!showScorePreview)}
-              className="w-full bg-gradient-to-r from-purple-700 to-blue-900 hover:from-purple-800 hover:to-blue-950 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center mb-4"
-            >
-              <Award className="w-5 h-5 mr-3" />
-              {showScorePreview ? 'Hide' : 'View'} Score
-            </button>
-
-            {showScorePreview && (
-              <div className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 border border-purple-600/30 rounded-lg p-6 mb-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-semibold text-purple-400 mb-2">Your Current Score</h3>
-                    <p className="text-slate-400">Based on {Object.keys(userAnswers).length} answered questions</p>
-                  </div>
-                  <div className="text-right">
-                    <div className={`text-4xl font-bold ${getScoreColor(calculateScore())}`}>
-                      {calculateScore()}%
-                    </div>
-                    <div className="text-slate-400 text-sm">
-                      {Object.keys(userAnswers).length}/{generatedQuestions.length} answered
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
 
             <div className="flex gap-4">
               <button
