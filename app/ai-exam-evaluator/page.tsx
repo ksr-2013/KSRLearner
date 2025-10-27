@@ -110,7 +110,7 @@ export default function AIExamEvaluatorPage() {
                   onChange={(e) => setExamType(e.target.value)}
                   className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="essay">Essay</option>
+                  <option value="esay">Essay</option>
                   <option value="short-answer">Short Answer</option>
                   <option value="multiple-choice">Multiple Choice</option>
                   <option value="problem-solving">Problem Solving</option>
@@ -138,7 +138,7 @@ export default function AIExamEvaluatorPage() {
                 <textarea
                   value={examText}
                   onChange={(e) => setExamText(e.target.value)}
-                  placeholder="Paste your exam answers, essay, or problem solutions here..."
+                  placeholder="Paste your exam answers, easy, or problem solutions here..."
                   rows={12}
                   className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 />
