@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { MessageCircle, X, Send, Bot, User } from 'lucide-react'
+import { MessageCircle, X, Send, Bot, User, Mic } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 // TypeScript declaration for ElevenLabs custom element
@@ -24,6 +24,7 @@ interface Message {
 
 const AIChatbot = () => {
   const [isOpen, setIsOpen] = useState(false)
+  const [mode, setMode] = useState<'chat' | 'voice' | null>(null) // null = choice screen, 'chat' = text chat, 'voice' = voice agent
   const [messages, setMessages] = useState<Message[]>([])
   const [userName, setUserName] = useState<string>('')
   const [inputValue, setInputValue] = useState('')
@@ -52,7 +53,7 @@ const AIChatbot = () => {
 
   // Initialize ElevenLabs voice agent widget
   useEffect(() => {
-    if (isOpen && voiceAgentRef.current) {
+    if (isOpen && mode === 'voice' && voiceAgentRef.current) {
       // Clear any existing content
       voiceAgentRef.current.innerHTML = ''
       
@@ -61,7 +62,7 @@ const AIChatbot = () => {
       voiceAgentElement.setAttribute('agent-id', 'agent_2801k8yyv0kdfar82ejv5g6y54ja')
       voiceAgentRef.current.appendChild(voiceAgentElement)
     }
-  }, [isOpen])
+  }, [isOpen, mode])
 
   // Load user name for personalized greeting
   useEffect(() => {
@@ -189,12 +190,20 @@ const AIChatbot = () => {
   }
 
 
+  const handleClose = () => {
+    setIsOpen(false)
+    setMode(null)
+  }
+
   return (
     <>
       {/* Chat Button */}
       {!isOpen && (
       <motion.button
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          setIsOpen(true)
+          setMode(null) // Show choice screen
+        }}
           className="fixed bottom-6 right-6 w-16 h-16 bg-blue-800 hover:bg-blue-900 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center z-[2147483647]"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
@@ -205,39 +214,87 @@ const AIChatbot = () => {
       </motion.button>
       )}
 
-      {/* Chat Window with Voice Agent */}
+      {/* Chat Window */}
       <AnimatePresence>
         {isOpen && (
-          <div className="fixed bottom-6 right-3 left-3 sm:left-auto sm:right-6 flex gap-3 z-[2147483646]">
-            {/* Voice Agent - Left Side */}
-            <motion.div
-              initial={{ opacity: 0, x: -20, scale: 0.95 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: -20, scale: 0.95 }}
-              transition={{ duration: 0.2 }}
-              className="hidden sm:block w-96 h-[560px] bg-slate-900 rounded-2xl shadow-2xl border border-slate-700 overflow-hidden"
-            >
-              <div className="bg-blue-800 text-white p-4 flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Bot className="w-5 h-5" />
-                  <span className="font-semibold">Voice Assistant</span>
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="fixed bottom-6 right-3 left-3 sm:left-auto sm:right-6 w-[calc(100vw-24px)] sm:w-96 h-[560px] bg-slate-900 rounded-2xl shadow-2xl border border-slate-700 flex flex-col overflow-hidden z-[2147483646]"
+          >
+            {/* Choice Screen */}
+            {mode === null && (
+              <>
+                {/* Header */}
+                <div className="bg-blue-800 text-white p-4 flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Bot className="w-5 h-5" />
+                    <span className="font-semibold">Choose Mode</span>
+                  </div>
+                  <button
+                    onClick={handleClose}
+                    className="text-white hover:text-gray-200 transition-colors"
+                    title="Close"
+                    aria-label="Close"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
-              </div>
-              <div 
-                ref={voiceAgentRef}
-                className="h-[calc(560px-64px)] flex items-center justify-center p-4"
-              >
-              </div>
-            </motion.div>
 
-            {/* Chat Window - Right Side */}
-            <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.95 }}
-              transition={{ duration: 0.2 }}
-              className="w-[calc(100vw-24px)] sm:w-96 h-[560px] bg-slate-900 rounded-2xl shadow-2xl border border-slate-700 flex flex-col overflow-hidden"
-            >
+                {/* Choice Buttons */}
+                <div className="flex-1 flex flex-col items-center justify-center gap-6 p-8">
+                  <h3 className="text-xl font-semibold text-white mb-4">How would you like to interact?</h3>
+                  
+                  <button
+                    onClick={() => setMode('chat')}
+                    className="w-full max-w-xs bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
+                  >
+                    <MessageCircle className="w-6 h-6" />
+                    <span className="text-lg">Chat</span>
+                  </button>
+
+                  <button
+                    onClick={() => setMode('voice')}
+                    className="w-full max-w-xs bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
+                  >
+                    <Mic className="w-6 h-6" />
+                    <span className="text-lg">Talk</span>
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* Voice Agent Mode */}
+            {mode === 'voice' && (
+              <>
+                {/* Header */}
+                <div className="bg-blue-800 text-white p-4 flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Mic className="w-5 h-5" />
+                    <span className="font-semibold">Voice Assistant</span>
+                  </div>
+                  <button
+                    onClick={handleClose}
+                    className="text-white hover:text-gray-200 transition-colors"
+                    title="Close"
+                    aria-label="Close"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <div 
+                  ref={voiceAgentRef}
+                  className="flex-1 flex items-center justify-center p-4"
+                >
+                </div>
+              </>
+            )}
+
+            {/* Chat Mode */}
+            {mode === 'chat' && (
+              <>
             {/* Header */}
             <div className="bg-blue-800 text-white p-4 flex items-center justify-between">
               <div className="flex items-center space-x-2">
@@ -245,7 +302,7 @@ const AIChatbot = () => {
                 <span className="font-semibold">AI Assistant</span>
               </div>
               <button
-                onClick={() => setIsOpen(false)}
+                onClick={handleClose}
                 className="text-white hover:text-gray-200 transition-colors"
                 title="Close chat"
                 aria-label="Close chat"
@@ -349,8 +406,9 @@ const AIChatbot = () => {
                 </button>
               </div>
             </div>
+              </>
+            )}
           </motion.div>
-          </div>
         )}
       </AnimatePresence>
       
