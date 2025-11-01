@@ -48,14 +48,16 @@ export default function RootLayout({
         <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png" />
         <link rel="icon" href="/logo.png" type="image/png" />
         <link rel="apple-touch-icon" href="/logo.png" />
-
-    
-        {/* Existing scripts */}
       </head>
       <body>
         <GlobalLoading />
         {children}
         <AIChatbot />
+        <Script
+          src="https://unpkg.com/@elevenlabs/convai-widget-embed"
+          strategy="lazyOnload"
+          async
+        />
       </body>
     </html>
   )

@@ -4,6 +4,17 @@ import { useState, useRef, useEffect } from 'react'
 import { MessageCircle, X, Send, Bot, User } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
+// TypeScript declaration for ElevenLabs custom element
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'elevenlabs-convai': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement> & {
+        'agent-id'?: string
+      }, HTMLElement>
+    }
+  }
+}
+
 interface Message {
   id: string
   text: string
@@ -19,6 +30,7 @@ const AIChatbot = () => {
   const [isTyping, setIsTyping] = useState(false)
   const [errorText, setErrorText] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const voiceAgentRef = useRef<HTMLDivElement>(null)
 
   const provider = (process.env.NEXT_PUBLIC_AI_PROVIDER || 'groq').toLowerCase()
   const endpoint = provider === 'openai' ? '/api/chat' : provider === 'groq' ? '/api/groq-chat' : '/api/gemini-chat'
@@ -37,6 +49,19 @@ const AIChatbot = () => {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  // Initialize ElevenLabs voice agent widget
+  useEffect(() => {
+    if (isOpen && voiceAgentRef.current) {
+      // Clear any existing content
+      voiceAgentRef.current.innerHTML = ''
+      
+      // Create the custom element
+      const voiceAgentElement = document.createElement('elevenlabs-convai')
+      voiceAgentElement.setAttribute('agent-id', 'agent_2801k8yyv0kdfar82ejv5g6y54ja')
+      voiceAgentRef.current.appendChild(voiceAgentElement)
+    }
+  }, [isOpen])
 
   // Load user name for personalized greeting
   useEffect(() => {
@@ -180,16 +205,39 @@ const AIChatbot = () => {
       </motion.button>
       )}
 
-      {/* Chat Window */}
+      {/* Chat Window with Voice Agent */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="fixed bottom-6 right-3 left-3 sm:left-auto sm:right-6 w-[calc(100vw-24px)] sm:w-96 h-[560px] bg-slate-900 rounded-2xl shadow-2xl border border-slate-700 z-[2147483646] flex flex-col overflow-hidden"
-          >
+          <div className="fixed bottom-6 right-3 left-3 sm:left-auto sm:right-6 flex gap-3 z-[2147483646]">
+            {/* Voice Agent - Left Side */}
+            <motion.div
+              initial={{ opacity: 0, x: -20, scale: 0.95 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: -20, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="hidden sm:block w-96 h-[560px] bg-slate-900 rounded-2xl shadow-2xl border border-slate-700 overflow-hidden"
+            >
+              <div className="bg-blue-800 text-white p-4 flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Bot className="w-5 h-5" />
+                  <span className="font-semibold">Voice Assistant</span>
+                </div>
+              </div>
+              <div 
+                ref={voiceAgentRef}
+                className="h-[calc(560px-64px)] flex items-center justify-center p-4"
+              >
+              </div>
+            </motion.div>
+
+            {/* Chat Window - Right Side */}
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="w-[calc(100vw-24px)] sm:w-96 h-[560px] bg-slate-900 rounded-2xl shadow-2xl border border-slate-700 flex flex-col overflow-hidden"
+            >
             {/* Header */}
             <div className="bg-blue-800 text-white p-4 flex items-center justify-between">
               <div className="flex items-center space-x-2">
@@ -302,6 +350,7 @@ const AIChatbot = () => {
               </div>
             </div>
           </motion.div>
+          </div>
         )}
       </AnimatePresence>
       
