@@ -51,16 +51,45 @@ const AIChatbot = () => {
     scrollToBottom()
   }, [messages])
 
-  // Initialize ElevenLabs voice agent widget
+  // Initialize ElevenLabs voice agent widget (backup method)
   useEffect(() => {
-    if (isOpen && mode === 'voice' && voiceAgentRef.current) {
-      // Clear any existing content
-      voiceAgentRef.current.innerHTML = ''
+    if (!isOpen || mode !== 'voice' || !voiceAgentRef.current) return
+
+    // Check if element already exists (from dangerouslySetInnerHTML)
+    if (voiceAgentRef.current.querySelector('elevenlabs-convai')) {
+      return // Already rendered
+    }
+
+    // Try to create dynamically if script is loaded
+    const tryCreate = () => {
+      if (!voiceAgentRef.current) return
       
-      // Create the custom element
-      const voiceAgentElement = document.createElement('elevenlabs-convai')
-      voiceAgentElement.setAttribute('agent-id', 'agent_2801k8yyv0kdfar82ejv5g6y54ja')
-      voiceAgentRef.current.appendChild(voiceAgentElement)
+      try {
+        if (typeof customElements !== 'undefined' && customElements.get('elevenlabs-convai')) {
+          const voiceAgentElement = document.createElement('elevenlabs-convai')
+          voiceAgentElement.setAttribute('agent-id', 'agent_2801k8yyv0kdfar82ejv5g6y54ja')
+          voiceAgentRef.current.appendChild(voiceAgentElement)
+          return true
+        }
+      } catch (error) {
+        console.error('Error creating voice agent element:', error)
+      }
+      return false
+    }
+
+    // Try immediately
+    if (tryCreate()) return
+
+    // Wait for script to load
+    const checkInterval = setInterval(() => {
+      if (tryCreate()) {
+        clearInterval(checkInterval)
+      }
+    }, 100)
+
+    // Cleanup
+    return () => {
+      clearInterval(checkInterval)
     }
   }, [isOpen, mode])
 
@@ -287,6 +316,9 @@ const AIChatbot = () => {
                 <div 
                   ref={voiceAgentRef}
                   className="flex-1 flex items-center justify-center p-4"
+                  dangerouslySetInnerHTML={{
+                    __html: '<elevenlabs-convai agent-id="agent_2801k8yyv0kdfar82ejv5g6y54ja"></elevenlabs-convai>'
+                  }}
                 >
                 </div>
               </>
