@@ -315,11 +315,11 @@ const AIChatbot = () => {
                 </div>
                 <div 
                   ref={voiceAgentRef}
-                  className="flex-1 flex items-center justify-center p-4"
-                  dangerouslySetInnerHTML={{
-                    __html: '<elevenlabs-convai agent-id="agent_2801k8yyv0kdfar82ejv5g6y54ja"></elevenlabs-convai>'
-                  }}
+                  className="flex-1 w-full h-full overflow-hidden bg-slate-900"
+                  style={{ minHeight: 0 }}
                 >
+                  {/* @ts-ignore - Custom element from ElevenLabs */}
+                  <elevenlabs-convai agent-id="agent_2801k8yyv0kdfar82ejv5g6y54ja" style={{ width: '100%', height: '100%', display: 'block' }}></elevenlabs-convai>
                 </div>
               </>
             )}
