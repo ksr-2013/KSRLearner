@@ -223,11 +223,11 @@ const AIChatbot = () => {
                   {/* Close button - positioned absolutely */}
                   <button
                     onClick={handleClose}
-                    className="absolute top-2 right-2 z-50 bg-slate-800/80 hover:bg-slate-700/80 text-white rounded-full p-2 transition-colors shadow-lg"
-                    title="Close"
-                    aria-label="Close"
+                    className="absolute top-4 right-4 z-[2147483647] bg-red-600 hover:bg-red-700 text-white rounded-full p-2.5 transition-all duration-200 shadow-xl hover:shadow-2xl hover:scale-110"
+                    title="Close Voice Assistant"
+                    aria-label="Close Voice Assistant"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-5 h-5" />
                   </button>
                   {/* @ts-ignore - Custom element from ElevenLabs */}
                   <elevenlabs-convai 
