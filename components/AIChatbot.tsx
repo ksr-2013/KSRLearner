@@ -256,31 +256,31 @@ const AIChatbot = () => {
 
             {/* Voice Agent Mode */}
             {mode === 'voice' && (
-              <>
-                {/* Header */}
-                <div className="bg-blue-800 text-white p-4 flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Mic className="w-5 h-5" />
-                    <span className="font-semibold">Voice Assistant</span>
-                  </div>
-                  <button
-                    onClick={handleClose}
-                    className="text-white hover:text-gray-200 transition-colors"
-                    title="Close"
-                    aria-label="Close"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-                <div 
-                  ref={voiceAgentRef}
-                  className="flex-1 w-full h-full overflow-hidden bg-slate-900"
-                  style={{ minHeight: 0 }}
+              <div 
+                ref={voiceAgentRef}
+                className="w-full h-full overflow-hidden relative"
+                style={{ minHeight: '560px', height: '100%' }}
+              >
+                {/* Close button - positioned absolutely */}
+                <button
+                  onClick={handleClose}
+                  className="absolute top-2 right-2 z-50 bg-slate-800/80 hover:bg-slate-700/80 text-white rounded-full p-2 transition-colors shadow-lg"
+                  title="Close"
+                  aria-label="Close"
                 >
-                  {/* @ts-ignore - Custom element from ElevenLabs */}
-                  <elevenlabs-convai agent-id="agent_2801k8yyv0kdfar82ejv5g6y54ja" style={{ width: '100%', height: '100%', display: 'block' }}></elevenlabs-convai>
-                </div>
-              </>
+                  <X className="w-4 h-4" />
+                </button>
+                {/* @ts-ignore - Custom element from ElevenLabs */}
+                <elevenlabs-convai 
+                  agent-id="agent_2801k8yyv0kdfar82ejv5g6y54ja" 
+                  style={{ 
+                    width: '100%', 
+                    height: '100%', 
+                    minHeight: '560px',
+                    display: 'block' 
+                  }}
+                ></elevenlabs-convai>
+              </div>
             )}
 
             {/* Chat Mode */}
