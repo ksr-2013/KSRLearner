@@ -48,7 +48,6 @@ export default function RootLayout({
         <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png" />
         <link rel="icon" href="/logo.png" type="image/png" />
         <link rel="apple-touch-icon" href="/logo.png" />
-        <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
       </head>
       <body>
         <GlobalLoading />
@@ -57,7 +56,12 @@ export default function RootLayout({
         <Script
           src="https://unpkg.com/@elevenlabs/convai-widget-embed"
           strategy="afterInteractive"
-          async
+          onLoad={() => {
+            console.log('ElevenLabs script loaded successfully')
+          }}
+          onError={(e) => {
+            console.error('ElevenLabs script failed to load:', e)
+          }}
         />
       </body>
     </html>

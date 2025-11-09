@@ -51,25 +51,44 @@ const AIChatbot = () => {
     scrollToBottom()
   }, [messages])
 
-  // Initialize ElevenLabs voice agent widget (backup method)
+  // Initialize ElevenLabs voice agent widget
   useEffect(() => {
     if (!isOpen || mode !== 'voice' || !voiceAgentRef.current) return
 
-    // Check if element already exists (from dangerouslySetInnerHTML)
-    if (voiceAgentRef.current.querySelector('elevenlabs-convai')) {
-      return // Already rendered
-    }
+    console.log('Initializing voice agent...')
+    
+    // Clear container
+    voiceAgentRef.current.innerHTML = '<div class="text-slate-400 text-center p-4">Loading voice agent...</div>'
 
-    // Try to create dynamically if script is loaded
-    const tryCreate = () => {
-      if (!voiceAgentRef.current) return
+    // Function to create the element
+    const createVoiceAgent = () => {
+      if (!voiceAgentRef.current) return false
       
       try {
-        if (typeof customElements !== 'undefined' && customElements.get('elevenlabs-convai')) {
-          const voiceAgentElement = document.createElement('elevenlabs-convai')
-          voiceAgentElement.setAttribute('agent-id', 'agent_2801k8yyv0kdfar82ejv5g6y54ja')
-          voiceAgentRef.current.appendChild(voiceAgentElement)
-          return true
+        // Check if custom element is defined
+        if (typeof customElements !== 'undefined') {
+          const isDefined = customElements.get('elevenlabs-convai')
+          console.log('Custom element defined:', !!isDefined)
+          
+          if (isDefined) {
+            // Clear loading message
+            voiceAgentRef.current.innerHTML = ''
+            
+            const voiceAgentElement = document.createElement('elevenlabs-convai')
+            voiceAgentElement.setAttribute('agent-id', 'agent_2801k8yyv0kdfar82ejv5g6y54ja')
+            
+            // Set styles
+            voiceAgentElement.style.width = '100%'
+            voiceAgentElement.style.height = '100%'
+            voiceAgentElement.style.display = 'block'
+            voiceAgentElement.style.minHeight = '400px'
+            
+            voiceAgentRef.current.appendChild(voiceAgentElement)
+            console.log('Voice agent element created successfully')
+            return true
+          }
+        } else {
+          console.log('CustomElements API not available')
         }
       } catch (error) {
         console.error('Error creating voice agent element:', error)
@@ -77,19 +96,66 @@ const AIChatbot = () => {
       return false
     }
 
-    // Try immediately
-    if (tryCreate()) return
-
-    // Wait for script to load
-    const checkInterval = setInterval(() => {
-      if (tryCreate()) {
-        clearInterval(checkInterval)
+    // Wait for window to be ready
+    const initVoiceAgent = (): NodeJS.Timeout | null => {
+      // Try to create immediately
+      if (createVoiceAgent()) {
+        return null
       }
-    }, 100)
+
+      // Wait for script to load - check multiple times
+      let attempts = 0
+      const maxAttempts = 100 // 10 seconds max
+      
+      const checkInterval = setInterval(() => {
+        attempts++
+        
+        if (createVoiceAgent()) {
+          clearInterval(checkInterval)
+          return
+        }
+        
+        // If max attempts reached, show error
+        if (attempts >= maxAttempts) {
+          clearInterval(checkInterval)
+          if (voiceAgentRef.current) {
+            voiceAgentRef.current.innerHTML = `
+              <div class="text-slate-400 text-center p-4 space-y-2">
+                <p>Voice agent is loading...</p>
+                <p class="text-xs text-slate-500">If it doesn't appear, please refresh the page.</p>
+                <p class="text-xs text-slate-500">Script status: ${typeof customElements !== 'undefined' ? 'CustomElements API available' : 'CustomElements API not available'}</p>
+                <p class="text-xs text-slate-500">Element defined: ${typeof customElements !== 'undefined' && customElements.get('elevenlabs-convai') ? 'Yes' : 'No'}</p>
+              </div>
+            `
+          }
+          console.error('Voice agent failed to load after', maxAttempts, 'attempts')
+        }
+      }, 100)
+
+      // Store interval for cleanup
+      return checkInterval
+    }
+
+    // Check if window is ready
+    let checkInterval: NodeJS.Timeout | null = null
+    
+    if (typeof window !== 'undefined') {
+      if (document.readyState === 'complete') {
+        checkInterval = initVoiceAgent()
+      } else {
+        window.addEventListener('load', () => {
+          checkInterval = initVoiceAgent()
+        }, { once: true })
+      }
+    } else {
+      checkInterval = initVoiceAgent()
+    }
 
     // Cleanup
     return () => {
-      clearInterval(checkInterval)
+      if (checkInterval) {
+        clearInterval(checkInterval)
+      }
     }
   }, [isOpen, mode])
 
@@ -318,8 +384,7 @@ const AIChatbot = () => {
                   className="flex-1 w-full h-full overflow-hidden bg-slate-900"
                   style={{ minHeight: 0 }}
                 >
-                  {/* @ts-ignore - Custom element from ElevenLabs */}
-                  <elevenlabs-convai agent-id="agent_2801k8yyv0kdfar82ejv5g6y54ja" style={{ width: '100%', height: '100%', display: 'block' }}></elevenlabs-convai>
+                  {/* Voice agent will be dynamically inserted here */}
                 </div>
               </>
             )}
