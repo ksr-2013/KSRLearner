@@ -220,10 +220,10 @@ const AIChatbot = () => {
                   className="w-full h-full overflow-hidden relative"
                   style={{ minHeight: '560px', height: '100%' }}
                 >
-                  {/* Close button - positioned absolutely in top right, small and white */}
+                  {/* Close button - positioned absolutely in bottom area, small and white */}
                   <button
                     onClick={handleClose}
-                    className="absolute top-2 right-2 z-[2147483647] bg-white/20 hover:bg-white/30 text-white rounded-full p-1.5 transition-all duration-200 hover:scale-105"
+                    className="absolute bottom-4 right-4 z-[2147483647] bg-white/20 hover:bg-white/30 text-white rounded-full p-1.5 transition-all duration-200 hover:scale-105"
                     title="Close Voice Assistant"
                     aria-label="Close Voice Assistant"
                   >
