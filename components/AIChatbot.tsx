@@ -205,83 +205,92 @@ const AIChatbot = () => {
       {/* Chat Window */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="fixed bottom-6 right-3 left-3 sm:left-auto sm:right-6 w-[calc(100vw-24px)] sm:w-96 h-[560px] bg-slate-900 rounded-2xl shadow-2xl border border-slate-700 flex flex-col overflow-hidden z-[2147483646]"
-          >
-            {/* Choice Screen */}
-            {mode === null && (
-              <>
-                {/* Header */}
-                <div className="bg-blue-800 text-white p-4 flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Bot className="w-5 h-5" />
-                    <span className="font-semibold">Choose Mode</span>
-                  </div>
+          <>
+            {/* Voice Agent Mode - No window container */}
+            {mode === 'voice' ? (
+              <motion.div
+                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 20, scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+                className="fixed bottom-6 right-3 left-3 sm:left-auto sm:right-6 w-[calc(100vw-24px)] sm:w-96 h-[560px] overflow-hidden z-[2147483646]"
+              >
+                <div 
+                  ref={voiceAgentRef}
+                  className="w-full h-full overflow-hidden relative"
+                  style={{ minHeight: '560px', height: '100%' }}
+                >
+                  {/* Close button - positioned absolutely */}
                   <button
                     onClick={handleClose}
-                    className="text-white hover:text-gray-200 transition-colors"
+                    className="absolute top-2 right-2 z-50 bg-slate-800/80 hover:bg-slate-700/80 text-white rounded-full p-2 transition-colors shadow-lg"
                     title="Close"
                     aria-label="Close"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-4 h-4" />
                   </button>
+                  {/* @ts-ignore - Custom element from ElevenLabs */}
+                  <elevenlabs-convai 
+                    agent-id="agent_2801k8yyv0kdfar82ejv5g6y54ja" 
+                    style={{ 
+                      width: '100%', 
+                      height: '100%', 
+                      minHeight: '560px',
+                      display: 'block' 
+                    }}
+                  ></elevenlabs-convai>
                 </div>
-
-                {/* Choice Buttons */}
-                <div className="flex-1 flex flex-col items-center justify-center gap-6 p-8">
-                  <h3 className="text-xl font-semibold text-white mb-4">How would you like to interact?</h3>
-                  
-                  <button
-                    onClick={() => setMode('chat')}
-                    className="w-full max-w-xs bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
-                  >
-                    <MessageCircle className="w-6 h-6" />
-                    <span className="text-lg">Chat</span>
-                  </button>
-
-                  <button
-                    onClick={() => setMode('voice')}
-                    className="w-full max-w-xs bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
-                  >
-                    <Mic className="w-6 h-6" />
-                    <span className="text-lg">Talk</span>
-                  </button>
-                </div>
-              </>
-            )}
-
-            {/* Voice Agent Mode */}
-            {mode === 'voice' && (
-              <div 
-                ref={voiceAgentRef}
-                className="w-full h-full overflow-hidden relative"
-                style={{ minHeight: '560px', height: '100%' }}
+              </motion.div>
+            ) : (
+              /* Chat Window - With window container */
+              <motion.div
+                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 20, scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+                className="fixed bottom-6 right-3 left-3 sm:left-auto sm:right-6 w-[calc(100vw-24px)] sm:w-96 h-[560px] bg-slate-900 rounded-2xl shadow-2xl border border-slate-700 flex flex-col overflow-hidden z-[2147483646]"
               >
-                {/* Close button - positioned absolutely */}
-                <button
-                  onClick={handleClose}
-                  className="absolute top-2 right-2 z-50 bg-slate-800/80 hover:bg-slate-700/80 text-white rounded-full p-2 transition-colors shadow-lg"
-                  title="Close"
-                  aria-label="Close"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-                {/* @ts-ignore - Custom element from ElevenLabs */}
-                <elevenlabs-convai 
-                  agent-id="agent_2801k8yyv0kdfar82ejv5g6y54ja" 
-                  style={{ 
-                    width: '100%', 
-                    height: '100%', 
-                    minHeight: '560px',
-                    display: 'block' 
-                  }}
-                ></elevenlabs-convai>
-              </div>
-            )}
+                {/* Choice Screen */}
+                {mode === null && (
+                  <>
+                    {/* Header */}
+                    <div className="bg-blue-800 text-white p-4 flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Bot className="w-5 h-5" />
+                        <span className="font-semibold">Choose Mode</span>
+                      </div>
+                      <button
+                        onClick={handleClose}
+                        className="text-white hover:text-gray-200 transition-colors"
+                        title="Close"
+                        aria-label="Close"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+
+                    {/* Choice Buttons */}
+                    <div className="flex-1 flex flex-col items-center justify-center gap-6 p-8">
+                      <h3 className="text-xl font-semibold text-white mb-4">How would you like to interact?</h3>
+                      
+                      <button
+                        onClick={() => setMode('chat')}
+                        className="w-full max-w-xs bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
+                      >
+                        <MessageCircle className="w-6 h-6" />
+                        <span className="text-lg">Chat</span>
+                      </button>
+
+                      <button
+                        onClick={() => setMode('voice')}
+                        className="w-full max-w-xs bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
+                      >
+                        <Mic className="w-6 h-6" />
+                        <span className="text-lg">Talk</span>
+                      </button>
+                    </div>
+                  </>
+                )}
 
             {/* Chat Mode */}
             {mode === 'chat' && (
@@ -399,7 +408,9 @@ const AIChatbot = () => {
             </div>
               </>
             )}
-          </motion.div>
+              </motion.div>
+            )}
+          </>
         )}
       </AnimatePresence>
       
