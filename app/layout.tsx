@@ -56,12 +56,6 @@ export default function RootLayout({
         <Script
           src="https://unpkg.com/@elevenlabs/convai-widget-embed"
           strategy="afterInteractive"
-          onLoad={() => {
-            console.log('ElevenLabs script loaded successfully')
-          }}
-          onError={(e) => {
-            console.error('ElevenLabs script failed to load:', e)
-          }}
         />
       </body>
     </html>
