@@ -89,15 +89,13 @@ export default function Home() {
               {/* Logo Section */}
               <div className="flex items-center justify-center mb-8">
                 <div className="relative">
-                  <div className="w-20 h-20 relative overflow-hidden rounded-full ring-2 ring-blue-400/30 shadow-2xl">
+                  <div className="w-24 h-24 relative overflow-visible shadow-2xl">
                     <img 
                       src="/logo.png" 
                       alt="KSR LEARNER Logo" 
-                      className="w-full h-full object-contain p-3"
+                      className="w-full h-full object-contain"
                     />
                   </div>
-                  {/* Subtle glow effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-blue-600/20 rounded-full opacity-40 blur-sm"></div>
                 </div>
               </div>
               
