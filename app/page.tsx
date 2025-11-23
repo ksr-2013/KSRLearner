@@ -1,7 +1,7 @@
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import Link from 'next/link'
-import { BookOpen, Target, Trophy, Brain, Play, Users, Award, Clock, Star, ArrowRight, Keyboard, MessageCircle } from 'lucide-react'
+import { BookOpen, Target, Trophy, Brain, Play, Users, Award, Clock, Star, ArrowRight, Keyboard, MessageCircle, Download } from 'lucide-react'
 
 export default function Home() {
   const features = [
@@ -121,6 +121,15 @@ export default function Home() {
                 <Link href="/puzzles" className="btn-outline">
                   Explore Puzzles
                 </Link>
+                <a 
+                  href="https://ksrlearnerdownloads.netlify.app" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                >
+                  <Download className="w-5 h-5 mr-2" />
+                  Download App
+                </a>
               </div>
             </div>
             <div className="relative">
@@ -308,6 +317,52 @@ export default function Home() {
             <Link href="/about" className="border-2 border-white text-white hover:bg-white hover:text-blue-900 font-semibold py-3 px-8 rounded-lg transition-all duration-200 transform hover:scale-105">
               Learn More
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Download Section */}
+      <section className="py-20 bg-gradient-to-r from-slate-800 to-slate-900 border-y border-slate-700">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="flex items-center justify-center mb-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mr-4 shadow-lg">
+              <Download className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-3xl lg:text-4xl font-bold text-white">
+              Download KSR Learner App
+            </h2>
+          </div>
+          <p className="text-xl text-slate-300 mb-8">
+            Take your learning on the go! Download our app for Windows, iOS, or Android and 
+            continue your learning journey anywhere, anytime.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+            <a 
+              href="https://ksrlearnerdownloads.netlify.app" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+            >
+              <Download className="w-5 h-5 mr-2" />
+              Download for Your Device
+            </a>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+            <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-green-500/50 transition-all">
+              <div className="text-4xl mb-3">🪟</div>
+              <h3 className="text-lg font-semibold text-white mb-2">Windows</h3>
+              <p className="text-slate-400 text-sm">Download for Windows PC</p>
+            </div>
+            <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-green-500/50 transition-all">
+              <div className="text-4xl mb-3">🍎</div>
+              <h3 className="text-lg font-semibold text-white mb-2">iOS</h3>
+              <p className="text-slate-400 text-sm">Download for iPhone & iPad</p>
+            </div>
+            <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-green-500/50 transition-all">
+              <div className="text-4xl mb-3">🤖</div>
+              <h3 className="text-lg font-semibold text-white mb-2">Android</h3>
+              <p className="text-slate-400 text-sm">Download for Android devices</p>
+            </div>
           </div>
         </div>
       </section>
