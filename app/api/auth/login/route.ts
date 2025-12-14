@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { supabaseServer } from '../../../../lib/supabaseServer'
+import { getSupabaseServer } from '../../../../lib/supabaseServer'
 import { db } from '../../../../lib/db'
 
 export async function POST(req: NextRequest) {
@@ -13,7 +13,8 @@ export async function POST(req: NextRequest) {
     }
     
     // Authenticate with Supabase
-    const { data: authData, error: authError } = await supabaseServer.auth.signInWithPassword({
+    const supabase = getSupabaseServer()
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
       email,
       password
     })

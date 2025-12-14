@@ -44,10 +44,28 @@ export function getSupabaseServer() {
   return _supabaseServer
 }
 
-// Export for backward compatibility (lazy getter)
+// Export for backward compatibility (lazy getter with proper proxy)
 export const supabaseServer = new Proxy({} as ReturnType<typeof createClient>, {
   get(_, prop) {
-    return getSupabaseServer()[prop as keyof ReturnType<typeof createClient>]
+    const server = getSupabaseServer()
+    const value = server[prop as keyof typeof server]
+    // If it's a function, bind it to the server instance
+    if (typeof value === 'function') {
+      return value.bind(server)
+    }
+    // If it's an object (like 'auth'), return a proxy for it too
+    if (value && typeof value === 'object') {
+      return new Proxy(value, {
+        get(target, propKey) {
+          const nestedValue = target[propKey as keyof typeof target]
+          if (typeof nestedValue === 'function') {
+            return nestedValue.bind(target)
+          }
+          return nestedValue
+        }
+      })
+    }
+    return value
   }
 })
 

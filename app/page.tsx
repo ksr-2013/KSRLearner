@@ -1,7 +1,7 @@
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import Link from 'next/link'
-import { BookOpen, Target, Trophy, Brain, Play, Users, Award, Clock, Star, ArrowRight, Keyboard, MessageCircle, Download } from 'lucide-react'
+import { BookOpen, Target, Trophy, Brain, Play, Users, Award, Clock, Star, ArrowRight, Keyboard, MessageCircle, Download, Monitor } from 'lucide-react'
 
 export default function Home() {
   const features = [
@@ -240,6 +240,71 @@ export default function Home() {
         </div>
       </section>
 
+      {/* OS Shortcut Practice Section */}
+      <section className="section-gradient py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+              Practice OS Keyboard Shortcuts
+            </h2>
+            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
+              Master Linux shortcuts in a realistic OS simulator. Practice essential keyboard shortcuts 
+              like Super, Ctrl+Alt+T, Alt+Tab, and more in a safe, interactive environment.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            <div className="card hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+              <div className="flex items-start gap-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Monitor className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-white mb-3">Visual OS Simulator</h3>
+                  <p className="text-slate-300 mb-4">
+                    Experience a realistic Linux GNOME interface with desktop, dock, and windows. 
+                    Practice shortcuts in a familiar environment that mimics real operating systems.
+                  </p>
+                  <ul className="text-slate-400 text-sm space-y-2 mb-4">
+                    <li>• Desktop with icons and windows</li>
+                    <li>• Dock with running applications</li>
+                    <li>• Window management (minimize, maximize, close)</li>
+                    <li>• Real-time shortcut feedback</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div className="card hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+              <div className="flex items-start gap-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Target className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-white mb-3">Guided Practice Mode</h3>
+                  <p className="text-slate-300 mb-4">
+                    Learn shortcuts step-by-step with guided challenges. Track your progress and 
+                    master essential Linux shortcuts through interactive practice.
+                  </p>
+                  <ul className="text-slate-400 text-sm space-y-2 mb-4">
+                    <li>• Step-by-step shortcut challenges</li>
+                    <li>• Progress tracking for each shortcut</li>
+                    <li>• Score system and achievements</li>
+                    <li>• Free mode for exploration</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center">
+            <Link href="/os-practice" className="btn-primary inline-flex items-center">
+              <Monitor className="w-5 h-5 mr-2" />
+              Start Practicing Shortcuts
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {/* Video Section */}
       <section className="section-gradient py-20">

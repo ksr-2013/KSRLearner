@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@leaningtech/cheerpx": "^1.2.3",
     "@prisma/client": "^5.22.0",
     "@supabase/supabase-js": "^2.75.0",
     "@types/pg": "^8.15.5",
@@ -38,7 +39,8 @@
     "pg": "^8.16.3",
     "postgres": "^3.4.7",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "v86": "^0.5.292"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
