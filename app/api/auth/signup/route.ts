@@ -1,43 +1,85 @@
 import { NextRequest } from 'next/server'
-import { signSession, makeSessionCookie } from '../../../../lib/auth'
+import { supabaseServer } from '../../../../lib/supabaseServer'
 import { db } from '../../../../lib/db'
-import bcrypt from 'bcryptjs'
 
 export async function POST(req: NextRequest) {
   try {
     const { email, password, name } = await req.json()
-    if (!email || !password) return new Response(JSON.stringify({ error: 'Missing email or password' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
-    
-    // Check if email already exists using direct database connection
-    const existingResult = await db.query('SELECT id FROM users WHERE email = $1', [email])
-    
-    if (existingResult.rows.length > 0) {
-      return new Response(JSON.stringify({ error: 'Email already in use' }), { status: 409, headers: { 'Content-Type': 'application/json' } })
+    if (!email || !password) {
+      return new Response(JSON.stringify({ error: 'Missing email or password' }), { 
+        status: 400, 
+        headers: { 'Content-Type': 'application/json' } 
+      })
     }
     
-    const rounds = Number(process.env.BCRYPT_ROUNDS || 10)
-    const hash = await bcrypt.hash(password, rounds)
-    
-    // Create user using direct database connection
-    const newUserResult = await db.query(
-      'INSERT INTO users (id, email, "passwordHash", name, "createdAt", "updatedAt", "isActive") VALUES (gen_random_uuid(), $1, $2, $3, NOW(), NOW(), true) RETURNING id, email, name',
-      [email, hash, name || null]
-    )
-    
-    if (newUserResult.rows.length === 0) {
-      throw new Error('Failed to create user')
+    // Create user in Supabase Auth
+    const { data: authData, error: authError } = await supabaseServer.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name: name || null
+        }
+      }
+    })
+
+    if (authError) {
+      console.error('Supabase signup error:', authError)
+      // Handle specific Supabase errors
+      if (authError.message.includes('already registered') || authError.message.includes('already exists')) {
+        return new Response(JSON.stringify({ error: 'Email already in use' }), { 
+          status: 409, 
+          headers: { 'Content-Type': 'application/json' } 
+        })
+      }
+      return new Response(JSON.stringify({ error: authError.message || 'Signup failed' }), { 
+        status: 400, 
+        headers: { 'Content-Type': 'application/json' } 
+      })
     }
-    
-    const user = newUserResult.rows[0]
-    const token = signSession({ uid: user.id, email: user.email })
-    return new Response(JSON.stringify({ id: user.id, email: user.email, name: user.name }), {
+
+    if (!authData.user) {
+      return new Response(JSON.stringify({ error: 'Failed to create user' }), { 
+        status: 500, 
+        headers: { 'Content-Type': 'application/json' } 
+      })
+    }
+
+    // Sync user to local database
+    try {
+      const userId = authData.user.id
+      const userEmail = authData.user.email || email
+      const userName = authData.user.user_metadata?.name || name || null
+
+      // Check if user already exists in local DB
+      const existingResult = await db.query('SELECT id FROM users WHERE id = $1', [userId])
+      
+      if (existingResult.rows.length === 0) {
+        // Create user in local database
+        await db.query(
+          'INSERT INTO users (id, email, name, "createdAt", "updatedAt", "isActive", provider, "providerId") VALUES ($1, $2, $3, NOW(), NOW(), true, $4, $5)',
+          [userId, userEmail, userName, 'supabase', userId]
+        )
+      }
+    } catch (dbError) {
+      console.error('Error syncing user to database:', dbError)
+      // Continue even if DB sync fails - Supabase auth user is created
+    }
+
+    return new Response(JSON.stringify({ 
+      id: authData.user.id, 
+      email: authData.user.email, 
+      name: authData.user.user_metadata?.name || name 
+    }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json', 'Set-Cookie': makeSessionCookie(token) }
+      headers: { 'Content-Type': 'application/json' }
     })
   } catch (e: any) {
     console.error('Signup error:', e)
-    const message = e?.code === 'P2002' ? 'Email already in use' : (e?.message || 'unknown')
-    return new Response(JSON.stringify({ error: 'SERVER_ERROR', details: message }), { status: 500, headers: { 'Content-Type': 'application/json' } })
+    return new Response(JSON.stringify({ error: 'SERVER_ERROR', details: e?.message || 'unknown' }), { 
+      status: 500, 
+      headers: { 'Content-Type': 'application/json' } 
+    })
   }
 }
 

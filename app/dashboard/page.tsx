@@ -80,7 +80,15 @@ export default function DashboardPage() {
         // If Supabase auth failed, try JWT auth
         if (!authData) {
           try {
-            const authRes = await fetch('/api/auth/me', { cache: 'no-store' })
+            const headers: HeadersInit = { 'cache': 'no-store' }
+            // Try to get Supabase session token for the API call
+            try {
+              const { data: { session } } = await supabaseClient.auth.getSession()
+              if (session?.access_token) {
+                headers['authorization'] = `Bearer ${session.access_token}`
+              }
+            } catch {}
+            const authRes = await fetch('/api/auth/me', { cache: 'no-store', headers })
             authData = await authRes.json()
           } catch (jwtError) {
             console.log('JWT auth check failed')

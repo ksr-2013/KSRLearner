@@ -14,19 +14,42 @@ export default function AuthCallbackPage() {
         const currentUrl = window.location.href
         console.log('Auth callback page loaded:', currentUrl)
         // If detectSessionInUrl=true, supabase-js may have already exchanged the code.
+        let session = null
         const { data: sessionResult } = await supabaseClient.auth.getSession()
         if (sessionResult?.session) {
-          window.location.replace('/dashboard')
-          return
+          session = sessionResult.session
+        } else {
+          // Fallback: try exchange explicitly if session not present
+          const { data, error } = await supabaseClient.auth.exchangeCodeForSession(currentUrl)
+          if (error) throw error
+          if (data?.session) {
+            session = data.session
+          }
         }
-        // Fallback: try exchange explicitly if session not present
-        const { data, error } = await supabaseClient.auth.exchangeCodeForSession(currentUrl)
-        if (error) throw error
-        if (data?.session) {
-          window.location.replace('/dashboard')
-          return
+
+        if (!session) {
+          throw new Error('Authentication failed: no session returned')
         }
-        throw new Error('Authentication failed: no session returned')
+
+        // Sync user to local database
+        if (session.user) {
+          try {
+            await fetch('/api/auth/sync-user', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                userId: session.user.id,
+                email: session.user.email,
+                name: session.user.user_metadata?.name || null
+              })
+            })
+          } catch (syncError) {
+            console.error('Error syncing user:', syncError)
+            // Continue even if sync fails
+          }
+        }
+
+        window.location.replace('/dashboard')
       } catch (e: any) {
         console.error('Auth callback error:', e)
         setError(e?.message || 'Authentication failed')

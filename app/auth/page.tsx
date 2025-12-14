@@ -28,13 +28,77 @@ export default function AuthPage() {
     setError(null)
     setLoading(true)
     try {
-      const url = mode === 'signup' ? '/api/auth/signup' : '/api/auth/login'
-      const body: any = { email, password }
-      if (mode === 'signup') body.name = name
-      const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data?.details || data?.error || 'Authentication failed')
-      window.location.assign('/dashboard')
+      if (mode === 'signup') {
+        // Sign up with Supabase
+        const { data, error } = await supabaseClient.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              name: name || null
+            }
+          }
+        })
+
+        if (error) throw error
+
+        if (!data.user) {
+          throw new Error('Failed to create user')
+        }
+
+        // Sync user to local database via API
+        try {
+          await fetch('/api/auth/sync-user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: data.user.id,
+              email: data.user.email,
+              name: name || null
+            })
+          })
+        } catch (syncError) {
+          console.error('Error syncing user:', syncError)
+          // Continue even if sync fails
+        }
+
+        // Check if email confirmation is required
+        if (data.session) {
+          window.location.assign('/dashboard')
+        } else {
+          setError('Please check your email to confirm your account')
+        }
+      } else {
+        // Sign in with Supabase
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+          email,
+          password
+        })
+
+        if (error) throw error
+
+        if (!data.session) {
+          throw new Error('Failed to sign in')
+        }
+
+        // Sync user to local database via API
+        try {
+          await fetch('/api/auth/sync-user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: data.user.id,
+              email: data.user.email,
+              name: data.user.user_metadata?.name || null
+            })
+          })
+        } catch (syncError) {
+          console.error('Error syncing user:', syncError)
+          // Continue even if sync fails
+        }
+
+        window.location.assign('/dashboard')
+      }
     } catch (err: any) {
       setError(err?.message || 'Authentication failed')
     } finally {
