@@ -2,15 +2,15 @@ import { NextRequest } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { readTokenFromRequest, verifySession } from './auth'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
 /**
  * Get the authenticated user from either Supabase session or JWT token
  * Returns null if no valid authentication is found
  */
 export async function getAuthenticatedUser(req: NextRequest): Promise<{ userId: string; email?: string } | null> {
   // Try Supabase authentication first
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  
   if (supabaseUrl && supabaseServiceKey) {
     try {
       const authHeader = req.headers.get('authorization')
