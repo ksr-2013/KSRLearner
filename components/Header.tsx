@@ -155,12 +155,13 @@ export default function Header() {
               <Link href="/ai-exam-evaluator" className="block px-3 py-2 text-slate-300 hover:text-blue-400 hover:bg-slate-700 rounded-lg font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>AI Exam Conductor</Link>
               <Link href="/about" className="block px-3 py-2 text-slate-300 hover:text-blue-400 hover:bg-slate-700 rounded-lg font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>About</Link>
               <Link href="/contact" className="block px-3 py-2 text-slate-300 hover:text-blue-400 hover:bg-slate-700 rounded-lg font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>Contact</Link>
-              {loggedIn && (
-                <>
-                  <Link href="/dashboard" className="block px-3 py-2 text-slate-300 hover:text-blue-400 hover:bg-slate-700 rounded-lg font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
-                  <Link href="/profile" className="block px-3 py-2 text-slate-300 hover:text-blue-400 hover:bg-slate-700 rounded-lg font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>Profile</Link>
-                </>
-              )}
+{loggedIn && (
+                  <>
+                    <Link href="/dashboard" className="block px-3 py-2 text-slate-300 hover:text-blue-400 hover:bg-slate-700 rounded-lg font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
+                    <Link href="/profile" className="block px-3 py-2 text-slate-300 hover:text-blue-400 hover:bg-slate-700 rounded-lg font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>Profile</Link>
+                  </>
+                )}
+                <Link href="/pdf-exam-generator" className="block px-3 py-2 text-slate-300 hover:text-blue-400 hover:bg-slate-700 rounded-lg font-medium transition-colors" onClick={() => setIsMenuOpen(false)}>PDF Exam Generator</Link>
               {!loggedIn && (
                 <div className="pt-2">
                   <Link href="/auth" className="btn-primary w-full text-center" onClick={() => setIsMenuOpen(false)}>Get Started</Link>
