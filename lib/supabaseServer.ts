@@ -57,9 +57,9 @@ export const supabaseServer = new Proxy({} as ReturnType<typeof createClient>, {
     if (value && typeof value === 'object') {
       return new Proxy(value, {
         get(target, propKey) {
-          const nestedValue = target[propKey as keyof typeof target]
+          const nestedValue = target[propKey as keyof typeof target] as unknown
           if (typeof nestedValue === 'function') {
-            return nestedValue.bind(target)
+            return (nestedValue as Function).bind(target)
           }
           return nestedValue
         }

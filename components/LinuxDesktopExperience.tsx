@@ -14,10 +14,10 @@ const SHORTCUTS = [
 
 export default function LinuxDesktopExperience() {
   const [score, setScore] = useState(0);
-  const [shortcutProgress, setShortcutProgress] = useState({});
+  const [shortcutProgress, setShortcutProgress] = useState<Record<string, number>>({});
 
-  useEffect(() => {
-    function onKeyDown(e) {
+useEffect(() => {
+  function onKeyDown(e: KeyboardEvent) {
       SHORTCUTS.forEach(s => {
         let match = s.keys.every(k => {
           if (k === 'Meta') return e.metaKey;
