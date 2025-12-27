@@ -61,6 +61,8 @@ export default function AuthPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null)
+  const [resendingEmail, setResendingEmail] = useState(false)
 
   useEffect(() => {
     // If already logged in with Supabase, redirect to dashboard
@@ -77,9 +79,34 @@ export default function AuthPage() {
     setMode(mode === 'login' ? 'signup' : 'login')
     setError(null)
     setSuccessMessage(null)
+    setPendingEmail(null)
     setEmail('')
     setPassword('')
     setName('')
+  }
+
+  // Resend confirmation email
+  const handleResendConfirmation = async () => {
+    if (!pendingEmail) return
+    
+    setError(null)
+    setResendingEmail(true)
+    
+    try {
+      const { error } = await supabaseClient.auth.resend({
+        type: 'signup',
+        email: pendingEmail
+      })
+      
+      if (error) throw error
+      
+      setSuccessMessage(`Confirmation email resent to ${pendingEmail}. Please check your inbox and spam folder.`)
+    } catch (err: any) {
+      console.error('Resend confirmation error:', err)
+      setError(getErrorMessage(err) || 'Failed to resend confirmation email. Please try again later.')
+    } finally {
+      setResendingEmail(false)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -158,7 +185,11 @@ export default function AuthPage() {
           window.location.assign('/dashboard')
         } else {
           // Email confirmation required
-          setSuccessMessage('Account created! Please check your email to confirm your account before signing in.')
+          setPendingEmail(email.trim())
+          setSuccessMessage(
+            `Account created! A confirmation email has been sent to ${email.trim()}. ` +
+            `Please check your inbox (and spam folder) and click the confirmation link to activate your account.`
+          )
           setEmail('')
           setPassword('')
           setName('')
@@ -246,8 +277,36 @@ export default function AuthPage() {
               </div>
             )}
             {successMessage && (
-              <div className="bg-green-900/20 border border-green-500/50 rounded-lg p-3 text-green-400 text-sm">
-                {successMessage}
+              <div className="bg-green-900/20 border border-green-500/50 rounded-lg p-3 text-green-400 text-sm space-y-2">
+                <p>{successMessage}</p>
+                {pendingEmail && (
+                  <div className="mt-3 pt-3 border-t border-green-500/30">
+                    <p className="text-xs text-green-300 mb-2">
+                      Didn't receive the email? Check your spam folder or resend it.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleResendConfirmation}
+                      disabled={resendingEmail}
+                      className="w-full py-2 px-4 rounded-lg bg-green-600/20 hover:bg-green-600/30 border border-green-500/50 text-green-300 text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {resendingEmail ? (
+                        <span className="inline-flex items-center gap-2">
+                          <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Sending...
+                        </span>
+                      ) : (
+                        'Resend Confirmation Email'
+                      )}
+                    </button>
+                    <p className="text-xs text-green-400/70 mt-2">
+                      Note: If emails still don't arrive, email confirmation may need to be configured in your Supabase project settings.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
             <div className="flex gap-3 pt-2">
