@@ -39,6 +39,3 @@ bolna/
 *.tsbuildinfo
 next-env.d.ts
 \n# Ignore env files\n.env\n.env.local\n.env.*\n
-
-# Large ISO files (too big for GitHub even with LFS)
-public/os-images/*.iso
