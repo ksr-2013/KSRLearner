@@ -62,8 +62,8 @@ export default function WindowsDesktopExperience() {
             height: '100%', 
             overflow: 'auto',
             position: 'relative',
-            clipPath: 'inset(180px 0 0 0)',
-            marginTop: '-180px'
+            clipPath: 'inset(280px 0 0 0)',
+            marginTop: '-280px'
           }}>
             <iframe
               src="https://www.pcjs.org/software/pcx86/sys/windows/1.01/ega/"
