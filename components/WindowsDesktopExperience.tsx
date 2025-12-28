@@ -62,9 +62,10 @@ export default function WindowsDesktopExperience() {
             height: '100%', 
             overflow: 'auto',
             position: 'relative',
-            clipPath: 'inset(280px 0 0 300px)',
-            marginTop: '-280px',
-            marginLeft: '-300px'
+            clipPath: 'inset(320px 0 150px 300px)',
+            marginTop: '-320px',
+            marginLeft: '-300px',
+            marginBottom: '-150px'
           }}>
             <iframe
               src="https://www.pcjs.org/software/pcx86/sys/windows/1.01/ega/"
@@ -85,7 +86,7 @@ export default function WindowsDesktopExperience() {
         </div>
 
         {/* Shortcut Practice Panel - Collapsible */}
-        <div style={{ width: 320, background: 'rgba(30, 30, 30, 0.95)', borderLeft: '1px solid rgba(255,255,255,0.1)', padding: 20, overflowY: 'auto', maxHeight: '100vh' }}>
+        <div style={{ width: 400, background: 'rgba(30, 30, 30, 0.95)', borderLeft: '1px solid rgba(255,255,255,0.1)', padding: 20, overflowY: 'auto', maxHeight: '100vh' }}>
           <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: '#ffffff' }}>⌨️ Windows Shortcuts</div>
           <div style={{ fontSize: 12, color: '#a8d8ff', marginBottom: 16 }}>
             Practice these shortcuts while using the emulator. The full PCjs interface with all controls (disk management, save/load, system commands) is shown below.
