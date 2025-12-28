@@ -47,7 +47,7 @@ export default function WindowsDesktopExperience() {
       {/* Main Content */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative' }}>
         {/* Emulator Container - Full Width to Show All Controls */}
-        <div style={{ flex: 1, position: 'relative', background: '#2a2a2a', overflow: 'hidden' }}>
+        <div style={{ flex: 1, position: 'relative', background: '#2a2a2a', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {!iframeLoaded && (
             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1a1a1a', zIndex: 10 }}>
               <div style={{ textAlign: 'center' }}>
@@ -62,8 +62,8 @@ export default function WindowsDesktopExperience() {
             height: '100%', 
             overflow: 'auto',
             position: 'relative',
-            clipPath: 'inset(320px 0 150px 300px)',
-            marginTop: '-320px',
+            clipPath: 'inset(350px 0 150px 300px)',
+            marginTop: '-350px',
             marginLeft: '-300px',
             marginBottom: '-150px'
           }}>
@@ -71,7 +71,7 @@ export default function WindowsDesktopExperience() {
               src="https://www.pcjs.org/software/pcx86/sys/windows/1.01/ega/"
               style={{
                 width: '100%',
-                minHeight: '1200px',
+                minHeight: 'calc(100vh - 100px)',
                 height: '100%',
                 border: 'none',
                 display: iframeLoaded ? 'block' : 'none',
