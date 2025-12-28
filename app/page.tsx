@@ -248,8 +248,8 @@ export default function Home() {
               Practice OS Keyboard Shortcuts
             </h2>
             <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-              Master Linux shortcuts in a realistic OS simulator. Practice essential keyboard shortcuts 
-              like Super, Ctrl+Alt+T, Alt+Tab, and more in a safe, interactive environment.
+              Master Windows shortcuts in a realistic OS simulator. Practice essential keyboard shortcuts 
+              like Windows key, Win+D, Alt+Tab, and more in a safe, interactive environment.
             </p>
           </div>
           
@@ -262,12 +262,12 @@ export default function Home() {
                 <div>
                   <h3 className="text-xl font-semibold text-white mb-3">Visual OS Simulator</h3>
                   <p className="text-slate-300 mb-4">
-                    Experience a realistic Linux GNOME interface with desktop, dock, and windows. 
+                    Experience a realistic Windows 11 interface with desktop, taskbar, and windows. 
                     Practice shortcuts in a familiar environment that mimics real operating systems.
                   </p>
                   <ul className="text-slate-400 text-sm space-y-2 mb-4">
                     <li>• Desktop with icons and windows</li>
-                    <li>• Dock with running applications</li>
+                    <li>• Taskbar with pinned applications</li>
                     <li>• Window management (minimize, maximize, close)</li>
                     <li>• Real-time shortcut feedback</li>
                   </ul>
@@ -284,7 +284,7 @@ export default function Home() {
                   <h3 className="text-xl font-semibold text-white mb-3">Guided Practice Mode</h3>
                   <p className="text-slate-300 mb-4">
                     Learn shortcuts step-by-step with guided challenges. Track your progress and 
-                    master essential Linux shortcuts through interactive practice.
+                    master essential Windows shortcuts through interactive practice.
                   </p>
                   <ul className="text-slate-400 text-sm space-y-2 mb-4">
                     <li>• Step-by-step shortcut challenges</li>

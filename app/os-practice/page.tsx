@@ -1,4 +1,5 @@
-import WebAssemblyOS from '../../components/WebAssemblyOS';
+import WindowsDesktopExperience from '../../components/WindowsDesktopExperience';
+
 export default function OSPracticePage() {
-  return <WebAssemblyOS />;
+  return <WindowsDesktopExperience />;
 } 
