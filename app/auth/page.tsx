@@ -9,13 +9,17 @@ import { supabaseClient } from '../../lib/supabaseClient'
 function getErrorMessage(error: any): string {
   if (!error) return 'An unexpected error occurred'
   
+  // Log the full error for debugging
+  console.error('Full error object:', error)
+  
   const errorMessage = error.message || error.toString()
+  const errorCode = error.code || error.status || ''
   
   // Map common Supabase error codes to user-friendly messages
-  if (errorMessage.includes('Invalid login credentials') || errorMessage.includes('Invalid credentials')) {
+  if (errorCode === 'invalid_credentials' || errorMessage.includes('Invalid login credentials') || errorMessage.includes('Invalid credentials') || errorMessage.includes('invalid_credentials')) {
     return 'Invalid email or password. Please check your credentials and try again.'
   }
-  if (errorMessage.includes('Email already registered') || errorMessage.includes('already exists') || errorMessage.includes('already registered')) {
+  if (errorMessage.includes('Email already registered') || errorMessage.includes('already exists') || errorMessage.includes('already registered') || errorMessage.includes('User already registered')) {
     return 'This email is already registered. Please sign in instead or use a different email.'
   }
   if (errorMessage.includes('Password')) {
@@ -39,8 +43,8 @@ function getErrorMessage(error: any): string {
     return 'Network error. Please check your connection and try again.'
   }
   
-  // Return the original message if no mapping found
-  return errorMessage
+  // Return the original message if no mapping found (helps with debugging)
+  return errorMessage || 'An unexpected error occurred. Please try again.'
 }
 
 // Email validation
@@ -126,6 +130,7 @@ export default function AuthPage() {
         })
 
         if (error) {
+          console.error('Signup error:', error)
           throw error
         }
 
@@ -152,6 +157,9 @@ export default function AuthPage() {
         // User is automatically signed in (email confirmation disabled)
         if (data.session) {
           window.location.assign('/dashboard')
+        } else {
+          // This shouldn't happen if email confirmation is disabled, but handle it just in case
+          throw new Error('Account created but session not available. Please try logging in.')
         }
       } else {
         // Sign in with Supabase
@@ -161,10 +169,12 @@ export default function AuthPage() {
         })
 
         if (error) {
+          console.error('Login error:', error)
           throw error
         }
 
         if (!data.session) {
+          console.error('Login successful but no session:', data)
           throw new Error('Failed to sign in. Please try again.')
         }
 
@@ -231,8 +241,18 @@ export default function AuthPage() {
               )}
             </div>
             {error && (
-              <div className="bg-red-900/20 border border-red-500/50 rounded-lg p-3 text-red-400 text-sm">
-                {error}
+              <div className="bg-red-900/20 border border-red-500/50 rounded-lg p-3 text-red-400 text-sm space-y-2">
+                <p>{error}</p>
+                {mode === 'login' && error.includes('Invalid email or password') && (
+                  <p className="text-xs text-red-300 mt-2">
+                    💡 Tip: If you just signed up, make sure you're using the correct password. Or try signing up again if you don't have an account yet.
+                  </p>
+                )}
+                {mode === 'signup' && error.includes('already registered') && (
+                  <p className="text-xs text-red-300 mt-2">
+                    💡 Tip: This email is already registered. Try logging in instead, or use a different email address.
+                  </p>
+                )}
               </div>
             )}
             <div className="flex gap-3 pt-2">
