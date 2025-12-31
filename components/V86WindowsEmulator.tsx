@@ -2,12 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 
-declare global {
-  interface Window {
-    V86Starter: new (config: any) => any;
-    V86: new (config: any) => any;
-  }
-}
+// v86 types are declared in types/v86.d.ts
 
 interface V86WindowsEmulatorProps {
   onLoad?: () => void;

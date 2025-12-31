@@ -3,12 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Keyboard, Trophy, Target, CheckCircle2, XCircle, Play, RotateCcw, Info, Power } from 'lucide-react'
 
-// v86 types
-declare global {
-  interface Window {
-    V86Starter: any
-  }
-}
+// v86 types are declared in types/v86.d.ts
 
 interface ShortcutProgress {
   shortcutId: string
