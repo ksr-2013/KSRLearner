@@ -38,4 +38,13 @@ bolna/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-\n# Ignore env files\n.env\n.env.local\n.env.*\n
+
+# Ignore env files
+.env
+.env.local
+.env.*
+
+# Ignore large OS images (use external hosting instead)
+public/os-images/*.img
+public/os-images/*.iso
+!public/os-images/.gitkeep

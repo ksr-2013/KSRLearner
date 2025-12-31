@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react';
+import V86WindowsEmulator from './V86WindowsEmulator';
 
 const SHORTCUTS = [
   { id: 'win', keys: ['Meta'], description: 'Open Start Menu (Windows key)' },
@@ -18,7 +19,7 @@ const SHORTCUTS = [
 export default function WindowsDesktopExperience() {
   const [score, setScore] = useState(0);
   const [shortcutProgress, setShortcutProgress] = useState<Record<string, number>>({});
-  const [iframeLoaded, setIframeLoaded] = useState(false);
+  const [emulatorLoaded, setEmulatorLoaded] = useState(false);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -48,48 +49,14 @@ export default function WindowsDesktopExperience() {
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative' }}>
         {/* Emulator Container - Full Width to Show All Controls */}
         <div style={{ flex: 1, position: 'relative', background: '#2a2a2a', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          {!iframeLoaded && (
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1a1a1a', zIndex: 10 }}>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 48, marginBottom: 16 }}>⏳</div>
-                <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>Loading Windows 1.01 Emulator...</div>
-                <div style={{ fontSize: 14, color: '#a0a0a0' }}>Please wait while the emulator initializes</div>
-              </div>
-            </div>
-          )}
-          <div style={{ 
-            width: '100%', 
-            height: '100%', 
-            overflow: 'auto',
-            position: 'relative',
-            clipPath: 'inset(350px 0 150px 300px)',
-            marginTop: '-350px',
-            marginLeft: '-300px',
-            marginBottom: '-150px'
-          }}>
-            <iframe
-              src="https://www.pcjs.org/software/pcx86/sys/windows/1.01/ega/"
-              style={{
-                width: '100%',
-                minHeight: 'calc(100vh - 100px)',
-                height: '100%',
-                border: 'none',
-                display: iframeLoaded ? 'block' : 'none',
-                background: '#2a2a2a'
-              }}
-              title="Windows 1.01 Emulator - PCjs with Full Controls"
-              allowFullScreen
-              scrolling="yes"
-              onLoad={() => setIframeLoaded(true)}
-            />
-          </div>
+          <V86WindowsEmulator onLoad={() => setEmulatorLoaded(true)} />
         </div>
 
         {/* Shortcut Practice Panel - Collapsible */}
         <div style={{ width: 400, background: 'rgba(30, 30, 30, 0.95)', borderLeft: '1px solid rgba(255,255,255,0.1)', padding: 20, overflowY: 'auto', maxHeight: '100vh' }}>
           <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: '#ffffff' }}>⌨️ Windows Shortcuts</div>
           <div style={{ fontSize: 12, color: '#a8d8ff', marginBottom: 16 }}>
-            Practice these shortcuts while using the emulator. The full PCjs interface with all controls (disk management, save/load, system commands) is shown below.
+            Practice these shortcuts while using the Windows emulator. The v86 WebAssembly emulator runs Windows 95/98 directly in your browser.
           </div>
           <div style={{ marginBottom: 20 }}>
             {SHORTCUTS.map(s => (
@@ -109,14 +76,17 @@ export default function WindowsDesktopExperience() {
             ))}
           </div>
           <div style={{ padding: '16px', background: 'rgba(0, 120, 215, 0.1)', borderRadius: 8, border: '1px solid rgba(0, 120, 215, 0.3)' }}>
-            <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8, color: '#a8d8ff' }}>💡 Emulator Controls:</div>
+            <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8, color: '#a8d8ff' }}>💡 Emulator Info:</div>
             <ul style={{ fontSize: 11, color: '#d0d0d0', margin: 0, paddingLeft: 20, lineHeight: 1.6 }}>
-              <li><strong>Disk Management:</strong> Mount disk images (A:, B:)</li>
-              <li><strong>Save/Load:</strong> Save and restore emulator state</li>
-              <li><strong>System Commands:</strong> Reset, Halt, Ctrl-Alt-Del</li>
-              <li><strong>CPU Speed:</strong> 4.77MHz (original IBM PC XT speed)</li>
-              <li><strong>Full Screen:</strong> Click "Full Screen" button in emulator</li>
+              <li><strong>Technology:</strong> v86 WebAssembly emulator</li>
+              <li><strong>OS:</strong> Windows 95/98 (requires disk image)</li>
+              <li><strong>Memory:</strong> 128MB RAM</li>
+              <li><strong>Controls:</strong> Click in emulator to focus</li>
+              <li><strong>Keyboard:</strong> All shortcuts work normally</li>
             </ul>
+            <div style={{ fontSize: 10, color: '#888', marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+              Place Windows disk image at: <code style={{ background: '#333', padding: '2px 4px', borderRadius: 2 }}>public/os-images/windows.img</code>
+            </div>
           </div>
         </div>
       </div>
