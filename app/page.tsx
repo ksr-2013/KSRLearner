@@ -80,7 +80,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-slate-900">
       <Header />
-      
+
       {/* Hero Section */}
       <section className="hero-gradient py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -95,8 +95,8 @@ export default function Home() {
                 <span className="gradient-text block">Learning Platform</span>
               </h1>
               <p className="text-xl text-slate-300 mb-8 leading-relaxed">
-                KSR Learner is a modern learning hub designed to make technology simple and engaging for everyone. 
-                From interactive puzzles and quizzes to in-depth lessons on computer fundamentals, our platform helps 
+                KSR Learner is a modern learning hub designed to make technology simple and engaging for everyone.
+                From interactive puzzles and quizzes to in-depth lessons on computer fundamentals, our platform helps
                 learners build a strong foundation in areas like hardware, software, coding, and digital skills.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
@@ -106,9 +106,9 @@ export default function Home() {
                 <Link href="/puzzles" className="btn-outline">
                   Explore Puzzles
                 </Link>
-                <a 
-                  href="https://ksrlearnerdownloads.netlify.app" 
-                  target="_blank" 
+                <a
+                  href="https://ksrlearnerdownloads.netlify.app"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
                 >
@@ -119,7 +119,7 @@ export default function Home() {
             </div>
             <div className="relative">
               <div className="relative z-10">
-                <img 
+                <img
                   src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
                   alt="Student learning technology"
                   className="w-full h-auto rounded-2xl shadow-2xl"
@@ -143,6 +143,76 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Kids Computer Section */}
+      <section className="section-gradient py-20 border-b border-slate-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="order-2 lg:order-1">
+              <div className="relative">
+                <div className="relative z-10 bg-slate-800 rounded-2xl p-2 shadow-2xl border border-slate-700">
+                  <div className="aspect-video bg-slate-900 rounded-xl overflow-hidden relative group">
+                    {/* Simulated screen content */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="text-6xl mb-4 animate-bounce">🤖</div>
+                        <div className="flex gap-4 justify-center">
+                          <div className="w-16 h-16 bg-blue-500/20 rounded-lg border border-blue-500/50 flex items-center justify-center text-2xl">🧠</div>
+                          <div className="w-16 h-16 bg-green-500/20 rounded-lg border border-green-500/50 flex items-center justify-center text-2xl">💾</div>
+                          <div className="w-16 h-16 bg-amber-500/20 rounded-lg border border-amber-500/50 flex items-center justify-center text-2xl">⚡</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Overlay */}
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <span className="bg-blue-600 text-white px-6 py-2 rounded-full font-bold transform scale-90 group-hover:scale-100 transition-transform">
+                        Try It Now
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                {/* Decorative elements */}
+                <div className="absolute -top-6 -left-6 w-24 h-24 bg-blue-500 rounded-full opacity-20 blur-xl"></div>
+                <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-emerald-500 rounded-full opacity-20 blur-xl"></div>
+              </div>
+            </div>
+
+            <div className="order-1 lg:order-2">
+              <div className="inline-flex items-center px-4 py-2 bg-blue-900/30 text-blue-300 text-sm font-medium rounded-full mb-6 border border-blue-700/50">
+                <Brain className="w-4 h-4 mr-2" />
+                FOR KIDS & BEGINNERS
+              </div>
+              <h2 className="text-3xl lg:text-5xl font-bold text-white mb-6 leading-tight">
+                A Small Explanation On <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Computers</span> For Your Kids
+              </h2>
+              <p className="text-xl text-slate-300 mb-8 leading-relaxed">
+                Ever wondered what's inside that metal box? We've made a special interactive playground where kids can open up a computer (virtually!) and click on parts like the Brain (CPU) and Memory (RAM) to see exactly what they do.
+              </p>
+
+              <ul className="space-y-4 mb-8 text-slate-300">
+                <li className="flex items-center">
+                  <div className="w-6 h-6 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center mr-3 font-bold text-xs">✓</div>
+                  Clickable parts with simple explanations
+                </li>
+                <li className="flex items-center">
+                  <div className="w-6 h-6 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center mr-3 font-bold text-xs">✓</div>
+                  Watch how data moves around
+                </li>
+                <li className="flex items-center">
+                  <div className="w-6 h-6 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center mr-3 font-bold text-xs">✓</div>
+                  No boring text—just fun learning!
+                </li>
+              </ul>
+
+              <Link href="/interactive-lessons" className="btn-primary inline-flex items-center bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 border-0">
+                <Play className="w-5 h-5 mr-2 fill-current" />
+                Start Interactive Lesson
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Features Section */}
       <section className="section-gradient py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -151,12 +221,14 @@ export default function Home() {
               Why Choose KSR Learner?
             </h2>
             <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-              Our platform combines cutting-edge technology with proven learning methodologies 
+              Our platform combines cutting-edge technology with proven learning methodologies
               to create an engaging and effective learning experience.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+
+
             {features.map((feature, index) => (
               <div key={index} className="card hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl flex items-center justify-center mb-6">
@@ -192,11 +264,11 @@ export default function Home() {
               Master Your Typing Skills
             </h2>
             <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-              Improve your typing speed and accuracy with our comprehensive practice platform. 
+              Improve your typing speed and accuracy with our comprehensive practice platform.
               From beginner basics to expert challenges, track your progress and see real improvements.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
             <div className="card text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
               <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mb-6 mx-auto">
@@ -208,7 +280,7 @@ export default function Home() {
                 Start Practicing
               </Link>
             </div>
-            
+
             <div className="card text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
               <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center mb-6 mx-auto">
                 <Target className="w-8 h-8 text-white" />
@@ -219,7 +291,7 @@ export default function Home() {
                 Take Test
               </Link>
             </div>
-            
+
             <div className="card text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
               <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center mb-6 mx-auto">
                 <Trophy className="w-8 h-8 text-white" />
@@ -231,7 +303,7 @@ export default function Home() {
               </Link>
             </div>
           </div>
-          
+
           <div className="text-center">
             <Link href="/typing" className="btn-outline">
               Explore All Typing Features
@@ -248,11 +320,11 @@ export default function Home() {
               Practice OS Keyboard Shortcuts
             </h2>
             <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-              Master Windows shortcuts in a realistic OS simulator. Practice essential keyboard shortcuts 
+              Master Windows shortcuts in a realistic OS simulator. Practice essential keyboard shortcuts
               like Windows key, Win+D, Alt+Tab, and more in a safe, interactive environment.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
             <div className="card hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
               <div className="flex items-start gap-4">
@@ -262,7 +334,7 @@ export default function Home() {
                 <div>
                   <h3 className="text-xl font-semibold text-white mb-3">Visual OS Simulator</h3>
                   <p className="text-slate-300 mb-4">
-                    Experience a realistic Windows 11 interface with desktop, taskbar, and windows. 
+                    Experience a realistic Windows 11 interface with desktop, taskbar, and windows.
                     Practice shortcuts in a familiar environment that mimics real operating systems.
                   </p>
                   <ul className="text-slate-400 text-sm space-y-2 mb-4">
@@ -274,7 +346,7 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            
+
             <div className="card hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
               <div className="flex items-start gap-4">
                 <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center flex-shrink-0">
@@ -283,7 +355,7 @@ export default function Home() {
                 <div>
                   <h3 className="text-xl font-semibold text-white mb-3">Guided Practice Mode</h3>
                   <p className="text-slate-300 mb-4">
-                    Learn shortcuts step-by-step with guided challenges. Track your progress and 
+                    Learn shortcuts step-by-step with guided challenges. Track your progress and
                     master essential Windows shortcuts through interactive practice.
                   </p>
                   <ul className="text-slate-400 text-sm space-y-2 mb-4">
@@ -314,17 +386,17 @@ export default function Home() {
               Learn from Expert Videos
             </h2>
             <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-              Access our curated collection of educational videos designed specifically for beginners. 
+              Access our curated collection of educational videos designed specifically for beginners.
               Learn at your own pace with clear explanations and practical examples.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {videos.map((video, index) => (
               <div key={index} className="card hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
                 <div className="relative mb-4">
-                  <img 
-                    src={video.thumbnail} 
+                  <img
+                    src={video.thumbnail}
                     alt={video.title}
                     className="w-full h-32 object-cover rounded-lg"
                   />
@@ -335,9 +407,9 @@ export default function Home() {
                   </div>
                 </div>
                 <h3 className="font-semibold text-white mb-2 line-clamp-2">{video.title}</h3>
-                <a 
-                  href={video.url} 
-                  target="_blank" 
+                <a
+                  href={video.url}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center text-blue-400 hover:text-blue-300 font-medium text-sm transition-colors"
                 >
@@ -357,7 +429,7 @@ export default function Home() {
             Ready to Start Your Learning Journey?
           </h2>
           <p className="text-xl text-blue-200 mb-8">
-            Join thousands of learners who are already mastering technology with KSR Learner. 
+            Join thousands of learners who are already mastering technology with KSR Learner.
             Start with our beginner quizzes and work your way up to expert level.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -383,13 +455,13 @@ export default function Home() {
             </h2>
           </div>
           <p className="text-xl text-slate-300 mb-8">
-            Take your learning on the go! Download our app for Windows, iOS, or Android and 
+            Take your learning on the go! Download our app for Windows, iOS, or Android and
             continue your learning journey anywhere, anytime.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <a 
-              href="https://ksrlearnerdownloads.netlify.app" 
-              target="_blank" 
+            <a
+              href="https://ksrlearnerdownloads.netlify.app"
+              target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
             >
@@ -429,7 +501,7 @@ export default function Home() {
             </h2>
           </div>
           <p className="text-xl text-blue-200 mb-8">
-            Get instant help with your learning journey! Our AI assistant can answer questions, 
+            Get instant help with your learning journey! Our AI assistant can answer questions,
             guide you through topics, and provide personalized study tips.
           </p>
           <div className="text-blue-200 text-sm">
