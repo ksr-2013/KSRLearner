@@ -18,7 +18,7 @@ export default function Footer() {
               </div>
             </div>
             <p className="text-slate-300 mb-6 max-w-md">
-              Empowering learners worldwide with interactive technology education. 
+              Empowering learners worldwide with interactive technology education.
               From beginners to experts, discover the joy of learning with KSR Learner.
             </p>
             <div className="flex space-x-4">
@@ -92,7 +92,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-slate-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-slate-400 text-sm">
-            © 2025 KSR Learner. All rights reserved.
+            © 2026 KSR Learner. All rights reserved.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <Link href="/privacy" className="text-slate-400 hover:text-blue-400 text-sm transition-colors">
