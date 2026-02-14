@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   creator: 'KSR Learner',
   publisher: 'KSR Learner',
   robots: 'index, follow',
+  verification: {
+    google: 'Wjh0ClYAI7N_y4y5AoN0D65PU7HLWS3hSVKao3PNPoU',
+  },
   icons: {
     icon: '/favicon.ico',
     shortcut: '/favicon.ico',
