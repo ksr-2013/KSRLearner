@@ -17,10 +17,11 @@ interface V86WindowsEmulatorProps {
 // If you placed v86 in public/v86, use: '/v86/build/libv86.js'
 // If you placed v86 in vendor/v86, use: '/vendor/v86/build/libv86.js'
 // Leave empty to use current setup: '/libv86.js'
-// Using the v86 repo placed in public/v86
-const V86_LIB_PATH = '/v86/build/libv86.js'; // Main v86 library
-const V86_WASM_PATH = '/v86/build/v86.wasm'; // WASM from repo build folder
-const V86_BIOS_PATH = '/v86/bios'; // Local BIOS files from repo
+// Paths to v86 files
+const V86_LIB_PATH = '/v86/libv86.js';
+const V86_WASM_PATH = '/v86/v86.wasm';
+// The bios files are now stored directly in public/v86/bios
+const V86_BIOS_PATH = '/v86/bios';
 const USE_LOCAL_BIOS = true; // Always prefer local BIOS when repo is present
 
 // Windows Image Configuration
@@ -55,6 +56,7 @@ export default function V86WindowsEmulator({ onLoad, config }: V86WindowsEmulato
           await new Promise<void>((resolve, reject) => {
             const script = document.createElement('script');
             script.src = V86_LIB_PATH;
+            script.crossOrigin = 'anonymous';
             script.onload = () => {
               // Wait a bit for V86Starter or V86 to be available
               let attempts = 0;
@@ -95,6 +97,7 @@ export default function V86WindowsEmulator({ onLoad, config }: V86WindowsEmulato
 
         if (!textDiv) {
           textDiv = document.createElement('div');
+          textDiv.className = 'v86-text-layer';
           textDiv.style.whiteSpace = 'pre';
           textDiv.style.font = '14px monospace';
           textDiv.style.lineHeight = '14px';
@@ -268,6 +271,18 @@ export default function V86WindowsEmulator({ onLoad, config }: V86WindowsEmulato
             transform: none !important;
             margin: 0 !important;
             padding: 0 !important;
+          }
+          .v86-text-layer {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            margin: 0 !important;
+            transform: scale(1.6) !important;
+            transform-origin: top left !important;
+            text-shadow: 0 0 2px rgba(255,255,255,0.3);
+          }
+          @media (max-width: 1200px) {
+            .v86-text-layer { transform: scale(1.2) !important; }
           }
         `
       }} />
