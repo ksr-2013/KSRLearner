@@ -1,7 +1,7 @@
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import Link from 'next/link'
-import { BookOpen, Target, Trophy, Brain, Play, Users, Award, Clock, Star, ArrowRight, Keyboard, MessageCircle, Download, Monitor } from 'lucide-react'
+import { BookOpen, Target, Trophy, Brain, Play, Users, Award, Clock, Star, ArrowRight, Keyboard, MessageCircle, Download, Monitor, Newspaper, RotateCw } from 'lucide-react'
 
 export default function Home() {
   const features = [
@@ -256,6 +256,57 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Flashcards Section */}
+      <section className="section-gradient py-20 border-t border-slate-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="order-2 lg:order-1 relative">
+              <div className="relative z-10 bg-slate-800 rounded-2xl p-8 shadow-2xl border border-slate-700 transform -rotate-2 hover:rotate-0 transition-transform duration-500 max-w-md mx-auto">
+                <div className="aspect-[4/3] bg-slate-900 rounded-xl relative flex items-center justify-center border-2 border-slate-700 group cursor-pointer overflow-hidden">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center transform group-hover:scale-105 transition-transform">
+                    <span className="text-xs font-semibold text-blue-400 tracking-wider uppercase mb-4">Term</span>
+                    <h3 className="text-3xl font-bold text-white mb-2">Algorithm</h3>
+                  </div>
+                  <div className="absolute -bottom-4 -right-4 bg-emerald-500 rounded-full p-3 shadow-lg transform group-hover:scale-110 transition-transform">
+                     <RotateCw className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+              </div>
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-emerald-500 rounded-full opacity-10 blur-3xl"></div>
+            </div>
+
+            <div className="order-1 lg:order-2">
+              <div className="inline-flex items-center px-4 py-2 bg-emerald-900/30 text-emerald-300 text-sm font-medium rounded-full mb-6 border border-emerald-700/50">
+                <BookOpen className="w-4 h-4 mr-2" />
+                NEW FEATURE
+              </div>
+              <h2 className="text-3xl lg:text-5xl font-bold text-white mb-6 leading-tight">
+                Master Tech Concepts with <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Flashcards</span>
+              </h2>
+              <p className="text-xl text-slate-300 mb-8 leading-relaxed">
+                Memorize computer hardware, software, networking, and programming terms easily with our interactive 3D flashcards. Flip, shuffle, and learn at your own pace!
+              </p>
+
+              <ul className="space-y-4 mb-8 text-slate-300">
+                <li className="flex items-center">
+                   <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mr-3 font-bold text-xs">✓</div>
+                   Interactive 3D Flipping Animation
+                </li>
+                <li className="flex items-center">
+                   <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mr-3 font-bold text-xs">✓</div>
+                   Multiple Categories (Hardware, Software, Web)
+                </li>
+              </ul>
+
+              <Link href="/flashcards" className="btn-primary inline-flex items-center bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 border-0 shadow-lg shadow-emerald-900/20">
+                <BookOpen className="w-5 h-5 mr-2" />
+                Start Studying
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Typing Section */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -374,6 +425,69 @@ export default function Home() {
               <Monitor className="w-5 h-5 mr-2" />
               Start Practicing Shortcuts
             </Link>
+          </div>
+        </div>
+      </section>
+
+
+
+      {/* Tech News Section */}
+      <section className="bg-slate-900 py-20 border-y border-slate-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="inline-flex items-center px-4 py-2 bg-blue-900/30 text-blue-300 text-sm font-medium rounded-full mb-6 border border-blue-700/50">
+                <Newspaper className="w-4 h-4 mr-2" />
+                LATEST UPDATES
+              </div>
+              <h2 className="text-3xl lg:text-5xl font-bold text-white mb-6 leading-tight">
+                Stay Ahead with <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Tech News</span>
+              </h2>
+              <p className="text-xl text-slate-300 mb-8 leading-relaxed">
+                Keep up with the fast-paced world of technology. Read about the latest gadgets, software updates,
+                scientific breakthroughs, and industry trends curated just for you.
+              </p>
+
+              <ul className="space-y-4 mb-8 text-slate-300">
+                <li className="flex items-center">
+                  <div className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center mr-3 font-bold text-xs">✓</div>
+                  Daily updates from top sources
+                </li>
+                <li className="flex items-center">
+                  <div className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center mr-3 font-bold text-xs">✓</div>
+                  Curated for learners and enthusiasts
+                </li>
+                <li className="flex items-center">
+                  <div className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center mr-3 font-bold text-xs">✓</div>
+                  Easy-to-read format
+                </li>
+              </ul>
+
+              <Link href="/tech-news" className="btn-primary inline-flex items-center bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 border-0">
+                <Newspaper className="w-5 h-5 mr-2" />
+                Read Latest News
+              </Link>
+            </div>
+
+            <div className="relative">
+              <div className="relative z-10 bg-slate-800 rounded-2xl p-2 shadow-2xl border border-slate-700 transform rotate-2 hover:rotate-0 transition-transform duration-500">
+                <div className="aspect-video relative rounded-xl overflow-hidden">
+                  <img
+                    src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+                    alt="Technology News"
+                    className="object-cover w-full h-full"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-6">
+                    <div>
+                      <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-md mb-2 inline-block">TECHNOLOGY</span>
+                      <div className="text-white font-bold text-lg">Breaking: The Future of AI in Education</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="absolute -top-6 -right-6 w-32 h-32 bg-blue-500 rounded-full opacity-20 blur-2xl"></div>
+              <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-cyan-500 rounded-full opacity-20 blur-2xl"></div>
+            </div>
           </div>
         </div>
       </section>
@@ -511,6 +625,6 @@ export default function Home() {
       </section>
 
       <Footer />
-    </div>
+    </div >
   )
 }

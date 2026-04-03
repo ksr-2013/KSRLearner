@@ -4,8 +4,11 @@ import { useState, useEffect, useRef } from 'react';
 
 // v86 types are declared in types/v86.d.ts
 
+import { OSOption } from '../data/os-images';
+
 interface V86WindowsEmulatorProps {
   onLoad?: () => void;
+  config?: OSOption;
 }
 
 // ============================================
@@ -32,7 +35,7 @@ const WINDOWS_IMAGE_LOCAL = '/os-images/windows.img';
 const WINDOWS_IMAGE_EXTERNAL = process.env.NEXT_PUBLIC_WINDOWS_IMAGE_URL || ''; // Leave empty to use local file
 // ============================================
 
-export default function V86WindowsEmulator({ onLoad }: V86WindowsEmulatorProps) {
+export default function V86WindowsEmulator({ onLoad, config }: V86WindowsEmulatorProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
@@ -107,18 +110,22 @@ export default function V86WindowsEmulator({ onLoad }: V86WindowsEmulatorProps) 
         setStatus('Checking Windows image...');
         
         // Determine which image source to use
-        const windowsImagePath = WINDOWS_IMAGE_EXTERNAL || WINDOWS_IMAGE_LOCAL;
-        const isExternalUrl = !!WINDOWS_IMAGE_EXTERNAL;
+        const windowsImagePath = config?.url || WINDOWS_IMAGE_EXTERNAL || WINDOWS_IMAGE_LOCAL;
+        const isExternalUrl = config?.isExternal || windowsImagePath.startsWith('http');
         
         // Check if Windows image exists (only for local files)
         if (!isExternalUrl) {
           try {
             const response = await fetch(windowsImagePath, { method: 'HEAD' });
-            if (!response.ok) {
+            const contentType = response.headers.get('content-type');
+            
+            // Next.js dev server sometimes returns 200 OK with the HTML of the 404 page!
+            // Disk images never have a text/html content-type, so this safely catches missing files.
+            if (!response.ok || (contentType && contentType.includes('text/html'))) {
               throw new Error(`Windows image not found at ${windowsImagePath}`);
             }
           } catch (err) {
-            setError(`Windows image not found. Please place a Windows 95/98 disk image at ${windowsImagePath} or configure WINDOWS_IMAGE_EXTERNAL with an external URL.`);
+            setError(`Windows image not found. Please place the ${config?.name || 'Windows 95/98'} disk image at ${windowsImagePath}.`);
             setLoading(false);
             return;
           }
@@ -132,10 +139,12 @@ export default function V86WindowsEmulator({ onLoad }: V86WindowsEmulatorProps) 
         const biosUrl = USE_LOCAL_BIOS ? `${V86_BIOS_PATH}/seabios.bin` : 'https://cdn.jsdelivr.net/gh/copy/v86@master/bios/seabios.bin';
         const vgaBiosUrl = USE_LOCAL_BIOS ? `${V86_BIOS_PATH}/vgabios.bin` : 'https://cdn.jsdelivr.net/gh/copy/v86@master/bios/vgabios.bin';
         
-        const emulator = new V86Constructor({
+        const isIso = windowsImagePath.toLowerCase().endsWith('.iso');
+        
+        const emulatorConfig: any = {
           wasm_path: V86_WASM_PATH,
-          memory_size: 128 * 1024 * 1024, // 128MB
-          vga_memory_size: 8 * 1024 * 1024, // 8MB for VGA
+          memory_size: config?.memory_size || 128 * 1024 * 1024,
+          vga_memory_size: config?.vga_memory_size || 8 * 1024 * 1024,
           screen_container: emulatorContainerRef.current,
           bios: {
             url: biosUrl,
@@ -143,13 +152,37 @@ export default function V86WindowsEmulator({ onLoad }: V86WindowsEmulatorProps) 
           vga_bios: {
             url: vgaBiosUrl,
           },
-          hda: {
-            url: windowsImagePath,
-            async: true,
-          },
-          boot_order: 0x3, // Boot from hard disk (0x1=floppy, 0x2=hard disk, 0x3=both)
+          disable_speaker: true,
           autostart: true,
-        });
+        };
+
+        // Determine drive type based on extension or explicit config
+        if (config?.drive_type === 'fda') {
+          emulatorConfig.fda = { url: windowsImagePath, async: true };
+          emulatorConfig.boot_order = 0x213; // v86 uses 0x213 (or similar) but usually boots automatically from floppy if 'fda' is parsed. 0x213 prioritizes CD(3)->Floppy(1)->HD(2) in SeaBIOS.
+        } else if (config?.drive_type === 'cdrom' || isIso) {
+          emulatorConfig.cdrom = { url: windowsImagePath, async: true };
+          emulatorConfig.boot_order = 0x213; 
+        } else {
+          emulatorConfig.hda = { url: windowsImagePath, async: true };
+          emulatorConfig.boot_order = 0x213; 
+        }
+
+        // Hack to prevent InvalidStateError: Failed to construct 'AudioWorkletNode'
+        // We temporarily hide AudioContext so v86 handles it natively as "unsupported" instead of crashing
+        const OriginalAudioContext = window.AudioContext || (window as any).webkitAudioContext;
+        if (typeof window !== 'undefined') {
+          (window as any).AudioContext = undefined;
+          (window as any).webkitAudioContext = undefined;
+        }
+
+        const emulator = new V86Constructor(emulatorConfig);
+
+        // Restore immediately after instantiation
+        if (typeof window !== 'undefined') {
+          (window as any).AudioContext = OriginalAudioContext;
+          (window as any).webkitAudioContext = OriginalAudioContext;
+        }
 
         emulatorRef.current = emulator;
 
@@ -162,24 +195,28 @@ export default function V86WindowsEmulator({ onLoad }: V86WindowsEmulatorProps) 
           }
         });
 
+        let hasBooted = false;
+
         // Handle emulator ready
         emulator.add_listener('emulator-ready', () => {
           if (mounted) {
             setStatus('Emulator ready, booting Windows...');
             setProgress(100);
-          }
-        });
-
-        // Handle boot complete
-        emulator.add_listener('screen-put-char', () => {
-          if (mounted && loading) {
-            setTimeout(() => {
-              if (mounted) {
-                setLoading(false);
-                setStatus('Windows is running');
-                onLoad?.();
-              }
-            }, 3000);
+            
+            if (!hasBooted) {
+              hasBooted = true;
+              setTimeout(() => {
+                if (mounted) {
+                  setLoading(false);
+                  setStatus('Windows is running');
+                  
+                  // Use inline check to prevent closure bugs if parent unmounts
+                  try {
+                     if (typeof onLoad === 'function') onLoad();
+                  } catch (e) {}
+                }
+              }, 2000);
+            }
           }
         });
 
@@ -205,16 +242,35 @@ export default function V86WindowsEmulator({ onLoad }: V86WindowsEmulatorProps) 
       mounted = false;
       if (emulatorRef.current) {
         try {
-          emulatorRef.current.destroy();
+          // v86 might fail to initialize CPU if audio fails
+          if (emulatorRef.current.cpu) {
+            emulatorRef.current.destroy();
+          }
         } catch (err) {
           console.error('Error destroying emulator:', err);
         }
       }
     };
-  }, [onLoad]);
+  }, [config?.url]);
 
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative', background: '#000' }}>
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .v86-screen-container canvas {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: contain !important;
+            image-rendering: pixelated !important;
+            transform: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+        `
+      }} />
       {loading && (
         <div style={{
           position: 'absolute',
@@ -258,22 +314,42 @@ export default function V86WindowsEmulator({ onLoad }: V86WindowsEmulatorProps) 
           textAlign: 'center',
         }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
-          <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>Error</div>
+          <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>{config?.name || 'Emulator'} Error</div>
           <div style={{ fontSize: 14, color: '#ff8888', maxWidth: 600 }}>{error}</div>
-          <div style={{ fontSize: 12, color: '#aaa', marginTop: 16 }}>
-            You can download Windows 95/98 disk images from various sources online.
-            Place the image file at <code style={{ background: '#333', padding: '2px 6px', borderRadius: 3 }}>public/os-images/windows.img</code>
+          <div style={{ fontSize: 14, color: '#aaa', marginTop: 16 }}>
+            The image file must be placed at <code style={{ background: '#333', padding: '2px 6px', borderRadius: 3 }}>public{config?.url || WINDOWS_IMAGE_LOCAL}</code>
           </div>
+          {config?.downloadLink && (
+            <div style={{ marginTop: 24, padding: '16px', background: 'rgba(0, 120, 215, 0.15)', borderRadius: 8, border: '1px solid rgba(0, 120, 215, 0.3)' }}>
+              <strong style={{ color: '#a8d8ff' }}>Missing Image File?</strong>
+              <p style={{ marginTop: 8, color: '#d0d0d0', fontSize: 14 }}>
+                You can download {config?.name} from here:
+                <br />
+                <a 
+                  href={config.downloadLink} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{ color: '#0078d4', textDecoration: 'underline', marginTop: 4, display: 'inline-block' }}
+                >
+                  {config.downloadLink}
+                </a>
+              </p>
+            </div>
+          )}
         </div>
       )}
 
       <div
         ref={emulatorContainerRef}
+        className="v86-screen-container"
         style={{
           width: '100%',
           height: '100%',
           position: 'relative',
           background: '#000',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
       />
     </div>
