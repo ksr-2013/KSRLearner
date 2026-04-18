@@ -12,6 +12,7 @@ export interface OSOption {
   downloadLink?: string; // Where the user can download the image if missing
   isExternal?: boolean; // If true, the URL is assumed to be fully functional (like copy.sh)
   drive_type?: 'hda' | 'fda' | 'cdrom';
+  asyncLoad?: boolean; // If false, image is loaded synchronously (required for some images like Windows 3.0)
 }
 
 export const OS_OPTIONS: OSOption[] = [
@@ -65,13 +66,13 @@ export const OS_OPTIONS: OSOption[] = [
   {
     id: 'win30',
     name: 'Windows 3.0',
-    description: 'The first widely successful version of Windows, featuring a vastly improved interface and memory management.',
+    description: 'The first widely successful version of Windows, featuring CorelDRAW! 2.0, Actor 2.0, and The Best of Microsoft Entertainment Pack.',
     year: '1990',
-    memory_size: 32 * 1024 * 1024,
-    vga_memory_size: 2 * 1024 * 1024,
-    url: '/os-images/win30/win30.img',
-    downloadLink: 'https://winworldpc.com/product/windows-3/30',
-    icon: '🗔'
+    memory_size: 128 * 1024 * 1024,
+    vga_memory_size: 8 * 1024 * 1024,
+    url: '/os-images/win30/windows30.img',
+    icon: '🗔',
+    drive_type: 'hda',
   },
   {
     id: 'win31',
@@ -82,7 +83,8 @@ export const OS_OPTIONS: OSOption[] = [
     vga_memory_size: 4 * 1024 * 1024,
     url: '/os-images/win31/win31.img',
     downloadLink: 'https://winworldpc.com/product/windows-3/31',
-    icon: '🗔'
+    icon: '🗔',
+    drive_type: 'fda'
   },
   {
     id: 'winnt31',

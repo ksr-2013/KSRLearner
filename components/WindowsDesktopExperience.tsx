@@ -15,6 +15,17 @@ const DOS_COMMANDS = [
   { cmd: 'FORMAT A:', desc: 'Format a disk (CAREFUL!)' },
 ];
 
+const WINDOWS_GUI_TIPS = [
+  { cmd: 'Double-click', desc: 'Open a program or file' },
+  { cmd: 'Alt + F4', desc: 'Close the active window' },
+  { cmd: 'Alt + Tab', desc: 'Switch between open windows' },
+  { cmd: 'Ctrl + Esc', desc: 'Open Task Manager / Task List' },
+  { cmd: 'Alt + Space', desc: 'Open window control menu (Move, Resize, Close)' },
+  { cmd: 'File → Exit', desc: 'Quit the current program from the menu bar' },
+  { cmd: 'Program Manager', desc: 'Main shell — open groups to launch apps' },
+  { cmd: 'Mouse click', desc: 'Click in the emulator screen first to focus it' },
+];
+
 const LINUX_COMMANDS = [
   { cmd: 'ls -la', desc: 'List all files and folders (including hidden)' },
   { cmd: 'cd <dir>', desc: 'Change to directory (cd .. goes up)' },
@@ -28,9 +39,11 @@ const LINUX_COMMANDS = [
 export default function WindowsDesktopExperience({ config }: { config: OSOption }) {
   const [emulatorLoaded, setEmulatorLoaded] = useState(false);
   
-  // Determine if we should show Linux or DOS commands
+  // Determine which command/tip set to show
   const isLinux = config.name.toLowerCase().includes('linux');
-  const commands = isLinux ? LINUX_COMMANDS : DOS_COMMANDS;
+  const isWin3x = ['win30', 'win31', 'win101', 'win203'].includes(config.id);
+  const commands = isLinux ? LINUX_COMMANDS : isWin3x ? WINDOWS_GUI_TIPS : DOS_COMMANDS;
+  const panelTitle = isLinux ? '⌨️ Useful Commands' : isWin3x ? '🖱️ GUI Tips' : '⌨️ Useful Commands';
 
   return (
     <div style={{ minHeight: '100vh', background: '#1a1a1a', color: '#ffffff', fontFamily: 'Segoe UI, system-ui, sans-serif', display: 'flex', flexDirection: 'column' }}>
@@ -43,7 +56,7 @@ export default function WindowsDesktopExperience({ config }: { config: OSOption 
 
         {/* Shortcut Practice Panel - Collapsible */}
         <div style={{ width: 400, background: 'rgba(30, 30, 30, 0.95)', borderLeft: '1px solid rgba(255,255,255,0.1)', padding: 20, overflowY: 'auto', maxHeight: '100vh' }}>
-          <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: '#ffffff' }}>⌨️ Useful Commands</div>
+          <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: '#ffffff' }}>{panelTitle}</div>
           <div style={{ fontSize: 12, color: '#a8d8ff', marginBottom: 16 }}>
             {config.description} Practice these commands while using the terminal.
           </div>

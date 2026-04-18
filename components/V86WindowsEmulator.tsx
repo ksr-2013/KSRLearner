@@ -160,15 +160,19 @@ export default function V86WindowsEmulator({ onLoad, config }: V86WindowsEmulato
         };
 
         // Determine drive type based on extension or explicit config
+        // asyncLoad defaults to true unless explicitly set to false (e.g. Windows 3.0 from copy.sh)
+        const useAsync = config?.asyncLoad === false ? false : true;
+
         if (config?.drive_type === 'fda') {
-          emulatorConfig.fda = { url: windowsImagePath, async: true };
-          emulatorConfig.boot_order = 0x213; // v86 uses 0x213 (or similar) but usually boots automatically from floppy if 'fda' is parsed. 0x213 prioritizes CD(3)->Floppy(1)->HD(2) in SeaBIOS.
+          emulatorConfig.fda = { url: windowsImagePath, async: useAsync };
+          emulatorConfig.boot_order = 0x213; // prioritizes Floppy
         } else if (config?.drive_type === 'cdrom' || isIso) {
-          emulatorConfig.cdrom = { url: windowsImagePath, async: true };
-          emulatorConfig.boot_order = 0x213; 
+          emulatorConfig.cdrom = { url: windowsImagePath, async: useAsync };
+          emulatorConfig.boot_order = 0x213;
         } else {
-          emulatorConfig.hda = { url: windowsImagePath, async: true };
-          emulatorConfig.boot_order = 0x213; 
+          // hda (hard disk) — use boot_order 0 = default (boots HDA first like copy.sh)
+          emulatorConfig.hda = { url: windowsImagePath, async: useAsync };
+          emulatorConfig.boot_order = 0x132; // HD first, then floppy, then CD
         }
 
         // Hack to prevent InvalidStateError: Failed to construct 'AudioWorkletNode'
@@ -200,26 +204,36 @@ export default function V86WindowsEmulator({ onLoad, config }: V86WindowsEmulato
 
         let hasBooted = false;
 
-        // Handle emulator ready
+        const dismissLoading = () => {
+          if (!hasBooted && mounted) {
+            hasBooted = true;
+            setLoading(false);
+            setStatus('Windows is running');
+            try { if (typeof onLoad === 'function') onLoad(); } catch (e) {}
+          }
+        };
+
+        // Handle emulator ready — show canvas quickly
         emulator.add_listener('emulator-ready', () => {
           if (mounted) {
-            setStatus('Emulator ready, booting Windows...');
+            setStatus('Booting...');
             setProgress(100);
-            
-            if (!hasBooted) {
-              hasBooted = true;
-              setTimeout(() => {
-                if (mounted) {
-                  setLoading(false);
-                  setStatus('Windows is running');
-                  
-                  // Use inline check to prevent closure bugs if parent unmounts
-                  try {
-                     if (typeof onLoad === 'function') onLoad();
-                  } catch (e) {}
-                }
-              }, 2000);
-            }
+            // Short delay to let the first frame render, then dismiss overlay
+            setTimeout(dismissLoading, 500);
+          }
+        });
+
+        // Fallback: dismiss as soon as v86 switches to graphical mode (canvas appears)
+        emulator.add_listener('screen-set-mode', (is_graphical: boolean) => {
+          if (is_graphical && mounted) {
+            setTimeout(dismissLoading, 300);
+          }
+        });
+
+        // Also watch for any screen update as a final fallback
+        emulator.add_listener('screen-set-size-graphical', () => {
+          if (mounted) {
+            setTimeout(dismissLoading, 300);
           }
         });
 
