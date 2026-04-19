@@ -8,6 +8,7 @@ import { OSOption } from '../data/os-images';
 
 interface V86WindowsEmulatorProps {
   onLoad?: () => void;
+  onClose?: () => void;
   config?: OSOption;
 }
 
@@ -36,11 +37,14 @@ const WINDOWS_IMAGE_LOCAL = '/os-images/windows.img';
 const WINDOWS_IMAGE_EXTERNAL = process.env.NEXT_PUBLIC_WINDOWS_IMAGE_URL || ''; // Leave empty to use local file
 // ============================================
 
-export default function V86WindowsEmulator({ onLoad, config }: V86WindowsEmulatorProps) {
+export default function V86WindowsEmulator({ onLoad, onClose, config }: V86WindowsEmulatorProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState('Initializing...');
+  const [scale, setScale] = useState(1);
+  const [showControls, setShowControls] = useState(true);
+  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const emulatorContainerRef = useRef<HTMLDivElement>(null);
   const emulatorRef = useRef<any>(null);
   const libv86LoadedRef = useRef(false);
@@ -111,17 +115,17 @@ export default function V86WindowsEmulator({ onLoad, config }: V86WindowsEmulato
         }
 
         setStatus('Checking Windows image...');
-        
+
         // Determine which image source to use
         const windowsImagePath = config?.url || WINDOWS_IMAGE_EXTERNAL || WINDOWS_IMAGE_LOCAL;
         const isExternalUrl = config?.isExternal || windowsImagePath.startsWith('http');
-        
+
         // Check if Windows image exists (only for local files)
         if (!isExternalUrl) {
           try {
             const response = await fetch(windowsImagePath, { method: 'HEAD' });
             const contentType = response.headers.get('content-type');
-            
+
             // Next.js dev server sometimes returns 200 OK with the HTML of the 404 page!
             // Disk images never have a text/html content-type, so this safely catches missing files.
             if (!response.ok || (contentType && contentType.includes('text/html'))) {
@@ -137,13 +141,13 @@ export default function V86WindowsEmulator({ onLoad, config }: V86WindowsEmulato
         if (!mounted) return;
 
         setStatus('Creating emulator...');
-        
+
         // Create v86 emulator instance
         const biosUrl = USE_LOCAL_BIOS ? `${V86_BIOS_PATH}/seabios.bin` : 'https://cdn.jsdelivr.net/gh/copy/v86@master/bios/seabios.bin';
         const vgaBiosUrl = USE_LOCAL_BIOS ? `${V86_BIOS_PATH}/vgabios.bin` : 'https://cdn.jsdelivr.net/gh/copy/v86@master/bios/vgabios.bin';
-        
+
         const isIso = windowsImagePath.toLowerCase().endsWith('.iso');
-        
+
         const emulatorConfig: any = {
           wasm_path: V86_WASM_PATH,
           memory_size: config?.memory_size || 128 * 1024 * 1024,
@@ -170,7 +174,7 @@ export default function V86WindowsEmulator({ onLoad, config }: V86WindowsEmulato
           emulatorConfig.cdrom = { url: windowsImagePath, async: useAsync };
           emulatorConfig.boot_order = 0x213;
         } else {
-          // hda (hard disk) — use boot_order 0 = default (boots HDA first like copy.sh)
+          // hda (hard disk)
           emulatorConfig.hda = { url: windowsImagePath, async: useAsync };
           emulatorConfig.boot_order = 0x132; // HD first, then floppy, then CD
         }
@@ -209,7 +213,7 @@ export default function V86WindowsEmulator({ onLoad, config }: V86WindowsEmulato
             hasBooted = true;
             setLoading(false);
             setStatus('Windows is running');
-            try { if (typeof onLoad === 'function') onLoad(); } catch (e) {}
+            try { if (typeof onLoad === 'function') onLoad(); } catch (e) { }
           }
         };
 
@@ -270,36 +274,245 @@ export default function V86WindowsEmulator({ onLoad, config }: V86WindowsEmulato
     };
   }, [config?.url]);
 
+  const handleRestart = () => {
+    if (emulatorRef.current) {
+      try {
+        // v86 restart logic
+        emulatorRef.current.stop();
+        emulatorRef.current.run();
+      } catch (err) {
+        console.error('Error restarting emulator:', err);
+        // Fallback: reload the component if possible (not easily done without external state)
+      }
+    }
+  };
+
+  const sendScancode = (codes: number[]) => {
+    if (emulatorRef.current) {
+      emulatorRef.current.keyboard_send_scancodes(codes);
+    }
+  };
+
+  const sendKey = (downCode: number) => {
+    if (emulatorRef.current) {
+      // Send down code
+      emulatorRef.current.keyboard_send_scancodes([downCode]);
+      setTimeout(() => {
+        // Send up code (downCode + 0x80)
+        emulatorRef.current.keyboard_send_scancodes([downCode | 0x80]);
+      }, 50);
+    }
+  };
+
+  const sendCtrlAltDel = () => {
+    if (emulatorRef.current) {
+      // Ctrl (0x1D) + Alt (0x38) + Del (0xE0 0x53)
+      emulatorRef.current.keyboard_send_scancodes([0x1D]); // Ctrl down
+      emulatorRef.current.keyboard_send_scancodes([0x38]); // Alt down
+      emulatorRef.current.keyboard_send_scancodes([0xE0, 0x53]); // Del down
+      setTimeout(() => {
+        emulatorRef.current.keyboard_send_scancodes([0xE0, 0xD3]); // Del up
+        emulatorRef.current.keyboard_send_scancodes([0xB8]); // Alt up (0x38 | 0x80)
+        emulatorRef.current.keyboard_send_scancodes([0x9D]); // Ctrl up (0x1D | 0x80)
+      }, 50);
+    }
+  };
+
+  // Auto-hide controls logic
+  useEffect(() => {
+    const handleMouseMove = () => {
+      setShowControls(true);
+      
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current);
+      }
+      
+      controlsTimeoutRef.current = setTimeout(() => {
+        setShowControls(false);
+      }, 5000); // 5 seconds
+    };
+
+    const container = emulatorContainerRef.current;
+    if (container) {
+      container.addEventListener('mousemove', handleMouseMove);
+    }
+
+    // Initial timer
+    controlsTimeoutRef.current = setTimeout(() => {
+      setShowControls(false);
+    }, 5000);
+
+    return () => {
+      if (container) {
+        container.removeEventListener('mousemove', handleMouseMove);
+      }
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current);
+      }
+    };
+  }, []);
+
   return (
-    <div style={{ width: '100%', height: '100%', position: 'relative', background: '#000' }}>
+    <div style={{ width: '100%', height: '100%', position: 'relative', background: '#000', overflow: 'hidden' }}>
       <style dangerouslySetInnerHTML={{
         __html: `
           .v86-screen-container canvas {
             position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: contain !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) scale(${scale}) !important;
+            max-width: none !important;
+            max-height: none !important;
             image-rendering: pixelated !important;
-            transform: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
+            transition: transform 0.2s ease-in-out;
           }
           .v86-text-layer {
             position: absolute !important;
             top: 0 !important;
             left: 0 !important;
             margin: 0 !important;
-            transform: scale(1.6) !important;
+            transform: scale(${1.6 * scale}) !important;
             transform-origin: top left !important;
             text-shadow: 0 0 2px rgba(255,255,255,0.3);
-          }
-          @media (max-width: 1200px) {
-            .v86-text-layer { transform: scale(1.2) !important; }
+            transition: transform 0.2s ease-in-out;
           }
         `
       }} />
+
+      {/* Zoom Controls */}
+      {!loading && !error && (
+        <div style={{
+          position: 'absolute',
+          top: 16,
+          left: 16,
+          zIndex: 30,
+          display: 'flex',
+          gap: 8,
+          background: 'rgba(0,0,0,0.5)',
+          padding: 8,
+          borderRadius: 8,
+          border: '1px solid rgba(255,255,255,0.1)',
+          backdropFilter: 'blur(4px)',
+          opacity: showControls ? 1 : 0,
+          pointerEvents: showControls ? 'auto' : 'none',
+          transition: 'opacity 0.5s ease-in-out',
+        }}>
+          <button
+            onClick={() => setScale(Math.max(0.5, scale - 0.25))}
+            style={{ width: 32, height: 32, borderRadius: 4, background: '#333', color: '#fff', border: 'none', cursor: 'pointer' }}
+          >
+            ➖
+          </button>
+          <div style={{ display: 'flex', alignItems: 'center', color: '#fff', fontSize: 12, fontWeight: 600, padding: '0 4px' }}>
+            {Math.round(scale * 100)}%
+          </div>
+          <button
+            onClick={() => setScale(Math.min(3, scale + 0.25))}
+            style={{ width: 32, height: 32, borderRadius: 4, background: '#333', color: '#fff', border: 'none', cursor: 'pointer' }}
+          >
+            ➕
+          </button>
+          <button
+            onClick={() => setScale(1)}
+            style={{ padding: '0 8px', height: 32, borderRadius: 4, background: '#333', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 10 }}
+            title="Reset Zoom to 100%"
+          >
+            Reset Zoom
+          </button>
+
+          <button
+            onClick={handleRestart}
+            style={{ padding: '0 8px', height: 32, borderRadius: 4, background: '#333', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 10, marginLeft: 4 }}
+            title="Restart the Virtual Machine"
+          >
+            🔄 Restart VM
+          </button>
+          
+          {/* Close Button */}
+          {onClose && (
+            <button
+              onClick={onClose}
+              title="Exit Emulator"
+              style={{ 
+                width: 32, 
+                height: 32, 
+                borderRadius: 4, 
+                background: '#cc3333', 
+                color: '#fff', 
+                border: 'none', 
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 16,
+                fontWeight: 'bold',
+                marginLeft: 8,
+                transition: 'background 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#ee4444'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#cc3333'}
+            >
+              ✕
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Function Keys Bar */}
+      {!loading && !error && (
+        <div style={{
+          position: 'absolute',
+          top: 64, // Below the zoom controls
+          left: 16,
+          zIndex: 30,
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 4,
+          maxWidth: 'calc(100% - 32px)',
+          background: 'rgba(0,0,0,0.5)',
+          padding: 6,
+          borderRadius: 8,
+          border: '1px solid rgba(255,255,255,0.1)',
+          backdropFilter: 'blur(4px)',
+          opacity: showControls ? 1 : 0,
+          pointerEvents: showControls ? 'auto' : 'none',
+          transition: 'opacity 0.5s ease-in-out',
+        }}>
+          {/* F1-F12 */}
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(n => (
+            <button
+              key={`f${n}`}
+              onClick={() => sendKey(n <= 10 ? 0x3A + n : (n === 11 ? 0x57 : 0x58))}
+              style={{ padding: '4px 8px', minWidth: 32, borderRadius: 4, background: '#333', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 10, fontWeight: 'bold' }}
+            >
+              F{n}
+            </button>
+          ))}
+          
+          <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.2)', margin: '0 4px' }} />
+          
+          <button
+            onClick={() => sendKey(0x01)}
+            style={{ padding: '4px 8px', borderRadius: 4, background: '#444', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 10 }}
+          >
+            Esc
+          </button>
+          <button
+            onClick={() => sendKey(0x0F)}
+            style={{ padding: '4px 8px', borderRadius: 4, background: '#444', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 10 }}
+          >
+            Tab
+          </button>
+          <button
+            onClick={sendCtrlAltDel}
+            style={{ padding: '4px 8px', borderRadius: 4, background: '#b33', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 10, fontWeight: 'bold' }}
+            title="Send Ctrl+Alt+Del"
+          >
+            CAD
+          </button>
+        </div>
+      )}
+
       {loading && (
         <div style={{
           position: 'absolute',
@@ -327,7 +540,7 @@ export default function V86WindowsEmulator({ onLoad, config }: V86WindowsEmulato
           <div style={{ fontSize: 12, color: '#a0a0a0', marginTop: 8 }}>{progress > 0 ? `${progress}%` : 'Please wait...'}</div>
         </div>
       )}
-      
+
       {error && (
         <div style={{
           position: 'absolute',
@@ -354,9 +567,9 @@ export default function V86WindowsEmulator({ onLoad, config }: V86WindowsEmulato
               <p style={{ marginTop: 8, color: '#d0d0d0', fontSize: 14 }}>
                 You can download {config?.name} from here:
                 <br />
-                <a 
-                  href={config.downloadLink} 
-                  target="_blank" 
+                <a
+                  href={config.downloadLink}
+                  target="_blank"
                   rel="noopener noreferrer"
                   style={{ color: '#0078d4', textDecoration: 'underline', marginTop: 4, display: 'inline-block' }}
                 >

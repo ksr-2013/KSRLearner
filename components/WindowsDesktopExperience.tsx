@@ -36,8 +36,9 @@ const LINUX_COMMANDS = [
   { cmd: 'ping 1.1.1.1', desc: 'Check network connectivity' },
 ];
 
-export default function WindowsDesktopExperience({ config }: { config: OSOption }) {
+export default function WindowsDesktopExperience({ config, onClose }: { config: OSOption, onClose?: () => void }) {
   const [emulatorLoaded, setEmulatorLoaded] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   
   // Determine which command/tip set to show
   const isLinux = config.name.toLowerCase().includes('linux');
@@ -46,23 +47,61 @@ export default function WindowsDesktopExperience({ config }: { config: OSOption 
   const panelTitle = isLinux ? '⌨️ Useful Commands' : isWin3x ? '🖱️ GUI Tips' : '⌨️ Useful Commands';
 
   return (
-    <div style={{ minHeight: '100vh', background: '#1a1a1a', color: '#ffffff', fontFamily: 'Segoe UI, system-ui, sans-serif', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ height: '100vh', background: '#1a1a1a', color: '#ffffff', fontFamily: 'Segoe UI, system-ui, sans-serif', display: 'flex', flexDirection: 'column' }}>
       {/* Main Content */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative' }}>
         {/* Emulator Container - Full Width to Show All Controls */}
         <div style={{ flex: 1, position: 'relative', background: '#2a2a2a', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <V86WindowsEmulator config={config} onLoad={() => setEmulatorLoaded(true)} />
+          <V86WindowsEmulator config={config} onLoad={() => setEmulatorLoaded(true)} onClose={onClose} />
+          
+          {/* Sidebar Toggle Button */}
+          <button 
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            style={{
+              position: 'absolute',
+              right: sidebarOpen ? 400 : 0,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              background: '#333',
+              color: '#fff',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRight: 'none',
+              padding: '12px 8px',
+              borderTopLeftRadius: 8,
+              borderBottomLeftRadius: 8,
+              cursor: 'pointer',
+              zIndex: 20,
+              transition: 'right 0.3s ease-in-out',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            title={sidebarOpen ? "Hide Sidebar" : "Show Sidebar"}
+          >
+            {sidebarOpen ? '→' : '←'}
+          </button>
         </div>
 
         {/* Shortcut Practice Panel - Collapsible */}
-        <div style={{ width: 400, background: 'rgba(30, 30, 30, 0.95)', borderLeft: '1px solid rgba(255,255,255,0.1)', padding: 20, overflowY: 'auto', maxHeight: '100vh' }}>
+        <div style={{ 
+          width: sidebarOpen ? 400 : 0, 
+          background: 'rgba(30, 30, 30, 0.95)', 
+          borderLeft: sidebarOpen ? '1px solid rgba(255,255,255,0.1)' : 'none', 
+          padding: sidebarOpen ? 20 : 0, 
+          overflowY: 'auto', 
+          maxHeight: '100vh',
+          transition: 'width 0.3s ease-in-out, padding 0.3s ease-in-out',
+          opacity: sidebarOpen ? 1 : 0,
+          pointerEvents: sidebarOpen ? 'auto' : 'none',
+          whiteSpace: 'nowrap'
+        }}>
           <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: '#ffffff' }}>{panelTitle}</div>
-          <div style={{ fontSize: 12, color: '#a8d8ff', marginBottom: 16 }}>
+          <div style={{ fontSize: 12, color: '#a8d8ff', marginBottom: 16, whiteSpace: 'normal' }}>
             {config.description} Practice these commands while using the terminal.
           </div>
           <div style={{ marginBottom: 20 }}>
             {commands.map((cmdInfo, idx) => (
-              <div key={idx} style={{ marginBottom: 10, padding: '10px 12px', background: 'rgba(255,255,255,0.05)', borderRadius: 6 }}>
+              <div key={idx} style={{ marginBottom: 10, padding: '10px 12px', background: 'rgba(255,255,255,0.05)', borderRadius: 6, whiteSpace: 'normal' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   <code style={{ 
                     fontFamily: 'monospace', 
@@ -80,7 +119,7 @@ export default function WindowsDesktopExperience({ config }: { config: OSOption 
               </div>
             ))}
           </div>
-          <div style={{ padding: '16px', background: 'rgba(0, 120, 215, 0.1)', borderRadius: 8, border: '1px solid rgba(0, 120, 215, 0.3)' }}>
+          <div style={{ padding: '16px', background: 'rgba(0, 120, 215, 0.1)', borderRadius: 8, border: '1px solid rgba(0, 120, 215, 0.3)', whiteSpace: 'normal' }}>
             <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8, color: '#a8d8ff' }}>💡 Emulator Info:</div>
             <ul style={{ fontSize: 11, color: '#d0d0d0', margin: 0, paddingLeft: 20, lineHeight: 1.6 }}>
               <li><strong>Technology:</strong> v86 WebAssembly emulator</li>
@@ -89,9 +128,6 @@ export default function WindowsDesktopExperience({ config }: { config: OSOption 
               <li><strong>Controls:</strong> Click in emulator to focus</li>
               <li><strong>Keyboard:</strong> All shortcuts work normally</li>
             </ul>
-            <div style={{ fontSize: 10, color: '#888', marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-              Place {config.name} disk image at: <code style={{ background: '#333', padding: '2px 4px', borderRadius: 2 }}>public{config.url}</code>
-            </div>
           </div>
         </div>
       </div>

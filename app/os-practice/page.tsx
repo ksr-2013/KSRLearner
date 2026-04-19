@@ -12,20 +12,8 @@ export default function OSPracticePage() {
   if (selectedOS) {
     return (
       <div className="min-h-screen bg-[#1a1a1a] flex flex-col">
-        <div className="bg-[#1e1e1e] p-2 px-4 flex justify-between items-center border-b border-black/50 shadow-md">
-           <button 
-             onClick={() => setSelectedOS(null)}
-             className="text-sm bg-[#333] hover:bg-[#444] text-white px-4 py-1.5 rounded-md transition-colors font-medium cursor-pointer"
-           >
-             ← Back to OS Gallery
-           </button>
-           <div className="text-slate-300 text-sm font-semibold tracking-wide">
-             Running: {selectedOS.name}
-           </div>
-           <div className="w-24"></div> {/* Spacer for center alignment */}
-        </div>
         <div className="flex-grow">
-          <WindowsDesktopExperience config={selectedOS} />
+          <WindowsDesktopExperience config={selectedOS} onClose={() => setSelectedOS(null)} />
         </div>
       </div>
     );

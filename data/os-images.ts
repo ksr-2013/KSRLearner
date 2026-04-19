@@ -79,12 +79,13 @@ export const OS_OPTIONS: OSOption[] = [
     name: 'Windows 3.1',
     description: 'The classic 16-bit operating environment that popularized Windows.',
     year: '1992',
-    memory_size: 32 * 1024 * 1024,
-    vga_memory_size: 4 * 1024 * 1024,
-    url: '/os-images/win31/win31.img',
+    memory_size: 64 * 1024 * 1024,
+    vga_memory_size: 8 * 1024 * 1024,
+    url: '/os-images/win31/windows31.img',
     downloadLink: 'https://winworldpc.com/product/windows-3/31',
     icon: '🗔',
-    drive_type: 'fda'
+    drive_type: 'hda',
+    asyncLoad: false
   },
   {
     id: 'winnt31',
@@ -92,10 +93,12 @@ export const OS_OPTIONS: OSOption[] = [
     description: 'The first release of the Windows NT line, designed for servers and workstations.',
     year: '1993',
     memory_size: 64 * 1024 * 1024,
-    vga_memory_size: 4 * 1024 * 1024,
+    vga_memory_size: 2 * 1024 * 1024,
     url: '/os-images/winnt31/winnt31.img',
     downloadLink: 'https://winworldpc.com/product/windows-nt-31/31',
-    icon: '🏢'
+    icon: '🏢',
+    drive_type: 'hda',
+    asyncLoad: false
   },
   {
     id: 'winnt351',
